@@ -309,8 +309,7 @@ function applyOfflineProgress(){
  if(!Number.isFinite(previous)||previous<=0){game.lastActiveAt=now;return null}
  const elapsed=Math.max(0,now-previous);
  const days=Math.min(OFFLINE_MAX_DAYS,Math.floor(elapsed/OFFLINE_DAY_MS));
- game.lastActiveAt=now;
- if(days<1){save();return {elapsed,days:0,creditedDays:0}}
+ if(days<1)return {elapsed,days:0,creditedDays:0};
  const before={money:game.money,pop:game.pop,jobs:game.jobs,day:game.day};
  offlineProcessing=true;
  try{for(let i=0;i<days;i++)daily(false)}
@@ -330,7 +329,10 @@ function applyOfflineProgress(){
 }
 function markLastActive(){if(!game||graphicsSafePreview)return;game.lastActiveAt=Date.now();save()}
 window.addEventListener('pagehide',markLastActive);
-document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')markLastActive()});
+document.addEventListener('visibilitychange',()=>{
+ if(document.visibilityState==='hidden')markLastActive();
+ else if(typeof applyOfflineProgress==='function')applyOfflineProgress();
+});
 
 const SUPABASE_URL='https://agximdxiokrncogevbjn.supabase.co';
 const SUPABASE_PUBLISHABLE_KEY='sb_publishable_TpCcXy4j8aYDzx0bi1S9LA_V3PIcPEu';
