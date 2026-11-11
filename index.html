@@ -1344,7 +1344,8 @@ function render(){
   if(shade>.72){ctx.globalAlpha=.25;rect(p.x-13,p.y+14,3,2,'#d2d99b');rect(p.x+10,p.y+17,2,2,'#e0d59a');ctx.globalAlpha=1}
   if(!t.type&&shade>.9){ctx.globalAlpha=.35;poly([[p.x+3,p.y+17],[p.x+8,p.y+15],[p.x+12,p.y+17],[p.x+7,p.y+19]],'#d1dfb1');ctx.globalAlpha=1}
  }
- for(let sum=0;sum<=2*(N-1);sum++)for(let y=Math.max(0,sum-(N-1));y<=Math.min(N-1,sum);y++){let x=sum-y,p=iso(x,y),t=tile(x,y);
+ const drawQueue=[];
+ for(let sum=0;sum<=2*(N-1);sum++)for(let y=Math.max(0,sum-(N-1));y<=Math.min(N-1,sum);y++){let x=sum-y,p=iso(x,y),t=tile(x,y);drawQueue.push({depth:sum+2,fn:()=>{
   if(t.type&&t.type!=='road'&&t.type!=='tree'){poly([[p.x,p.y+1],[p.x+32,p.y+16],[p.x,p.y+32],[p.x-32,p.y+16]],'#c9c0a5','#807b67');poly([[p.x,p.y+3],[p.x+28,p.y+16],[p.x,p.y+29],[p.x-28,p.y+16]],'#d8d0b8','#a49b81')}
   ctx.save();ctx.translate(p.x,p.y);ctx.scale(.88,.88);drawObject(t,0,0,x,y);ctx.restore();
   if(t.type==='road'&&rand(x+81,y+41)>.94){const horizontal=tile(x+1,y)?.type==='road'||tile(x-1,y)?.type==='road';const colors=['#dce6e9','#d3b75e','#bbd2db','#9caaad'];drawCar(p.x,p.y+11,horizontal?-.42:.42,colors[Math.floor(rand(x+4,y+1)*colors.length)])}
@@ -1363,8 +1364,11 @@ function render(){
    ctx.fillStyle='#f3efff';ctx.textAlign='center';ctx.textBaseline='middle';
    ctx.fillText(label,p.x,labelY,w-8);ctx.restore();
   }
+ }});
  }
- for(let p of people){if(p.state==='inside')continue;let a=iso(p.x,p.y);drawPerson(a.x,a.y,p.color)}
+ for(const person of people){if(person.state==='inside')continue;const a=iso(person.x,person.y);drawQueue.push({depth:person.x+person.y+.75,fn:()=>drawPerson(a.x,a.y,person.color)})}
+ drawQueue.sort((a,b)=>a.depth-b.depth);
+ for(const command of drawQueue)command.fn();
  if(activeDealId){const deal=game.proposals.find(q=>q.id===activeDealId);if(deal){const site=deal.selectedSite||hover;if(site){const cells=deal.proposalType==='residential'?residentialFootprint(site,deal.houseCount):[{x:site.x,y:site.y,kind:'business'}];if(cells){ctx.save();for(const cell of cells){const m=iso(cell.x,cell.y);ctx.globalAlpha=.38;poly([[m.x,m.y],[m.x+32,m.y+16],[m.x,m.y+32],[m.x-32,m.y+16]],cell.kind==='house'?'#ffd16b':cell.kind==='road'?'#6ba9d1':cell.kind==='green'?'#72bf76':'#f5c66d','#ffe6a3')}ctx.restore()}}}}
  if(hover){let p=iso(hover.x,hover.y);ctx.save();ctx.shadowColor='#fff';ctx.shadowBlur=9;poly([[p.x,p.y],[p.x+32,p.y+16],[p.x,p.y+32],[p.x-32,p.y+16]],'#ffffff2b','#fff0b5');ctx.restore()}
 }
