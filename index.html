@@ -85,7 +85,7 @@ const business={
  grocery:['🛒 Продуктовый магазин',950000,12,1], minimarket:['🏪 Мини-маркет',1250000,14,1], supermarket:['🛍 Супермаркет',4200000,42,3], hypermarket:['🏬 Гипермаркет',9500000,85,5],
  ozon:['📦 ПВЗ Ozon',650000,5,1],wildberries:['🟣 ПВЗ Wildberries',650000,5,1],yandexmarket:['🟡 ПВЗ Яндекс Маркета',700000,6,1],post:['📮 Почта России',1100000,9,1],
  coffee:['☕ Кофейня',850000,8,1],bakery:['🥐 Пекарня',1100000,11,1],cafe:['🍽 Кафе',1600000,16,2],restaurant:['🍷 Ресторан',3800000,32,3],fastfood:['🍔 Фастфуд',2100000,22,2],pizzeria:['🍕 Пиццерия',1900000,18,2],bar:['🍺 Бар',1750000,14,2],
- pharmacy:['💊 Аптека',1250000,9,1],clinic_private:['🩺 Частная клиника',5200000,38,3],flowers:['💐 Цветочный магазин',850000,6,1],clothes:['👕 Магазин одежды',1450000,12,1],electronics:['📱 Электроника',2200000,17,2],household:['🧹 Товары для дома',1550000,13,1],beauty:['💇 Салон красоты',1350000,11,1],barber:['💈 Барбершоп',950000,7,1],petshop:['🐾 Зоомагазин',1050000,8,1],bookshop:['📚 Книжный магазин',1150000,7,1],
+ pharmacy:['💊 Частная аптека',1250000,9,1],clinic_private:['🩺 Частная клиника',5200000,38,3],flowers:['💐 Цветочный магазин',850000,6,1],clothes:['👕 Магазин одежды',1450000,12,1],electronics:['📱 Электроника',2200000,17,2],household:['🧹 Товары для дома',1550000,13,1],beauty:['💇 Салон красоты',1350000,11,1],barber:['💈 Барбершоп',950000,7,1],petshop:['🐾 Зоомагазин',1050000,8,1],bookshop:['📚 Книжный магазин',1150000,7,1],
 gym:['🏋️ Фитнес-клуб',3600000,24,3],cinema:['🎬 Кинотеатр',6800000,48,4],hotel:['🏨 Гостиница',7200000,40,4],bank:['🏦 Банк',4400000,30,3],office:['🏢 Офисный центр',8200000,110,4],gas:['⛽ АЗС',3100000,18,2],carwash:['🚿 Автомойка',1700000,10,1],autoservice:['🔧 Автосервис',2800000,22,2]
 };
 for(const [k,v] of Object.entries(business)) defs[k]=v;
@@ -108,9 +108,9 @@ const taxObjects={
  village:'Деревенский дом',res:'Жилые кварталы',grocery:'Продуктовый магазин',minimarket:'Мини-маркет',supermarket:'Супермаркет',hypermarket:'Гипермаркет',
  ozon:'ПВЗ Ozon',wildberries:'ПВЗ Wildberries',yandexmarket:'ПВЗ Яндекс Маркета',post:'Почта России',
  coffee:'Кофейня',bakery:'Пекарня',cafe:'Кафе',restaurant:'Ресторан',fastfood:'Фастфуд',pizzeria:'Пиццерия',bar:'Бар',
- pharmacy:'Аптека',clinic_private:'Частная клиника',flowers:'Цветочный магазин',clothes:'Магазин одежды',electronics:'Электроника',household:'Товары для дома',beauty:'Салон красоты',barber:'Барбершоп',petshop:'Зоомагазин',bookshop:'Книжный магазин',
+ pharmacy:'Частная аптека',citypharmacy:'Муниципальная аптека',clinic_private:'Частная клиника',flowers:'Цветочный магазин',clothes:'Магазин одежды',electronics:'Электроника',household:'Товары для дома',beauty:'Салон красоты',barber:'Барбершоп',petshop:'Зоомагазин',bookshop:'Книжный магазин',
  gym:'Фитнес-клуб',cinema:'Кинотеатр',hotel:'Гостиница',bank:'Банк',office:'Офисный центр',gas:'АЗС',carwash:'Автомойка',autoservice:'Автосервис',
- university:'Университет',ind:'Промышленность',farm:'Ферма',shop:'Сельпо'
+ university:'Университет',citypharmacy:'Городская аптека',ind:'Промышленность',farm:'Ферма',shop:'Сельпо'
 };
 game.taxRates=game.taxRates||{};
 for(const k of Object.keys(taxObjects))if(game.taxRates[k]==null)game.taxRates[k]=100;
@@ -164,7 +164,7 @@ if(t.type==='village'||t.type==='res'){cap+=t.underConstruction?0:(on?capacity(t
 if(business[t.type]||t.type==='shop'){let b=business[t.type];let offeredJobs=b?b[2]:8,jobCount=Math.min(offeredJobs,remainingWorkers);remainingWorkers-=jobCount;jobs+=jobCount;services+=b?b[3]:1;let rate=game.taxRates[t.type]??100;taxTotal+=payrollTax(jobCount,rate);taxableCount++;taxRateSum+=rate}
 if(t.type==='com'&&!recalcOnly&&on&&game.pop>=16){t.age++;if(t.age>=5){let options=game.pop<45?['grocery','coffee','bakery','pharmacy','petshop']:game.pop<100?['grocery','minimarket','coffee','cafe','pharmacy','barber','bakery','petshop']:['supermarket','cafe','restaurant','pharmacy','office','gym','cinema','bank','clothes'];let pickIndex=Math.floor(rand(x+game.day*7,y+game.day*3)*options.length);t.type=options[pickIndex];t.level=1;t.age=0;notify('🏪 Частный инвестор открыл '+business[t.type][0]+' на купленном участке');}}
 if(t.type==='ind'||t.type==='farm'){let offeredJobs=t.type==='farm'?15:t.level*28,jobCount=Math.min(offeredJobs,remainingWorkers);remainingWorkers-=jobCount;jobs+=jobCount;let rate=game.taxRates[t.type]??100;taxTotal+=payrollTax(jobCount,rate);taxableCount++;taxRateSum+=rate}
-if(t.type==='park'){parks++;upkeep+=1200}if(t.type==='school'||t.type==='clinic'||t.type==='university'){services+=t.type==='university'?6:3;upkeep+=t.type==='university'?90000:25000}}
+if(t.type==='park'){parks++;upkeep+=1200}if(t.type==='school'||t.type==='clinic'||t.type==='university'||t.type==='citypharmacy'){services+=t.type==='university'?6:t.type==='citypharmacy'?2:3;upkeep+=t.type==='university'?90000:t.type==='citypharmacy'?12000:25000}}
 if(recalcOnly){game.jobs=jobs;game.tax=Math.round(taxTotal);game.upkeep=upkeep;save();stats();return}let demand=Math.min(cap,Math.round(jobs*2.7+services*12+parks*3));let target=Math.min(cap,demand);let change=Math.max(-4,Math.min(5,Math.round((target-game.pop)*.12)));game.pop=Math.max(0,game.pop+change);game.jobs=jobs;
 let avgTax=taxableCount?taxRateSum/taxableCount:100;
 game.happy=Math.max(15,Math.min(98,Math.round(48+services*2+parks*3+(jobs>=game.pop*.35?12:-12)+(cap>=game.pop?9:-18)-Math.max(0,game.pop-200)/70+(avgTax<85?3:avgTax>120?-5:0))));
@@ -357,7 +357,8 @@ async function initMurinoAuth(){
   authMessage('Ты вышел. Город остался сохранён локально и в аккаунте.');
  };
  if(!window.supabase?.createClient){cloudMessage('Не загрузилась библиотека Supabase. Проверь подключение к интернету.');authMessage('Вход временно недоступен.');return}
- supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
+ supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+ let authEventSequence=0;
  supabaseClient.auth.onAuthStateChange((event,session)=>{
   if(event==='PASSWORD_RECOVERY'){
    authRecoveryMode=true;
@@ -367,11 +368,14 @@ async function initMurinoAuth(){
    authMessage('Введи новый пароль для аккаунта.');
    openAuth();
   }
-  setTimeout(()=>handleAuthSession(session),0);
+  // INITIAL_SESSION is the single source of truth on page load.
+  // Avoid racing session restoration with a parallel getSession() call.
+  const eventSequence=++authEventSequence;
+  setTimeout(()=>{
+   if(eventSequence!==authEventSequence)return;
+   handleAuthSession(session);
+  },0);
  });
- const {data,error}=await supabaseClient.auth.getSession();
- if(error){cloudMessage('Не удалось проверить сессию: '+error.message);return}
- await handleAuthSession(data.session);
 }
 
 function save(){
@@ -896,7 +900,8 @@ function maybeCreateProposal(){
 }
 const effectNames={money:'Деньги',pop:'Жители',jobs:'Рабочие места',rep:'Репутация',life:'Качество жизни',happy:'Счастье',upkeep:'Содержание'};
 // Private developers buy municipal land; the city receives a one-time land-sale payment.
-function isPrivateDevelopment(key){return key==='res'||key==='com'||key==='ind'||!!business[key]}
+function isMunicipalObject(key){return ['road','park','school','university','clinic','citypharmacy'].includes(key)}
+function isPrivateDevelopment(key){return !isMunicipalObject(key)&&(key==='res'||key==='com'||key==='ind'||!!business[key])}
 function landPrice(key){
  if(key==='res')return 180000;
  if(key==='com')return 350000;
@@ -904,7 +909,6 @@ function landPrice(key){
  const buildCost=(defs[key]||['',0])[1]||0;
  return Math.max(150000,Math.round(buildCost*.15));
 }
-function isMunicipalObject(key){return ['road','park','school','university','clinic'].includes(key)}
 function effectData(key){
  const cost=(defs[key]||['',0])[1]||0;
  let e={money:0,pop:0,jobs:0,rep:0,life:0,happy:0,upkeep:0,tax:0,extra:''};
@@ -919,6 +923,7 @@ function effectData(key){
  if(key==='school'){e.money=-cost;e.rep=3;e.life=5;e.happy=2;e.upkeep=25000;e.extra='Муниципальная школа: строится и обслуживается за счёт городского бюджета. Улучшает доступность образования и качество жизни. Требует расходов на содержание.';return e}
  if(key==='university'){e.money=-cost;e.rep=5;e.life=8;e.happy=4;e.upkeep=90;e.extra='Муниципальный университет: город оплачивает преподавателей, коммунальные услуги и содержание кампуса.';return e}
  if(key==='clinic'){e.money=-cost;e.rep=3;e.life=5;e.happy=2;e.upkeep=25000;e.extra='Муниципальная клиника: строится и обслуживается за счёт городского бюджета. Повышает доступность медицинской помощи и качество жизни.';return e}
+ if(key==='citypharmacy'){e.money=-cost;e.jobs=8;e.rep=3;e.life=4;e.happy=2;e.upkeep=12000;e.extra='Муниципальная аптека: строится и обслуживается за счёт городского бюджета. Относится к городской системе здравоохранения и засчитывается в задание мэра «Открыть городскую аптеку».';return e}
  if(business[key]){
    const b=business[key], jobs=b[2], service=b[3];
    const tax=Math.round(jobs*180);
@@ -953,7 +958,7 @@ function showEffects(key){
 }
 
 function addTool(key){let [name,cost]=defs[key];let b=document.createElement('button');let price=isPrivateDevelopment(key)?landPrice(key):cost;b.textContent=name+(price?' · '+price.toLocaleString('ru-RU')+'₽':'');b.dataset.key=key;b.onclick=()=>{mode=key;moveSource=null;if(key==='park')alleyRotation=0;document.querySelectorAll('.tools button').forEach(v=>v.classList.toggle('active',v.dataset.key===mode));notify(isPrivateDevelopment(key)?'Выбрано: '+name+' · продажа участка '+price.toLocaleString('ru-RU')+' ₽ в бюджет':'Выбрано: '+name+' · строительство '+cost.toLocaleString('ru-RU')+' ₽');showEffects(key)};tools.appendChild(b)}
-for(const key of ['inspect','road','res','com','ind','park','school','university','clinic','clearTree','bulldoze','move'])addTool(key);
+for(const key of ['inspect','road','res','com','ind','park','school','university','clinic','citypharmacy','clearTree','bulldoze','move'])addTool(key);
 for(const [heading,keys] of Object.entries(businessGroups)){let h=document.createElement('h4');h.textContent='▸ '+heading;h.style.cssText='grid-column:1/-1;margin:12px 0 2px;color:#ffda8a;font-size:12px;letter-spacing:.2px';tools.appendChild(h);for(const key of keys)addTool(key)}
 document.querySelector('[data-key="inspect"]').classList.add('active');showEffects('inspect');document.getElementById('inspectQuick').onclick=()=>{mode='inspect';moveSource=null;document.querySelectorAll('.tools button').forEach(v=>v.classList.toggle('active',v.dataset.key===mode));showEffects('inspect');notify('🔎 Режим осмотра включён')};document.getElementById('pause').onclick=()=>{game.paused=!game.paused;notify(game.paused?'⏸ Игра остановлена':'▶ Игра продолжается');stats()};document.getElementById('speed').onclick=()=>{game.speed=game.speed===1?3:game.speed===3?8:1;stats()};document.getElementById('save').onclick=()=>{save();notify('💾 Город сохранён в браузере')};
 document.getElementById('exportSave').onclick=()=>{save();const blob=new Blob([JSON.stringify({format:'murino-save',version:5,game},null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='murino-city-save.json';a.click();URL.revokeObjectURL(a.href);notify('⬇️ Сохранение города выгружено в файл')};
