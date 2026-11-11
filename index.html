@@ -859,7 +859,7 @@ function finalizeDeal(id=activeDealId){
  game.proposals=game.proposals.filter(q=>q.id!==p.id);
  if(activeDealId===p.id)activeDealId=null;
  game.dealsClosed=(game.dealsClosed||0)+1;
- document.getElementById('dealMapBar').style.display='none';dealOverlay(false);
+ document.getElementById('dealMapBar').style.display='none';
  rebuildRoadGraph();refreshPedestrianRoutes();save();daily(true);stats();renderProposals();
  notify(p.proposalType==='residential'?'🏗 Стройка '+(p.projectName||'нового ЖК')+' началась. Застройщик создаёт внутренние дороги и корпуса; срок — '+(game.residentialComplexes.at(-1)?.buildDays||15)+' игровых дней.':'🤝 Филиал '+(p.brandName||business[p.buildType]?.[0]||'компании')+' открыт. Земля продана за '+fmtRub(price)+'.');
 }
