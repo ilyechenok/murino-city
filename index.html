@@ -1532,8 +1532,25 @@ function refreshPedestrianRoutes(){
  }
 }
 function initPeople(){
- const roads=roadGraph.cells;const count=Math.min(40,Math.max(1,Math.floor(game.pop)));
- while(people.length<count){const i=people.length,r=roads[i%Math.max(1,roads.length)]||{x:3,y:12};people.push({id:i,x:r.x,y:r.y,color:['#e8c18a','#f5d66b','#a5cbe0','#f1a0a1'][i%4],path:[],state:'waiting',previous:null,destination:null,lastDestination:null,tripCount:0,stuck:0})}
+ const roads=roadGraph.cells;
+ const count=Math.min(40,Math.max(1,Math.floor(game.pop)));
+ const colors=['#e8c18a','#f5d66b','#a5cbe0','#f1a0a1'];
+ while(people.length<count){
+  const i=people.length;
+  let spawn=roads[0]||{x:3,y:12};
+  if(roads.length){
+   // Place newcomers on roads far from existing pedestrians so the city starts populated across the map.
+   let bestDistance=-1;
+   const candidates=roads.slice();
+   for(let j=candidates.length-1;j>0;j--){const k=Math.floor(Math.random()*(j+1));[candidates[j],candidates[k]]=[candidates[k],candidates[j]]}
+   for(const candidate of candidates){
+    if(people.some(p=>Math.round(p.x)===candidate.x&&Math.round(p.y)===candidate.y))continue;
+    const nearest=people.length?Math.min(...people.map(p=>(p.x-candidate.x)**2+(p.y-candidate.y)**2)):Infinity;
+    if(nearest>bestDistance){bestDistance=nearest;spawn=candidate}
+   }
+  }
+  people.push({id:i,x:spawn.x,y:spawn.y,color:colors[i%colors.length],path:[],state:'waiting',previous:null,destination:null,lastDestination:null,tripCount:0,stuck:0});
+ }
  for(const p of people)if(!p.path.length&&p.state!=='inside')sendPerson(p);
 }
 
