@@ -866,6 +866,26 @@ function finalizeDeal(id=activeDealId){
  rebuildRoadGraph();refreshPedestrianRoutes();save();daily(true);stats();renderProposals();
  notify(p.proposalType==='residential'?'🏗 Стройка '+(p.projectName||'нового ЖК')+' началась. Застройщик создаёт внутренние дороги и корпуса; срок — '+(game.residentialComplexes.at(-1)?.buildDays||15)+' игровых дней.':'🤝 Филиал '+(p.brandName||business[p.buildType]?.[0]||'компании')+' открыт. Земля продана за '+fmtRub(price)+'.');
 }
+function updateFinance(){
+ const debt=(game.loans||[]).reduce((sum,loan)=>sum+loan.balance,0);
+ const ratePct=CB_KEY_RATE+5;
+ document.getElementById('financeInfo').innerHTML='Ключевая ставка ЦБ: <b>'+CB_KEY_RATE+'%</b><br>Ставка городского кредита: <b>'+ratePct+'% годовых</b><br>Долг города: <b>'+fmtRub(debt)+'</b><br>Проценты в день: <b>'+fmtRub((game.loans||[]).reduce((sum,loan)=>sum+loan.balance*loan.rate/100/365,0))+'</b><br>Погашение основного долга: по графику за 180 игровых дней';
+}
+document.getElementById('grantRequest').onclick=()=>{
+ const year=Math.floor((game.day||1)/360);
+ if(game.grantYearIndex!==year){game.grantYearIndex=year;game.grantYearCount=0}
+ const used=game.grantYearCount||0;
+ if(used>=3){notify('Город уже получил три субсидии в этом году');return}
+ const grant=250000+Math.min(750000,Math.floor(game.pop)*5000);
+ game.money+=grant;game.grantYearCount=used+1;save();stats();updateFinance();notify('🏛 Государственная субсидия одобрена: '+fmtRub(grant));
+};
+document.getElementById('loanRequest').onclick=()=>{
+ const amount=Math.max(10000,Math.min(50000000,Math.round(Number(document.getElementById('loanAmount').value)||0)));
+ game.loans=game.loans||[];
+ const rate=CB_KEY_RATE+5;
+ game.loans.push({principal:amount,balance:amount,rate,termDays:180,day:game.day||1});
+ game.money+=amount;save();stats();updateFinance();notify('🏦 Кредит выдан: '+fmtRub(amount)+' под '+rate+'% годовых. Срок 180 игровых дней.');
+};
 function maybeCreateProposal(){
  if(game.day<(game.nextProposalDay||4))return;
  game.nextProposalDay=game.day+3+Math.floor(Math.random()*4);
