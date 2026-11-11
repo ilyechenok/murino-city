@@ -165,7 +165,7 @@ canvas{display:block;width:100%;height:100%;image-rendering:auto;cursor:crosshai
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0"></script>
 <script>
-(()=>{'use strict';let N=24;const TW=64,TH=32,KEY='murino_pixel_v46',BACKUP_KEY='murino_pixel_v46_last_good';const defs={inspect:['🔎 Осмотр',0],road:['🛣 Дорога',120000],res:['🏘 Жилая зона',350000],com:['🏬 Коммерческая зона',450000],ind:['🏭 Промзона',650000],park:['🌳 Сквер',280000],school:['🏫 Школа',12000000],citypharmacy:['💊 Городская аптека',2000000,8,2],hospital:['🏥 Больница',18000000,90,5],university:['🎓 Университет',50000000],clinic:['🏥 Поликлиника',8000000],clearTree:['🪓 Вырубить дерево',25000],bulldoze:['🧨 Снести',80000],move:['↔️ Перенести объект',150000]};
+(()=>{'use strict';const graphicsSafePreview=(new URLSearchParams(location.search).get('graphicsPreview')==='1')||location.hostname==='localhost'||location.hostname==='127.0.0.1'||location.hostname.endsWith('.replit.dev')||location.hostname.endsWith('.repl.co');let N=24;const TW=64,TH=32,KEY='murino_pixel_v46',BACKUP_KEY='murino_pixel_v46_last_good';const defs={inspect:['🔎 Осмотр',0],road:['🛣 Дорога',120000],res:['🏘 Жилая зона',350000],com:['🏬 Коммерческая зона',450000],ind:['🏭 Промзона',650000],park:['🌳 Сквер',280000],school:['🏫 Школа',12000000],citypharmacy:['💊 Городская аптека',2000000,8,2],hospital:['🏥 Больница',18000000,90,5],university:['🎓 Университет',50000000],clinic:['🏥 Поликлиника',8000000],clearTree:['🪓 Вырубить дерево',25000],bulldoze:['🧨 Снести',80000],move:['↔️ Перенести объект',150000]};
 const business={
  grocery:['🛒 Продуктовый магазин',950000,12,1], minimarket:['🏪 Мини-маркет',1250000,14,1], supermarket:['🛍 Супермаркет',4200000,42,3], hypermarket:['🏬 Гипермаркет',9500000,85,5],
  ozon:['📦 ПВЗ Ozon',650000,5,1],wildberries:['🟣 ПВЗ Wildberries',650000,5,1],yandexmarket:['🟡 ПВЗ Яндекс Маркета',700000,6,1],post:['📮 Почта России',1100000,9,1],
@@ -215,7 +215,7 @@ if(!game.economyVersion){
  game.economyVersion=2;
 }
 if(!Number.isFinite(game.day)||game.day<1)game.day=1;if(Number.isFinite(game.year)){game.day=Math.max(1,(Math.max(1998,game.year)-1998)*30+game.day);delete game.year}game.paused=false;
-if(!localSaveWasInvalid){
+if(!localSaveWasInvalid&&!graphicsSafePreview){
  try{const snapshot=JSON.stringify(game);localStorage.setItem(KEY,snapshot);localStorage.setItem(BACKUP_KEY,snapshot)}catch(error){console.warn('Не удалось обновить резервную копию сохранения',error)}
 }
 const taxObjects={
@@ -521,6 +521,7 @@ async function initMurinoAuth(){
 }
 
 function save(){
+ if(graphicsSafePreview)return;
  if(!isValidGameSave(game)){console.warn('Сохранение пропущено: карта имеет неверный размер. Последняя рабочая копия защищена.');return}
  if(localSaveWasInvalid&&!cloudSyncReady){console.warn('Сохранение отложено до восстановления последней рабочей карты.');return}
  try{const snapshot=JSON.stringify(game);localStorage.setItem(KEY,snapshot);localStorage.setItem(BACKUP_KEY,snapshot)}
@@ -1478,7 +1479,6 @@ document.querySelectorAll('.navrail button').forEach(button=>button.addEventList
  if(target)target.scrollIntoView({behavior:'smooth',block:'start'});
 }));
 document.getElementById('sideClose')?.addEventListener('click',()=>document.querySelector('.side')?.classList.remove('open'));
-const graphicsSafePreview=location.search.includes('graphicsPreview=1')||location.hostname==='localhost'||location.hostname==='127.0.0.1'||location.hostname.endsWith('.replit.dev')||location.hostname.endsWith('.repl.co');
 if(graphicsSafePreview){const account=document.getElementById('accountBtn');if(account){account.disabled=true;account.title='Облачная авторизация отключена в тестовом предпросмотре';const label=account.querySelector('.ctrlLabel');if(label)label.textContent='Тест';}notify('Тестовый графический режим: облачные сохранения отключены');}
 else initMurinoAuth().catch(error=>console.error('Murino auth startup failed',error));
 try{migratePrivateSector();save();rebuildRoadGraph();initPeople();renderProposals()}
