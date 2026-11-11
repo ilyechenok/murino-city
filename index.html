@@ -7,7 +7,7 @@
 header{height:auto;min-height:60px}
 @media(max-width:750px){header{align-items:center}.controlRail{flex-direction:row;order:3;width:100%;justify-content:flex-start;border:0;margin:0;padding:5px 0;gap:10px}.controlRail button{width:48px;min-width:48px;min-height:50px;font-size:11px}.stats{flex:1}}
 .ctrlIcon{font-size:17px;font-weight:700;line-height:1}.ctrlLabel{font-size:9px;line-height:1.05;letter-spacing:-.15px}
-</style></head><body><header><div><h1>🏙️ МУРИНО <small>Новый мэр • pixel edition 4.7</small></h1></div><div class="controlRail"><button id="pause" title="Пауза"><span class="ctrlIcon">Ⅱ</span><span class="ctrlLabel">Пауза</span></button><button id="speed" title="Скорость"><span class="ctrlIcon">▶</span><span class="ctrlLabel">Скорость</span></button><button id="undo" title="Отменить"><span class="ctrlIcon">↶</span><span class="ctrlLabel">Отмена</span></button><button id="save" title="Сохранить"><span class="ctrlIcon">💾</span><span class="ctrlLabel">Сохранить</span></button><button id="exportSave" title="Экспорт города"><span class="ctrlIcon">⬇</span><span class="ctrlLabel">Экспорт</span></button><button id="importSave" title="Импорт города"><span class="ctrlIcon">⬆</span><span class="ctrlLabel">Импорт</span></button><input id="importFile" type="file" accept="application/json,.json" hidden><button id="reset" title="Заново"><span class="ctrlIcon">↻</span><span class="ctrlLabel">Заново</span></button><button id="inspectQuick" title="Осмотр"><span class="ctrlIcon">🔎</span><span class="ctrlLabel">Осмотр</span></button></div><div class="stats"><span class="stat">💰 <b id="cash">—</b> ₽</span><span class="stat">👥 <b id="pop">—</b></span><span class="stat">😊 <b id="happy">—</b>%</span><span class="stat">📅 <b id="day">—</b></span><span class="stat">💼 <b id="jobs">—</b></span><span class="stat">⭐ <b id="reputation">—</b></span></div></header><div class="layout"><aside class="side"><h3>СТРОИТЕЛЬСТВО</h3><div class="tools" id="tools"></div><div id="effectPanel" class="note" style="margin-top:10px;padding:10px;background:#1b2935;border:1px solid #526775;border-radius:4px"><b style="color:#ffda8a">ЭФФЕКТЫ ОБЪЕКТА</b><div id="effectTitle" style="margin:6px 0;color:#fff">Выбери объект строительства</div><div id="effectCost"></div><div id="effectDetails" style="margin-top:6px;line-height:1.6">Здесь появятся прогнозируемые изменения бюджета, населения, рабочих мест и качества жизни.</div></div>
+</style></head><body><header><div><h1>🏙️ МУРИНО <small>Новый мэр • pixel edition 4.8</small></h1></div><div class="controlRail"><button id="pause" title="Пауза"><span class="ctrlIcon">Ⅱ</span><span class="ctrlLabel">Пауза</span></button><button id="speed" title="Скорость"><span class="ctrlIcon">▶</span><span class="ctrlLabel">Скорость</span></button><button id="undo" title="Отменить"><span class="ctrlIcon">↶</span><span class="ctrlLabel">Отмена</span></button><button id="save" title="Сохранить"><span class="ctrlIcon">💾</span><span class="ctrlLabel">Сохранить</span></button><button id="exportSave" title="Экспорт города"><span class="ctrlIcon">⬇</span><span class="ctrlLabel">Экспорт</span></button><button id="importSave" title="Импорт города"><span class="ctrlIcon">⬆</span><span class="ctrlLabel">Импорт</span></button><input id="importFile" type="file" accept="application/json,.json" hidden><button id="reset" title="Заново"><span class="ctrlIcon">↻</span><span class="ctrlLabel">Заново</span></button><button id="inspectQuick" title="Осмотр"><span class="ctrlIcon">🔎</span><span class="ctrlLabel">Осмотр</span></button><button id="accountBtn" title="Вход и облачное сохранение"><span class="ctrlIcon">👤</span><span class="ctrlLabel">Войти</span></button></div><div class="stats"><span class="stat">💰 <b id="cash">—</b> ₽</span><span class="stat">👥 <b id="pop">—</b></span><span class="stat">😊 <b id="happy">—</b>%</span><span class="stat">📅 <b id="day">—</b></span><span class="stat">💼 <b id="jobs">—</b></span><span class="stat">⭐ <b id="reputation">—</b></span></div></header><div class="layout"><aside class="side"><h3>СТРОИТЕЛЬСТВО</h3><div class="tools" id="tools"></div><div id="effectPanel" class="note" style="margin-top:10px;padding:10px;background:#1b2935;border:1px solid #526775;border-radius:4px"><b style="color:#ffda8a">ЭФФЕКТЫ ОБЪЕКТА</b><div id="effectTitle" style="margin:6px 0;color:#fff">Выбери объект строительства</div><div id="effectCost"></div><div id="effectDetails" style="margin-top:6px;line-height:1.6">Здесь появятся прогнозируемые изменения бюджета, населения, рабочих мест и качества жизни.</div></div>
 <h3>📖 СПРАВОЧНИК</h3>
 <button id="guideToggle" style="width:100%;padding:9px">Открыть руководство по игре</button>
 <div id="guidePanel" class="note" style="display:none;margin-top:8px;padding:12px;line-height:1.55;background:#172630;border:1px solid #bd8d54">
@@ -34,6 +34,50 @@ header{height:auto;min-height:60px}
 </style>
 <div id="dealMapBar" style="display:none;position:fixed;z-index:19;top:12px;left:50%;transform:translateX(-50%);width:min(620px,94vw);background:#172630f2;border:3px solid #d34b4b;padding:12px;color:#fff;box-shadow:0 5px 25px #0009;text-align:center"><b style="color:#ff7777">ВЫБОР УЧАСТКА</b><div class="dealHint">Красная точка — предложение инвестора. Нажми на свободную клетку карты, чтобы предложить другое место.</div><div style="margin:6px">Выбранный участок: <b id="dealSiteLabel">—</b></div><div class="dealActions"><button id="dealConfirmSite">Предложить это место</button><button id="dealBackPrice">Назад к цене</button><button id="dealCancel">Отклонить</button></div></div>
 <div id="dealOverlay" class="dealOverlay"><div class="dealBox"><h2>🔴 ИНВЕСТОР ХОЧЕТ КУПИТЬ ЗЕМЛЮ</h2><div id="dealBody"></div></div></div>
+<style>
+.authOverlay{position:fixed;inset:0;z-index:30;display:none;align-items:center;justify-content:center;padding:18px;background:#071018df}
+.authOverlay.show{display:flex}.authCard{width:min(440px,96vw);background:#263b47;border:3px solid #bd8d54;box-shadow:0 16px 50px #000b;padding:22px;color:#f2f3e8}
+.authCard h2{margin:0 0 8px;color:#ffda8a}.authCard p{line-height:1.5;color:#c3d0d1}
+.authCard label{display:block;margin:12px 0 5px;color:#ffda8a}.authCard input{width:100%;padding:12px;background:#14232d;color:white;border:1px solid #718894;border-radius:3px;font:inherit}
+.authActions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}.authActions button{min-height:42px}
+.authMinor{display:flex;justify-content:space-between;gap:8px;margin-top:10px;align-items:center;flex-wrap:wrap}
+.authMinor button{background:transparent;border:0;text-decoration:underline;padding:5px;color:#b9d9e2}
+#authFeedback{min-height:34px;margin-top:12px;color:#ffdf9d;line-height:1.4;font-size:13px}
+.authStatus{margin-top:12px;padding:10px;background:#172630;border:1px solid #526775;font-size:12px;line-height:1.5}
+</style>
+<div id="authOverlay" class="authOverlay" role="dialog" aria-modal="true" aria-labelledby="authTitle">
+ <div class="authCard">
+  <h2 id="authTitle">👤 Аккаунт Мурино</h2>
+  <p>Войди или создай аккаунт. Тогда твой город будет сохраняться в облаке и откроется на другом устройстве.</p>
+  <div id="authSignedOut">
+   <label for="authEmail">Электронная почта</label>
+   <input id="authEmail" type="email" autocomplete="email" placeholder="name@example.com">
+   <label for="authPassword">Пароль</label>
+   <input id="authPassword" type="password" autocomplete="current-password" placeholder="Не менее 8 символов">
+   <div id="authNewPasswordWrap" style="display:none">
+    <label for="authNewPassword">Новый пароль</label>
+    <input id="authNewPassword" type="password" autocomplete="new-password" placeholder="Не менее 8 символов">
+   </div>
+   <div class="authActions" id="authMainActions">
+    <button id="authLogin">Войти</button>
+    <button id="authRegister">Создать аккаунт</button>
+   </div>
+   <div class="authActions" id="authRecoveryActions" style="display:none">
+    <button id="authUpdatePassword">Сохранить новый пароль</button>
+    <button id="authCancelRecovery">Назад</button>
+   </div>
+   <div class="authMinor"><button id="authReset">Забыл пароль</button><button id="authClose">Закрыть</button></div>
+  </div>
+  <div id="authSignedIn" style="display:none">
+   <div style="margin:10px 0">Вошёл как <b id="authUserEmail"></b></div>
+   <div class="authActions"><button id="authSyncNow">Сохранить сейчас</button><button id="authLogout">Выйти</button></div>
+   <div class="authMinor"><button id="authCloseSigned">Закрыть</button></div>
+  </div>
+  <div id="authFeedback" role="status" aria-live="polite">Гость: сохранение пока хранится только в этом браузере.</div>
+  <div class="authStatus" id="cloudStatus">Облачное сохранение не подключено.</div>
+ </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script>
 (()=>{'use strict';let N=24;const TW=64,TH=32,KEY='murino_pixel_v46';const defs={inspect:['🔎 Осмотр',0],road:['🛣 Дорога',120000],res:['🏘 Жилая зона',350000],com:['🏬 Коммерческая зона',450000],ind:['🏭 Промзона',650000],park:['🌳 Сквер',280000],school:['🏫 Школа',12000000],citypharmacy:['💊 Городская аптека',2000000,8,2],hospital:['🏥 Больница',18000000,90,5],university:['🎓 Университет',50000000],clinic:['🏥 Поликлиника',8000000],clearTree:['🪓 Вырубить дерево',25000],bulldoze:['🧨 Снести',80000],move:['↔️ Перенести объект',150000]};
 const business={
@@ -123,7 +167,203 @@ if(!recalcOnly){
  game.loans=(game.loans||[]).filter(l=>l.balance>1);
 }
 game.upkeep=upkeep+loanInterest+loanPrincipalPayment;game.money+=game.tax-game.upkeep;if(game.money<0)game.happy=Math.max(10,game.happy-4);save();stats();if(typeof updateFinance==='function')updateFinance()}
-function save(){try{localStorage.setItem(KEY,JSON.stringify(game))}catch(e){if(game.undoStack?.length){game.undoStack.shift();try{localStorage.setItem(KEY,JSON.stringify(game))}catch(e2){console.warn('Не удалось сохранить игру: недостаточно места в хранилище')}}else console.warn('Не удалось сохранить игру: недостаточно места в хранилище')}}
+
+const SUPABASE_URL='https://agximdxiokrncogevbjn.supabase.co';
+const SUPABASE_PUBLISHABLE_KEY='sb_publishable_TpCcXy4j8aYDzx0bi1S9LA_V3PIcPEu';
+let supabaseClient=null,authUser=null,cloudSyncReady=false,cloudSaveTimer=null,cloudSaveBusy=false,cloudSavePending=false,authRecoveryMode=false;
+const authOverlay=document.getElementById('authOverlay');
+const authFeedback=document.getElementById('authFeedback');
+const cloudStatus=document.getElementById('cloudStatus');
+function authMessage(message){authFeedback.textContent=message}
+function cloudMessage(message){cloudStatus.textContent=message}
+function openAuth(){authOverlay.classList.add('show')}
+function closeAuth(){if(!authRecoveryMode)authOverlay.classList.remove('show')}
+function setAuthUser(user){
+ authUser=user||null;
+ const signed=!!authUser;
+ document.getElementById('authSignedOut').style.display=signed?'none':'block';
+ document.getElementById('authSignedIn').style.display=signed?'block':'none';
+ document.getElementById('authUserEmail').textContent=authUser?.email||'';
+ const btn=document.getElementById('accountBtn');
+ btn.querySelector('.ctrlIcon').textContent=signed?'☁️':'👤';
+ btn.querySelector('.ctrlLabel').textContent=signed?'Аккаунт':'Войти';
+ btn.title=signed?'Аккаунт и облачное сохранение':'Вход и облачное сохранение';
+ if(!signed)cloudMessage('Гостевой режим: сохранение хранится только в этом браузере.');
+}
+function refreshAfterCloudLoad(){
+ people.length=0;
+ rebuildRoadGraph();
+ refreshPedestrianRoutes();
+ initPeople();
+ renderProposals();
+ stats();
+ updateUndoButton();
+ refreshTaxUI();
+ refreshExpansion();
+ updateFinance();
+ save();
+}
+async function uploadCloudSave(userId){
+ if(!supabaseClient||!userId)return;
+ const snapshot=JSON.parse(JSON.stringify(game));
+ const {error}=await supabaseClient.from('player_saves').upsert({
+  user_id:userId,
+  save_data:snapshot,
+  updated_at:new Date().toISOString()
+ },{onConflict:'user_id'});
+ if(error)throw error;
+}
+function scheduleCloudSave(){
+ if(cloudSaveTimer)clearTimeout(cloudSaveTimer);
+ cloudMessage('Есть изменения. Сохраняю в облако…');
+ cloudSaveTimer=setTimeout(()=>{flushCloudSave()},1100);
+}
+async function flushCloudSave(){
+ if(!supabaseClient||!authUser||!cloudSyncReady)return;
+ if(cloudSaveBusy){cloudSavePending=true;return}
+ cloudSaveBusy=true;
+ const userId=authUser.id;
+ try{
+  await uploadCloudSave(userId);
+  if(authUser?.id===userId)cloudMessage('☁️ Город сохранён в облаке · '+new Date().toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}));
+ }catch(error){
+  console.error('Cloud save error',error);
+  if(authUser?.id===userId)cloudMessage('Ошибка облачного сохранения: '+(error.message||'неизвестная ошибка')+'. Локальная копия сохранена.');
+ }finally{
+  cloudSaveBusy=false;
+  if(cloudSavePending){cloudSavePending=false;setTimeout(flushCloudSave,250)}
+ }
+}
+async function handleAuthSession(session){
+ const user=session?.user||null;
+ if(!user){
+  cloudSyncReady=false;
+  setAuthUser(null);
+  return;
+ }
+ if(authUser?.id===user.id&&cloudSyncReady){setAuthUser(user);return}
+ cloudSyncReady=false;
+ setAuthUser(user);
+ cloudMessage('Подключаю облачный город…');
+ try{
+  const {data,error}=await supabaseClient.from('player_saves').select('save_data,updated_at').eq('user_id',user.id).maybeSingle();
+  if(error)throw error;
+  if(data?.save_data){
+   const cloudGame=data.save_data;
+   if(!Array.isArray(cloudGame.tiles)||!Number.isInteger(Math.sqrt(cloudGame.tiles.length)))throw new Error('Облачное сохранение имеет неверный формат');
+   const useCloud=confirm('У этого аккаунта уже есть облачный город.\n\nОК — загрузить город из облака (заменит текущую локальную копию).\nОтмена — оставить город в этом браузере и записать его в облако.');
+   if(useCloud){
+    game=cloudGame;
+    N=Math.sqrt(game.tiles.length);
+    game.mapSize=N;
+    game.paused=false;
+    localStorage.setItem(KEY,JSON.stringify(game));
+    localStorage.setItem('murino_last_cloud_user',user.id);
+    refreshAfterCloudLoad();
+    cloudMessage('☁️ Облачный город загружен · '+(data.updated_at?new Date(data.updated_at).toLocaleString('ru-RU'):'сохранение найдено'));
+    authMessage('Готово! Ты вошёл, город загружен из облака.');
+   }else{
+    await uploadCloudSave(user.id);
+    localStorage.setItem('murino_last_cloud_user',user.id);
+    cloudMessage('☁️ Текущий город сохранён в этот аккаунт.');
+    authMessage('Готово! Текущий город привязан к аккаунту.');
+   }
+  }else{
+   const lastOwner=localStorage.getItem('murino_last_cloud_user');
+   if(lastOwner&&lastOwner!==user.id){
+    game=newGame();game.proposals=[];game.parkways=0;game.nextProposalDay=4;N=24;
+    refreshAfterCloudLoad();
+    authMessage('Для нового аккаунта создан отдельный город. Чужое локальное сохранение не переносилось.');
+   }else{
+    await uploadCloudSave(user.id);
+    authMessage('Аккаунт создан. Текущий город перенесён в облако.');
+   }
+   localStorage.setItem('murino_last_cloud_user',user.id);
+   cloudMessage('☁️ Облачное сохранение включено.');
+  }
+  cloudSyncReady=true;
+ }catch(error){
+  console.error('Cloud load error',error);
+  cloudMessage('Не удалось подключить облачное сохранение: '+(error.message||'ошибка'));
+  authMessage('Вход выполнен, но облачная синхронизация пока не работает. Локальная игра не потеряна.');
+  cloudSyncReady=false;
+ }
+}
+async function initMurinoAuth(){
+ const accountBtn=document.getElementById('accountBtn');
+ accountBtn.onclick=openAuth;
+ document.getElementById('authClose').onclick=closeAuth;
+ document.getElementById('authCloseSigned').onclick=()=>authOverlay.classList.remove('show');
+ authOverlay.addEventListener('click',e=>{if(e.target===authOverlay)closeAuth()});
+ document.getElementById('authLogin').onclick=async()=>{
+  const email=document.getElementById('authEmail').value.trim(),password=document.getElementById('authPassword').value;
+  if(!email||!password){authMessage('Введи почту и пароль.');return}
+  authMessage('Выполняю вход…');
+  const {error}=await supabaseClient.auth.signInWithPassword({email,password});
+  if(error){authMessage('Не удалось войти: '+error.message);return}
+  authMessage('Вход выполнен. Загружаю город…');
+ };
+ document.getElementById('authRegister').onclick=async()=>{
+  const email=document.getElementById('authEmail').value.trim(),password=document.getElementById('authPassword').value;
+  if(!email||!password){authMessage('Введи почту и пароль.');return}
+  if(password.length<8){authMessage('Пароль должен содержать не менее 8 символов.');return}
+  authMessage('Создаю аккаунт…');
+  const {data,error}=await supabaseClient.auth.signUp({email,password,options:{emailRedirectTo:location.origin+location.pathname}});
+  if(error){authMessage('Не удалось создать аккаунт: '+error.message);return}
+  if(data.session){authMessage('Аккаунт создан. Подключаю облачный город…')}
+  else{authMessage('Письмо для подтверждения отправлено на '+email+'. Перейди по ссылке из письма, затем вернись в игру и войди.');}
+ };
+ document.getElementById('authReset').onclick=async()=>{
+  const email=document.getElementById('authEmail').value.trim();
+  if(!email){authMessage('Сначала укажи адрес электронной почты.');return}
+  authMessage('Отправляю ссылку для сброса пароля…');
+  const {error}=await supabaseClient.auth.resetPasswordForEmail(email,{redirectTo:location.origin+location.pathname});
+  authMessage(error?'Не удалось отправить письмо: '+error.message:'Письмо для сброса пароля отправлено на '+email+'.');
+ };
+ document.getElementById('authUpdatePassword').onclick=async()=>{
+  const password=document.getElementById('authNewPassword').value;
+  if(password.length<8){authMessage('Новый пароль должен содержать не менее 8 символов.');return}
+  const {error}=await supabaseClient.auth.updateUser({password});
+  if(error){authMessage('Не удалось изменить пароль: '+error.message);return}
+  authRecoveryMode=false;
+  document.getElementById('authNewPasswordWrap').style.display='none';
+  document.getElementById('authMainActions').style.display='grid';
+  document.getElementById('authRecoveryActions').style.display='none';
+  authOverlay.classList.remove('show');
+  authMessage('Пароль изменён.');
+ };
+ document.getElementById('authCancelRecovery').onclick=()=>{authRecoveryMode=false;document.getElementById('authNewPasswordWrap').style.display='none';document.getElementById('authMainActions').style.display='grid';document.getElementById('authRecoveryActions').style.display='none';authOverlay.classList.remove('show')};
+ document.getElementById('authSyncNow').onclick=async()=>{cloudMessage('Сохраняю…');await flushCloudSave()};
+ document.getElementById('authLogout').onclick=async()=>{
+  if(cloudSaveTimer){clearTimeout(cloudSaveTimer);cloudSaveTimer=null}
+  if(authUser&&cloudSyncReady)await flushCloudSave();
+  const {error}=await supabaseClient.auth.signOut();
+  if(error){authMessage('Не удалось выйти: '+error.message);return}
+  authMessage('Ты вышел. Город остался сохранён локально и в аккаунте.');
+ };
+ if(!window.supabase?.createClient){cloudMessage('Не загрузилась библиотека Supabase. Проверь подключение к интернету.');authMessage('Вход временно недоступен.');return}
+ supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
+ supabaseClient.auth.onAuthStateChange((event,session)=>{
+  if(event==='PASSWORD_RECOVERY'){
+   authRecoveryMode=true;
+   document.getElementById('authNewPasswordWrap').style.display='block';
+   document.getElementById('authMainActions').style.display='none';
+   document.getElementById('authRecoveryActions').style.display='grid';
+   authMessage('Введи новый пароль для аккаунта.');
+   openAuth();
+  }
+  setTimeout(()=>handleAuthSession(session),0);
+ });
+ const {data,error}=await supabaseClient.auth.getSession();
+ if(error){cloudMessage('Не удалось проверить сессию: '+error.message);return}
+ await handleAuthSession(data.session);
+}
+
+function save(){
+ try{localStorage.setItem(KEY,JSON.stringify(game))}
+ catch(e){if(game.undoStack?.length){game.undoStack.shift();try{localStorage.setItem(KEY,JSON.stringify(game))}catch(e2){console.warn('Не удалось сохранить игру: недостаточно места в хранилище')}}else console.warn('Не удалось сохранить игру: недостаточно места в хранилище')}
+ if(authUser&&cloudSyncReady)scheduleCloudSave();
+}
 function pushUndo(label){game.undoStack=game.undoStack||[];game.undoStack.push({label,tiles:JSON.parse(JSON.stringify(game.tiles)),money:game.money,pop:game.pop,happy:game.happy,reputation:game.reputation,storyStage:game.storyStage,dealsClosed:game.dealsClosed,parkways:game.parkways,jobs:game.jobs,tax:game.tax,upkeep:game.upkeep,taxRates:{...(game.taxRates||{})},mapSize:N});if(game.undoStack.length>8)game.undoStack.shift();save();updateUndoButton()}
 function updateUndoButton(){let b=document.getElementById('undo');if(b){let n=game.undoStack?.length||0;b.disabled=!n;b.textContent=n?'↶ Отменить ('+n+')':'↶ Отменить';b.title=n?'Последнее действие: '+game.undoStack[n-1].label:'История действий пуста'}}
 function undoLast(){let h=game.undoStack||[];if(!h.length){notify('Нечего отменять');return}let s=h.pop();game.tiles=s.tiles;N=s.mapSize||Math.sqrt(s.tiles.length);game.mapSize=N;rebuildRoadGraph();refreshPedestrianRoutes();game.money=s.money;game.pop=s.pop;game.happy=s.happy;game.reputation=s.reputation??game.reputation;game.storyStage=s.storyStage??game.storyStage;game.dealsClosed=s.dealsClosed??game.dealsClosed;game.parkways=s.parkways??game.parkways;game.jobs=s.jobs;game.tax=s.tax;game.upkeep=s.upkeep;game.taxRates=s.taxRates||game.taxRates;game.undoStack=h;save();stats();refreshTaxUI();refreshExpansion();updateUndoButton();notify('↶ Отменено: '+s.label)}
@@ -671,5 +911,5 @@ setInterval(()=>{
   else{p.x+=dx/d*.035;p.y+=dy/d*.035;p.stuck=(p.stuck||0)+1;if(p.stuck>100){p.x=next.x;p.y=next.y;p.path.shift();p.stuck=0}}
  }
 },100);
-function frame(now){let dt=Math.max(0,now-prev);prev=now;if(!game.paused){clock+=dt*game.speed;while(clock>=60000){clock-=60000;daily();if(people.length<Math.min(40,Math.floor(game.pop)))initPeople()}}render();requestAnimationFrame(frame)}daily(true);stats();updateUndoButton();refreshExpansion();updateFinance();requestAnimationFrame(frame)})();
+function frame(now){let dt=Math.max(0,now-prev);prev=now;if(!game.paused){clock+=dt*game.speed;while(clock>=60000){clock-=60000;daily();if(people.length<Math.min(40,Math.floor(game.pop)))initPeople()}}render();requestAnimationFrame(frame)}daily(true);stats();updateUndoButton();refreshExpansion();updateFinance();initMurinoAuth();requestAnimationFrame(frame)})();
 </script></body></html>
