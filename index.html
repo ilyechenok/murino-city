@@ -7,6 +7,7 @@
 header{height:auto;min-height:60px}
 @media(max-width:750px){header{align-items:center}.controlRail{flex-direction:row;order:3;width:100%;justify-content:flex-start;border:0;margin:0;padding:5px 0;gap:10px}.controlRail button{width:48px;min-width:48px;min-height:50px;font-size:11px}.stats{flex:1}}
 .ctrlIcon{font-size:17px;font-weight:700;line-height:1}.ctrlLabel{font-size:9px;line-height:1.05;letter-spacing:-.15px}
+@media(max-width:750px){.controlRail{overflow-x:auto;max-width:100%;padding-bottom:8px;scrollbar-width:thin}}
 </style></head><body><header><div><h1>🏙️ МУРИНО <small>Новый мэр • pixel edition 4.8</small></h1></div><div class="controlRail"><button id="pause" title="Пауза"><span class="ctrlIcon">Ⅱ</span><span class="ctrlLabel">Пауза</span></button><button id="speed" title="Скорость"><span class="ctrlIcon">▶</span><span class="ctrlLabel">Скорость</span></button><button id="undo" title="Отменить"><span class="ctrlIcon">↶</span><span class="ctrlLabel">Отмена</span></button><button id="save" title="Сохранить"><span class="ctrlIcon">💾</span><span class="ctrlLabel">Сохранить</span></button><button id="exportSave" title="Экспорт города"><span class="ctrlIcon">⬇</span><span class="ctrlLabel">Экспорт</span></button><button id="importSave" title="Импорт города"><span class="ctrlIcon">⬆</span><span class="ctrlLabel">Импорт</span></button><input id="importFile" type="file" accept="application/json,.json" hidden><button id="reset" title="Заново"><span class="ctrlIcon">↻</span><span class="ctrlLabel">Заново</span></button><button id="inspectQuick" title="Осмотр"><span class="ctrlIcon">🔎</span><span class="ctrlLabel">Осмотр</span></button><button id="accountBtn" title="Вход и облачное сохранение"><span class="ctrlIcon">👤</span><span class="ctrlLabel">Войти</span></button></div><div class="stats"><span class="stat">💰 <b id="cash">—</b> ₽</span><span class="stat">👥 <b id="pop">—</b></span><span class="stat">😊 <b id="happy">—</b>%</span><span class="stat">📅 <b id="day">—</b></span><span class="stat">💼 <b id="jobs">—</b></span><span class="stat">⭐ <b id="reputation">—</b></span></div></header><div class="layout"><aside class="side"><h3>СТРОИТЕЛЬСТВО</h3><div class="tools" id="tools"></div><div id="effectPanel" class="note" style="margin-top:10px;padding:10px;background:#1b2935;border:1px solid #526775;border-radius:4px"><b style="color:#ffda8a">ЭФФЕКТЫ ОБЪЕКТА</b><div id="effectTitle" style="margin:6px 0;color:#fff">Выбери объект строительства</div><div id="effectCost"></div><div id="effectDetails" style="margin-top:6px;line-height:1.6">Здесь появятся прогнозируемые изменения бюджета, населения, рабочих мест и качества жизни.</div></div>
 <h3>📖 СПРАВОЧНИК</h3>
 <button id="guideToggle" style="width:100%;padding:9px">Открыть руководство по игре</button>
@@ -77,7 +78,7 @@ header{height:auto;min-height:60px}
   <div class="authStatus" id="cloudStatus">Облачное сохранение не подключено.</div>
  </div>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 (()=>{'use strict';let N=24;const TW=64,TH=32,KEY='murino_pixel_v46';const defs={inspect:['🔎 Осмотр',0],road:['🛣 Дорога',120000],res:['🏘 Жилая зона',350000],com:['🏬 Коммерческая зона',450000],ind:['🏭 Промзона',650000],park:['🌳 Сквер',280000],school:['🏫 Школа',12000000],citypharmacy:['💊 Городская аптека',2000000,8,2],hospital:['🏥 Больница',18000000,90,5],university:['🎓 Университет',50000000],clinic:['🏥 Поликлиника',8000000],clearTree:['🪓 Вырубить дерево',25000],bulldoze:['🧨 Снести',80000],move:['↔️ Перенести объект',150000]};
 const business={
@@ -273,6 +274,7 @@ async function handleAuthSession(session){
    if(lastOwner&&lastOwner!==user.id){
     game=newGame();game.proposals=[];game.parkways=0;game.nextProposalDay=4;N=24;
     refreshAfterCloudLoad();
+    await uploadCloudSave(user.id);
     authMessage('Для нового аккаунта создан отдельный город. Чужое локальное сохранение не переносилось.');
    }else{
     await uploadCloudSave(user.id);
