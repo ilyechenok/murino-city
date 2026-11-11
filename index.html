@@ -95,7 +95,7 @@ const businessGroups={
  'Еда и напитки':['coffee','bakery','cafe','restaurant','fastfood','pizzeria','bar'],
  'Услуги и досуг':['beauty','barber','gym','cinema','hotel','bank','clinic_private'],
  'Деловая и автомобильная инфраструктура':['office','gas','carwash','autoservice']
-};let mode='inspect',alleyRotation=0,game,hover=null,moveSource=null,drag=false,lastX=0,lastY=0,shiftX=0,shiftY=0,zoom=1,clock=0,prev=performance.now(),people=[];const c=document.getElementById('view'),ctx=c.getContext('2d');ctx.imageSmoothingEnabled=false;function rand(x,y){let v=Math.sin(x*127.1+y*311.7)*43758.5453;return v-Math.floor(v)}function blank(){return Array.from({length:N*N},(_,i)=>({ground:rand(i%N,Math.floor(i/N))>.84?'dark':'grass',type:'',level:0,age:0}))}function newGame(){let tiles=blank();function put(x,y,type,level=1){tiles[y*N+x]={...tiles[y*N+x],type,level}}for(let x=3;x<21;x++)put(x,12,'road');[[5,11],[9,13],[13,11],[17,13]].forEach(([x,y])=>put(x,y,'village'));put(7,11,'grocery');put(12,13,'coffee');put(18,11,'post');for(let i=0;i<65;i++){let x=Math.floor(rand(i,5)*N),y=Math.floor(rand(i,8)*N);if(tiles[y*N+x].type===''&&rand(x+9,y+6)>.52)put(x,y,'tree')}return {tiles,mapSize:N,money:20000000,pop:16,happy:72,reputation:25,storyStage:0,proposals:[],nextProposalDay:4,day:1,jobs:30,tax:0,upkeep:0,paused:false,speed:1,economyVersion:4,seed:Math.random()}}try{game=JSON.parse(localStorage.getItem(KEY))||JSON.parse(localStorage.getItem('murino_pixel_v45'))||JSON.parse(localStorage.getItem('murino_pixel_v44'))||JSON.parse(localStorage.getItem('murino_pixel_v43'))||JSON.parse(localStorage.getItem('murino_pixel_v42'))||JSON.parse(localStorage.getItem('murino_pixel_v41'))||JSON.parse(localStorage.getItem('murino_pixel_v40'))||JSON.parse(localStorage.getItem('murino_pixel_v35'))||JSON.parse(localStorage.getItem('murino_pixel_v32'))||JSON.parse(localStorage.getItem('murino_pixel_v31'))||JSON.parse(localStorage.getItem('murino_pixel_v30'))||JSON.parse(localStorage.getItem('murino_pixel_v29'))||JSON.parse(localStorage.getItem('murino_pixel_v28'))||JSON.parse(localStorage.getItem('murino_pixel_v27'))||JSON.parse(localStorage.getItem('murino_pixel_v26'))||JSON.parse(localStorage.getItem('murino_pixel_v25'))||JSON.parse(localStorage.getItem('murino_pixel_v24'))||JSON.parse(localStorage.getItem('murino_pixel_v21'))||JSON.parse(localStorage.getItem('murino_pixel_v20'))||JSON.parse(localStorage.getItem('murino_pixel_v19'))||JSON.parse(localStorage.getItem('murino_pixel_v18'))||JSON.parse(localStorage.getItem('murino_pixel_v03'));if(!game||!Array.isArray(game.tiles)||!Number.isInteger(Math.sqrt(game.tiles.length)))throw 0;N=Math.sqrt(game.tiles.length);game.mapSize=N;game.reputation=Number.isFinite(game.reputation)?game.reputation:25;game.storyStage=Math.max(0,game.storyStage||0);game.proposals=Array.isArray(game.proposals)?game.proposals:[];game.loans=Array.isArray(game.loans)?game.loans:[];game.grantYear=game.grantYear||0;game.parkways=Number.isFinite(game.parkways)?game.parkways:0;game.dealsClosed=Number.isFinite(game.dealsClosed)?game.dealsClosed:0;game.nextProposalDay=Number.isFinite(game.nextProposalDay)?game.nextProposalDay:game.day+3;
+};let mode='inspect',alleyRotation=0,game,hover=null,moveSource=null,drag=false,mousePressed=false,mouseClick=false,mouseStartX=0,mouseStartY=0,lastX=0,lastY=0,shiftX=0,shiftY=0,zoom=1,clock=0,prev=performance.now(),people=[];const c=document.getElementById('view'),ctx=c.getContext('2d');ctx.imageSmoothingEnabled=false;function rand(x,y){let v=Math.sin(x*127.1+y*311.7)*43758.5453;return v-Math.floor(v)}function blank(){return Array.from({length:N*N},(_,i)=>({ground:rand(i%N,Math.floor(i/N))>.84?'dark':'grass',type:'',level:0,age:0}))}function newGame(){let tiles=blank();function put(x,y,type,level=1){tiles[y*N+x]={...tiles[y*N+x],type,level}}for(let x=3;x<21;x++)put(x,12,'road');[[5,11],[9,13],[13,11],[17,13]].forEach(([x,y])=>put(x,y,'village'));put(7,11,'grocery');put(12,13,'coffee');put(18,11,'post');for(let i=0;i<65;i++){let x=Math.floor(rand(i,5)*N),y=Math.floor(rand(i,8)*N);if(tiles[y*N+x].type===''&&rand(x+9,y+6)>.52)put(x,y,'tree')}return {tiles,mapSize:N,money:20000000,pop:16,happy:72,reputation:25,storyStage:0,proposals:[],nextProposalDay:4,day:1,jobs:30,tax:0,upkeep:0,paused:false,speed:1,economyVersion:4,seed:Math.random()}}try{game=JSON.parse(localStorage.getItem(KEY))||JSON.parse(localStorage.getItem('murino_pixel_v45'))||JSON.parse(localStorage.getItem('murino_pixel_v44'))||JSON.parse(localStorage.getItem('murino_pixel_v43'))||JSON.parse(localStorage.getItem('murino_pixel_v42'))||JSON.parse(localStorage.getItem('murino_pixel_v41'))||JSON.parse(localStorage.getItem('murino_pixel_v40'))||JSON.parse(localStorage.getItem('murino_pixel_v35'))||JSON.parse(localStorage.getItem('murino_pixel_v32'))||JSON.parse(localStorage.getItem('murino_pixel_v31'))||JSON.parse(localStorage.getItem('murino_pixel_v30'))||JSON.parse(localStorage.getItem('murino_pixel_v29'))||JSON.parse(localStorage.getItem('murino_pixel_v28'))||JSON.parse(localStorage.getItem('murino_pixel_v27'))||JSON.parse(localStorage.getItem('murino_pixel_v26'))||JSON.parse(localStorage.getItem('murino_pixel_v25'))||JSON.parse(localStorage.getItem('murino_pixel_v24'))||JSON.parse(localStorage.getItem('murino_pixel_v21'))||JSON.parse(localStorage.getItem('murino_pixel_v20'))||JSON.parse(localStorage.getItem('murino_pixel_v19'))||JSON.parse(localStorage.getItem('murino_pixel_v18'))||JSON.parse(localStorage.getItem('murino_pixel_v03'));if(!game||!Array.isArray(game.tiles)||!Number.isInteger(Math.sqrt(game.tiles.length)))throw 0;N=Math.sqrt(game.tiles.length);game.mapSize=N;game.reputation=Number.isFinite(game.reputation)?game.reputation:25;game.storyStage=Math.max(0,game.storyStage||0);game.proposals=Array.isArray(game.proposals)?game.proposals:[];game.loans=Array.isArray(game.loans)?game.loans:[];game.grantYear=game.grantYear||0;game.parkways=Number.isFinite(game.parkways)?game.parkways:0;game.dealsClosed=Number.isFinite(game.dealsClosed)?game.dealsClosed:0;game.nextProposalDay=Number.isFinite(game.nextProposalDay)?game.nextProposalDay:game.day+3;
 if(!game.economyVersion){
  game.money=Math.round((game.money||0)*1000);
  game.tax=Math.round((game.tax||0)*1000);
@@ -792,7 +792,9 @@ c.addEventListener('pointerdown',e=>{
   else if(touchGesture)touchGesture.moved=true;
   return;
  }
- drag=e.button===2||e.shiftKey;lastX=e.clientX;lastY=e.clientY;c.dataset.moved='0';
+ mousePressed=e.button===0||e.button===2||e.shiftKey;
+ mouseClick=e.button===0&&!e.shiftKey;
+ drag=false;mouseStartX=lastX=e.clientX;mouseStartY=lastY=e.clientY;c.dataset.moved='0';
 });
 c.addEventListener('pointermove',e=>{
  if(e.pointerType==='touch'&&touchPointers.has(e.pointerId)){
@@ -819,17 +821,23 @@ c.addEventListener('pointermove',e=>{
   }
   return;
  }
- if(e.buttons&&drag){shiftX+=e.clientX-lastX;shiftY+=e.clientY-lastY;c.dataset.moved='1'}
+ if(e.buttons&&mousePressed){
+  if(!drag&&Math.abs(e.clientX-mouseStartX)+Math.abs(e.clientY-mouseStartY)>4)drag=true;
+  if(drag){shiftX+=e.clientX-lastX;shiftY+=e.clientY-lastY;c.dataset.moved='1'}
+ }
  lastX=e.clientX;lastY=e.clientY;let r=c.getBoundingClientRect();
  hover=pick((e.clientX-r.left)*devicePixelRatio,(e.clientY-r.top)*devicePixelRatio);
 });
 c.addEventListener('pointerup',e=>{
  if(e.pointerType==='touch'){finishTouchPointer(e,false);return}
  const r=c.getBoundingClientRect(),pos=pick((e.clientX-r.left)*devicePixelRatio,(e.clientY-r.top)*devicePixelRatio);
- if(!drag&&c.dataset.moved!=='1'&&pos){if(!chooseDealSite(pos.x,pos.y))act(pos.x,pos.y)}
- drag=false;
+ if(mouseClick&&!drag&&c.dataset.moved!=='1'&&pos){if(!chooseDealSite(pos.x,pos.y))act(pos.x,pos.y)}
+ mousePressed=false;mouseClick=false;drag=false;
 });
-c.addEventListener('pointercancel',e=>{if(e.pointerType==='touch')finishTouchPointer(e,true);else drag=false});
+c.addEventListener('pointercancel',e=>{
+ if(e.pointerType==='touch')finishTouchPointer(e,true);
+ else{mousePressed=false;mouseClick=false;drag=false}
+});
 c.addEventListener('lostpointercapture',e=>{if(e.pointerType==='touch'&&touchPointers.has(e.pointerId))finishTouchPointer(e,true)});
 c.addEventListener('wheel',e=>{e.preventDefault();zoom=Math.max(.55,Math.min(2.2,zoom*(e.deltaY>0?.9:1.1)))},{passive:false});let roadGraph={cells:[],neighbors:new Map()};
 function rebuildRoadGraph(){
