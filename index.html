@@ -1284,7 +1284,12 @@ function drawObject(t,x,y,ix,iy){
   poly([[x,y+31],[x+32,y+13],[x+38,y+16],[x,y+37],[x-38,y+16],[x-32,y+13]],'#c9c4b4','#898577');
   ctx.save();ctx.strokeStyle='#e7e1ce';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x-31,y+16);ctx.lineTo(x,y+33);ctx.lineTo(x+31,y+16);ctx.stroke();ctx.restore();
   if(t.privateComplexRoad){rect(x-10,y+15,5,2,'#d9d1b8');rect(x+5,y+15,5,2,'#d9d1b8')}
-  const cross=tile(ix+1,iy)?.type==='road'||tile(ix-1,iy)?.type==='road'||tile(ix,iy+1)?.type==='road'||tile(ix,iy-1)?.type==='road';
+  // Install signals only at actual junctions: T-junctions and four-way crossings.
+  // A straight road segment or a simple corner must stay free of traffic lights.
+  const roadDegree=[
+   tile(ix+1,iy),tile(ix-1,iy),tile(ix,iy+1),tile(ix,iy-1)
+  ].filter(n=>n?.type==='road').length;
+  const cross=roadDegree>=3;
   if(cross){
    // Compact traffic-light poles at intersections. Signal phases are shared by people and cars.
    const phase=Math.floor((performance.now()/1000+ix*3+iy*5)%20);
