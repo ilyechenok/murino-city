@@ -8,7 +8,7 @@ header{height:auto;min-height:60px}
 @media(max-width:750px){header{align-items:center}.controlRail{flex-direction:row;order:3;width:100%;justify-content:flex-start;border:0;margin:0;padding:5px 0;gap:10px}.controlRail button{width:48px;min-width:48px;min-height:50px;font-size:11px}.stats{flex:1}}
 .ctrlIcon{font-size:17px;font-weight:700;line-height:1}.ctrlLabel{font-size:9px;line-height:1.05;letter-spacing:-.15px}
 @media(max-width:750px){.controlRail{overflow-x:auto;max-width:100%;padding-bottom:8px;scrollbar-width:thin}}
-</style></head><body><header><div><h1>🏙️ МУРИНО <small>Новый мэр • pixel edition 5.2</small></h1></div><div class="controlRail"><button id="pause" title="Пауза"><span class="ctrlIcon">Ⅱ</span><span class="ctrlLabel">Пауза</span></button><button id="speed" title="Скорость"><span class="ctrlIcon">▶</span><span class="ctrlLabel">Скорость</span></button><button id="undo" title="Отменить"><span class="ctrlIcon">↶</span><span class="ctrlLabel">Отмена</span></button><button id="save" title="Сохранить"><span class="ctrlIcon">💾</span><span class="ctrlLabel">Сохранить</span></button><button id="exportSave" title="Экспорт города"><span class="ctrlIcon">⬇</span><span class="ctrlLabel">Экспорт</span></button><button id="importSave" title="Импорт города"><span class="ctrlIcon">⬆</span><span class="ctrlLabel">Импорт</span></button><input id="importFile" type="file" accept="application/json,.json" hidden><button id="reset" title="Заново"><span class="ctrlIcon">↻</span><span class="ctrlLabel">Заново</span></button><button id="inspectQuick" title="Осмотр"><span class="ctrlIcon">🔎</span><span class="ctrlLabel">Осмотр</span></button><button id="accountBtn" title="Вход и облачное сохранение"><span class="ctrlIcon">👤</span><span class="ctrlLabel">Войти</span></button></div><div class="stats"><span class="stat">💰 <b id="cash">—</b> ₽</span><span class="stat">👥 <b id="pop">—</b></span><span class="stat">😊 <b id="happy">—</b>%</span><span class="stat">📅 <b id="day">—</b></span><span class="stat">💼 <b id="jobs">—</b></span><span class="stat">⭐ <b id="reputation">—</b></span></div></header><div class="layout"><aside class="side"><h3>СВОДКА</h3><div id="summary" class="note"></div><h3>🧰 ЭФФЕКТ ОБЪЕКТА</h3><div id="effectPanel" class="note" style="margin-top:10px;padding:10px;background:#1b2935;border:1px solid #526775;border-radius:4px"><b style="color:#ffda8a">ЭФФЕКТ ОБЪЕКТА</b><div id="effectTitle" style="margin:6px 0;color:#fff">Выбери объект строительства</div><div id="effectCost"></div><div id="effectDetails" style="margin-top:6px;line-height:1.6">Здесь появятся прогнозируемые изменения бюджета, населения, рабочих мест и качества жизни.</div></div><h3>📜 ЗАДАНИЕ МЭРА</h3><div id="storyPanel" class="note" style="padding:10px;background:#1b2935;border:1px solid #bd8d54;border-radius:4px;line-height:1.55"></div><h3>🏗 ПРЕДЛОЖЕНИЯ ЧАСТНИКОВ</h3><div id="proposalPanel" class="note" style="padding:9px;background:#1b2935;border:1px solid #bd8d54;border-radius:4px">Пока предложений нет. Частные владельцы будут обращаться по мере развития города.</div><h3>НАЛОГОВАЯ ПОЛИТИКА</h3><div class="note" style="padding:9px;background:#1b2935;border:1px solid #526775;border-radius:4px"><label for="taxObject" style="display:block;margin-bottom:6px;color:#ffda8a">Объект налогообложения</label><select id="taxObject" style="width:100%;padding:7px;background:#3b5260;color:#fff;border:1px solid #718894;border-radius:3px"></select><div style="display:flex;justify-content:space-between;margin:9px 0 4px"><span>Ставка налога</span><b id="taxRateLabel" style="color:#ffd27c">100%</b></div><input id="taxRate" type="range" min="50" max="150" step="5" value="100" style="width:100%"><div style="display:flex;gap:5px;justify-content:space-between"><small>50% · льготная</small><small>150% · высокая</small></div><div id="taxEffect" style="margin-top:8px;line-height:1.5">100% — базовая ставка</div><div style="display:flex;gap:5px;margin-top:8px"><button id="taxDown" style="flex:1;padding:6px">− 5%</button><button id="taxUp" style="flex:1;padding:6px">+ 5%</button></div></div><h3>💳 КРЕДИТ</h3><div class="note" style="padding:9px;background:#1b2935;border:1px solid #526775;border-radius:4px"><div id="financeInfo">Государственные программы и банковское финансирование</div><button id="grantRequest" style="width:100%;margin-top:7px">🏛 Запросить субсидию</button><div style="display:flex;gap:5px;margin-top:7px"><input id="loanAmount" type="number" min="10000" step="10000" value="1000000" style="width:60%;padding:7px"><button id="loanRequest" style="flex:1">Взять кредит</button></div><small>Кредитная ставка: ключевая ставка ЦБ + 5 п.п. Платёж и проценты учитываются в бюджете.</small></div><h3>СТРОИТЕЛЬСТВО</h3><div class="tools" id="tools"></div>
+</style></head><body><header><div><h1>🏙️ МУРИНО <small>Новый мэр • pixel edition 5.3</small></h1></div><div class="controlRail"><button id="pause" title="Пауза"><span class="ctrlIcon">Ⅱ</span><span class="ctrlLabel">Пауза</span></button><button id="speed" title="Скорость"><span class="ctrlIcon">▶</span><span class="ctrlLabel">Скорость</span></button><button id="undo" title="Отменить"><span class="ctrlIcon">↶</span><span class="ctrlLabel">Отмена</span></button><button id="save" title="Сохранить"><span class="ctrlIcon">💾</span><span class="ctrlLabel">Сохранить</span></button><button id="exportSave" title="Экспорт города"><span class="ctrlIcon">⬇</span><span class="ctrlLabel">Экспорт</span></button><button id="importSave" title="Импорт города"><span class="ctrlIcon">⬆</span><span class="ctrlLabel">Импорт</span></button><input id="importFile" type="file" accept="application/json,.json" hidden><button id="reset" title="Заново"><span class="ctrlIcon">↻</span><span class="ctrlLabel">Заново</span></button><button id="inspectQuick" title="Осмотр"><span class="ctrlIcon">🔎</span><span class="ctrlLabel">Осмотр</span></button><button id="accountBtn" title="Вход и облачное сохранение"><span class="ctrlIcon">👤</span><span class="ctrlLabel">Войти</span></button></div><div class="stats"><span class="stat">💰 <b id="cash">—</b> ₽</span><span class="stat">👥 <b id="pop">—</b></span><span class="stat">😊 <b id="happy">—</b>%</span><span class="stat">📅 <b id="day">—</b></span><span class="stat">💼 <b id="jobs">—</b></span><span class="stat">⭐ <b id="reputation">—</b></span></div></header><div class="layout"><aside class="side"><h3>СВОДКА</h3><div id="summary" class="note"></div><h3>🧰 ЭФФЕКТ ОБЪЕКТА</h3><div id="effectPanel" class="note" style="margin-top:10px;padding:10px;background:#1b2935;border:1px solid #526775;border-radius:4px"><b style="color:#ffda8a">ЭФФЕКТ ОБЪЕКТА</b><div id="effectTitle" style="margin:6px 0;color:#fff">Выбери объект строительства</div><div id="effectCost"></div><div id="effectDetails" style="margin-top:6px;line-height:1.6">Здесь появятся прогнозируемые изменения бюджета, населения, рабочих мест и качества жизни.</div></div><h3>📜 ЗАДАНИЕ МЭРА</h3><div id="storyPanel" class="note" style="padding:10px;background:#1b2935;border:1px solid #bd8d54;border-radius:4px;line-height:1.55"></div><h3>🏗 ПРЕДЛОЖЕНИЯ ЧАСТНИКОВ</h3><div id="proposalPanel" class="note" style="padding:9px;background:#1b2935;border:1px solid #bd8d54;border-radius:4px">Пока предложений нет. Частные владельцы будут обращаться по мере развития города.</div><h3>НАЛОГОВАЯ ПОЛИТИКА</h3><div class="note" style="padding:9px;background:#1b2935;border:1px solid #526775;border-radius:4px"><label for="taxObject" style="display:block;margin-bottom:6px;color:#ffda8a">Объект налогообложения</label><select id="taxObject" style="width:100%;padding:7px;background:#3b5260;color:#fff;border:1px solid #718894;border-radius:3px"></select><div style="display:flex;justify-content:space-between;margin:9px 0 4px"><span>Ставка налога</span><b id="taxRateLabel" style="color:#ffd27c">100%</b></div><input id="taxRate" type="range" min="50" max="150" step="5" value="100" style="width:100%"><div style="display:flex;gap:5px;justify-content:space-between"><small>50% · льготная</small><small>150% · высокая</small></div><div id="taxEffect" style="margin-top:8px;line-height:1.5">100% — базовая ставка</div><div style="display:flex;gap:5px;margin-top:8px"><button id="taxDown" style="flex:1;padding:6px">− 5%</button><button id="taxUp" style="flex:1;padding:6px">+ 5%</button></div></div><h3>💳 КРЕДИТ</h3><div class="note" style="padding:9px;background:#1b2935;border:1px solid #526775;border-radius:4px"><div id="financeInfo">Государственные программы и банковское финансирование</div><button id="grantRequest" style="width:100%;margin-top:7px">🏛 Запросить субсидию</button><div style="display:flex;gap:5px;margin-top:7px"><input id="loanAmount" type="number" min="10000" step="10000" value="1000000" style="width:60%;padding:7px"><button id="loanRequest" style="flex:1">Взять кредит</button></div><small>Кредитная ставка: ключевая ставка ЦБ + 5 п.п. Платёж и проценты учитываются в бюджете.</small></div><h3>СТРОИТЕЛЬСТВО</h3><div class="tools" id="tools"></div>
 <h4 style="color:#ffda8a;margin:12px 0 6px">РАСШИРЕНИЕ ГОРОДА</h4><div class="note" style="padding:9px;background:#1b2935;border:1px solid #526775;border-radius:4px"><div>Размер карты: <b id="mapSizeLabel" style="color:#ffd27c">24 × 24</b></div><div id="expandCost" style="margin:7px 0">Следующее расширение: 25 000 ₽</div><button id="expandMap" style="width:100%">🗺️ Купить новые земли</button><small style="display:block;margin-top:7px">Расширение добавляет свободную территорию справа и снизу карты. Новые земли оплачиваются из городского бюджета.</small></div><h3>📖 СПРАВОЧНИК</h3>
 <button id="guideToggle" style="width:100%;padding:9px">Открыть руководство по игре</button>
 <div id="guidePanel" class="note" style="display:none;margin-top:8px;padding:12px;line-height:1.55;background:#172630;border:1px solid #bd8d54">
@@ -313,27 +313,41 @@ async function initMurinoAuth(){
  document.getElementById('authLogin').onclick=async()=>{
   const email=document.getElementById('authEmail').value.trim(),password=document.getElementById('authPassword').value;
   if(!email||!password){authMessage('Введи почту и пароль.');return}
-  authMessage('Выполняю вход…');
-  const {error}=await supabaseClient.auth.signInWithPassword({email,password});
-  if(error){authMessage('Не удалось войти: '+error.message);return}
-  authMessage('Вход выполнен. Загружаю город…');
+  if(!supabaseClient){authMessage('Сервис авторизации ещё не подключился. Обнови страницу через минуту.');return}
+  const button=document.getElementById('authLogin');
+  button.disabled=true;authMessage('Выполняю вход…');
+  try{
+   const {data,error}=await supabaseClient.auth.signInWithPassword({email,password});
+   if(error){authMessage('Не удалось войти: '+error.message);return}
+   if(data?.session) {
+    authMessage('Вход выполнен. Подключаю город…');
+    setTimeout(()=>handleAuthSession(data.session),0);
+   }else authMessage('Сервер не вернул сессию. Проверь почту и пароль и попробуй ещё раз.');
+  }catch(error){console.error('Murino login error',error);authMessage('Ошибка соединения при входе: '+(error?.message||'проверь интернет и попробуй ещё раз'))}
+  finally{button.disabled=false}
  };
  document.getElementById('authRegister').onclick=async()=>{
   const email=document.getElementById('authEmail').value.trim(),password=document.getElementById('authPassword').value;
   if(!email||!password){authMessage('Введи почту и пароль.');return}
   if(password.length<8){authMessage('Пароль должен содержать не менее 8 символов.');return}
+  if(!supabaseClient){authMessage('Сервис авторизации ещё не подключился.');return}
   authMessage('Создаю аккаунт…');
-  const {data,error}=await supabaseClient.auth.signUp({email,password,options:{emailRedirectTo:location.origin+location.pathname}});
-  if(error){authMessage('Не удалось создать аккаунт: '+error.message);return}
-  if(data.session){authMessage('Аккаунт создан. Подключаю облачный город…')}
-  else{authMessage('Письмо для подтверждения отправлено на '+email+'. Перейди по ссылке из письма, затем вернись в игру и войди.');}
+  try{
+   const {data,error}=await supabaseClient.auth.signUp({email,password,options:{emailRedirectTo:location.origin+location.pathname}});
+   if(error){authMessage('Не удалось создать аккаунт: '+error.message);return}
+   if(data.session){authMessage('Аккаунт создан. Подключаю облачный город…');setTimeout(()=>handleAuthSession(data.session),0)}
+   else{authMessage('Письмо для подтверждения отправлено на '+email+'. Перейди по ссылке из письма, затем вернись в игру и войди.')}
+  }catch(error){console.error('Murino signup error',error);authMessage('Не удалось связаться с сервером: '+(error?.message||'проверь интернет'))}
  };
  document.getElementById('authReset').onclick=async()=>{
   const email=document.getElementById('authEmail').value.trim();
   if(!email){authMessage('Сначала укажи адрес электронной почты.');return}
+  if(!supabaseClient){authMessage('Сервис авторизации ещё не подключился.');return}
   authMessage('Отправляю ссылку для сброса пароля…');
-  const {error}=await supabaseClient.auth.resetPasswordForEmail(email,{redirectTo:location.origin+location.pathname});
-  authMessage(error?'Не удалось отправить письмо: '+error.message:'Письмо для сброса пароля отправлено на '+email+'.');
+  try{
+   const {error}=await supabaseClient.auth.resetPasswordForEmail(email,{redirectTo:location.origin+location.pathname});
+   authMessage(error?'Не удалось отправить письмо: '+error.message:'Письмо для сброса пароля отправлено на '+email+'.');
+  }catch(error){console.error('Murino reset error',error);authMessage('Ошибка отправки письма: '+(error?.message||'проверь подключение'))}
  };
  document.getElementById('authUpdatePassword').onclick=async()=>{
   const password=document.getElementById('authNewPassword').value;
@@ -360,6 +374,7 @@ async function initMurinoAuth(){
  supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
  let authEventSequence=0;
  supabaseClient.auth.onAuthStateChange((event,session)=>{
+  authEventSequence++;
   if(event==='PASSWORD_RECOVERY'){
    authRecoveryMode=true;
    document.getElementById('authNewPasswordWrap').style.display='block';
@@ -368,14 +383,32 @@ async function initMurinoAuth(){
    authMessage('Введи новый пароль для аккаунта.');
    openAuth();
   }
-  // INITIAL_SESSION is the single source of truth on page load.
-  // Avoid racing session restoration with a parallel getSession() call.
-  const eventSequence=++authEventSequence;
-  setTimeout(()=>{
-   if(eventSequence!==authEventSequence)return;
-   handleAuthSession(session);
-  },0);
+  // Always defer work that touches the database until outside the auth callback.
+  setTimeout(()=>{handleAuthSession(session)},0);
  });
+
+ // Explicit bootstrap fallback: the listener may be delayed by a browser restore.
+ // If any auth event arrived while getSession was pending, that event wins.
+ const bootstrapSequence=authEventSequence;
+ try{
+  const {data,error}=await supabaseClient.auth.getSession();
+  if(bootstrapSequence===authEventSequence){
+   if(error){
+    console.warn('Murino initial session restore',error);
+    cloudSyncReady=false;setAuthUser(null);
+    authMessage('Не удалось восстановить вход автоматически. Войди через форму, сохранение города не затронуто.');
+    cloudMessage('Не удалось восстановить сессию. Можно войти повторно.');
+   }else{
+    await handleAuthSession(data?.session||null);
+   }
+  }
+ }catch(error){
+  console.error('Murino session bootstrap error',error);
+  if(bootstrapSequence===authEventSequence){
+   setAuthUser(null);cloudSyncReady=false;
+   authMessage('Не удалось восстановить сессию. Войди через форму, локальный город сохранён.');
+  }
+ }
 }
 
 function save(){
