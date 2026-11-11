@@ -8,7 +8,7 @@ header{height:auto;min-height:60px}
 @media(max-width:750px){header{align-items:center}.controlRail{flex-direction:row;order:3;width:100%;justify-content:flex-start;border:0;margin:0;padding:5px 0;gap:10px}.controlRail button{width:48px;min-width:48px;min-height:50px;font-size:11px}.stats{flex:1}}
 .ctrlIcon{font-size:17px;font-weight:700;line-height:1}.ctrlLabel{font-size:9px;line-height:1.05;letter-spacing:-.15px}
 @media(max-width:750px){.controlRail{overflow-x:auto;max-width:100%;padding-bottom:8px;scrollbar-width:thin}}
-</style></head><body><header><div><h1>🏙️ МУРИНО <small>Новый мэр • pixel edition 5.5</small></h1></div><div class="controlRail"><button id="pause" title="Пауза"><span class="ctrlIcon">Ⅱ</span><span class="ctrlLabel">Пауза</span></button><button id="speed" title="Скорость"><span class="ctrlIcon">▶</span><span class="ctrlLabel">Скорость</span></button><button id="undo" title="Отменить"><span class="ctrlIcon">↶</span><span class="ctrlLabel">Отмена</span></button><button id="save" title="Сохранить"><span class="ctrlIcon">💾</span><span class="ctrlLabel">Сохранить</span></button><button id="exportSave" title="Экспорт города"><span class="ctrlIcon">⬇</span><span class="ctrlLabel">Экспорт</span></button><button id="importSave" title="Импорт города"><span class="ctrlIcon">⬆</span><span class="ctrlLabel">Импорт</span></button><input id="importFile" type="file" accept="application/json,.json" hidden><button id="reset" title="Заново"><span class="ctrlIcon">↻</span><span class="ctrlLabel">Заново</span></button><button id="inspectQuick" title="Осмотр"><span class="ctrlIcon">🔎</span><span class="ctrlLabel">Осмотр</span></button><button id="accountBtn" title="Вход и облачное сохранение"><span class="ctrlIcon">👤</span><span class="ctrlLabel">Войти</span></button></div><div class="stats"><span class="stat">💰 <b id="cash">—</b> ₽</span><span class="stat">👥 <b id="pop">—</b></span><span class="stat">😊 <b id="happy">—</b>%</span><span class="stat">📅 <b id="day">—</b></span><span class="stat">💼 <b id="jobs">—</b></span><span class="stat">⭐ <b id="reputation">—</b></span></div></header><div class="layout"><aside class="side"><h3>СВОДКА</h3><div id="summary" class="note"></div><h3>🧰 ЭФФЕКТ ОБЪЕКТА</h3><div id="effectPanel" class="note" style="margin-top:10px;padding:10px;background:#1b2935;border:1px solid #526775;border-radius:4px"><b style="color:#ffda8a">ЭФФЕКТ ОБЪЕКТА</b><div id="effectTitle" style="margin:6px 0;color:#fff">Выбери объект строительства</div><div id="effectCost"></div><div id="effectDetails" style="margin-top:6px;line-height:1.6">Здесь появятся прогнозируемые изменения бюджета, населения, рабочих мест и качества жизни.</div></div><h3>📜 ЗАДАНИЕ МЭРА</h3><div id="storyPanel" class="note" style="padding:10px;background:#1b2935;border:1px solid #bd8d54;border-radius:4px;line-height:1.55"></div><h3>🏗 ПРЕДЛОЖЕНИЯ ЧАСТНИКОВ</h3><div id="proposalPanel" class="note" style="padding:9px;background:#1b2935;border:1px solid #bd8d54;border-radius:4px">Пока предложений нет. Частные владельцы будут обращаться по мере развития города.</div><h3>НАЛОГОВАЯ ПОЛИТИКА</h3><div class="note" style="padding:9px;background:#1b2935;border:1px solid #526775;border-radius:4px"><label for="taxObject" style="display:block;margin-bottom:6px;color:#ffda8a">Объект налогообложения</label><select id="taxObject" style="width:100%;padding:7px;background:#3b5260;color:#fff;border:1px solid #718894;border-radius:3px"></select><div style="display:flex;justify-content:space-between;margin:9px 0 4px"><span>Ставка налога</span><b id="taxRateLabel" style="color:#ffd27c">100%</b></div><input id="taxRate" type="range" min="50" max="150" step="5" value="100" style="width:100%"><div style="display:flex;gap:5px;justify-content:space-between"><small>50% · льготная</small><small>150% · высокая</small></div><div id="taxEffect" style="margin-top:8px;line-height:1.5">100% — базовая ставка</div><div style="display:flex;gap:5px;margin-top:8px"><button id="taxDown" style="flex:1;padding:6px">− 5%</button><button id="taxUp" style="flex:1;padding:6px">+ 5%</button></div></div><h3>💳 КРЕДИТ</h3><div class="note" style="padding:9px;background:#1b2935;border:1px solid #526775;border-radius:4px"><div id="financeInfo">Государственные программы и банковское финансирование</div><button id="grantRequest" style="width:100%;margin-top:7px">🏛 Запросить субсидию</button><div style="display:flex;gap:5px;margin-top:7px"><input id="loanAmount" type="number" min="10000" step="10000" value="1000000" style="width:60%;padding:7px"><button id="loanRequest" style="flex:1">Взять кредит</button></div><small>Кредитная ставка: ключевая ставка ЦБ + 5 п.п. Платёж и проценты учитываются в бюджете.</small></div><h3>СТРОИТЕЛЬСТВО</h3><div class="tools" id="tools"></div>
+</style></head><body><header><div><h1>🏙️ МУРИНО <small>Новый мэр • pixel edition 5.6</small></h1></div><div class="controlRail"><button id="pause" title="Пауза"><span class="ctrlIcon">Ⅱ</span><span class="ctrlLabel">Пауза</span></button><button id="speed" title="Скорость"><span class="ctrlIcon">▶</span><span class="ctrlLabel">Скорость</span></button><button id="undo" title="Отменить"><span class="ctrlIcon">↶</span><span class="ctrlLabel">Отмена</span></button><button id="save" title="Сохранить"><span class="ctrlIcon">💾</span><span class="ctrlLabel">Сохранить</span></button><button id="exportSave" title="Экспорт города"><span class="ctrlIcon">⬇</span><span class="ctrlLabel">Экспорт</span></button><button id="importSave" title="Импорт города"><span class="ctrlIcon">⬆</span><span class="ctrlLabel">Импорт</span></button><input id="importFile" type="file" accept="application/json,.json" hidden><button id="reset" title="Заново"><span class="ctrlIcon">↻</span><span class="ctrlLabel">Заново</span></button><button id="inspectQuick" title="Осмотр"><span class="ctrlIcon">🔎</span><span class="ctrlLabel">Осмотр</span></button><button id="accountBtn" title="Вход и облачное сохранение"><span class="ctrlIcon">👤</span><span class="ctrlLabel">Войти</span></button></div><div class="stats"><span class="stat">💰 <b id="cash">—</b> ₽</span><span class="stat">👥 <b id="pop">—</b></span><span class="stat">😊 <b id="happy">—</b>%</span><span class="stat">📅 <b id="day">—</b></span><span class="stat">💼 <b id="jobs">—</b></span><span class="stat">⭐ <b id="reputation">—</b></span></div></header><div class="layout"><aside class="side"><h3>СВОДКА</h3><div id="summary" class="note"></div><h3>🧰 ЭФФЕКТ ОБЪЕКТА</h3><div id="effectPanel" class="note" style="margin-top:10px;padding:10px;background:#1b2935;border:1px solid #526775;border-radius:4px"><b style="color:#ffda8a">ЭФФЕКТ ОБЪЕКТА</b><div id="effectTitle" style="margin:6px 0;color:#fff">Выбери объект строительства</div><div id="effectCost"></div><div id="effectDetails" style="margin-top:6px;line-height:1.6">Здесь появятся прогнозируемые изменения бюджета, населения, рабочих мест и качества жизни.</div></div><h3>📜 ЗАДАНИЕ МЭРА</h3><div id="storyPanel" class="note" style="padding:10px;background:#1b2935;border:1px solid #bd8d54;border-radius:4px;line-height:1.55"></div><h3>🏗 ПРЕДЛОЖЕНИЯ ЧАСТНИКОВ</h3><div id="proposalPanel" class="note" style="padding:9px;background:#1b2935;border:1px solid #bd8d54;border-radius:4px">Пока предложений нет. Частные владельцы будут обращаться по мере развития города.</div><h3>НАЛОГОВАЯ ПОЛИТИКА</h3><div class="note" style="padding:9px;background:#1b2935;border:1px solid #526775;border-radius:4px"><label for="taxObject" style="display:block;margin-bottom:6px;color:#ffda8a">Объект налогообложения</label><select id="taxObject" style="width:100%;padding:7px;background:#3b5260;color:#fff;border:1px solid #718894;border-radius:3px"></select><div style="display:flex;justify-content:space-between;margin:9px 0 4px"><span>Ставка налога</span><b id="taxRateLabel" style="color:#ffd27c">100%</b></div><input id="taxRate" type="range" min="50" max="150" step="5" value="100" style="width:100%"><div style="display:flex;gap:5px;justify-content:space-between"><small>50% · льготная</small><small>150% · высокая</small></div><div id="taxEffect" style="margin-top:8px;line-height:1.5">100% — базовая ставка</div><div style="display:flex;gap:5px;margin-top:8px"><button id="taxDown" style="flex:1;padding:6px">− 5%</button><button id="taxUp" style="flex:1;padding:6px">+ 5%</button></div></div><h3>💳 КРЕДИТ</h3><div class="note" style="padding:9px;background:#1b2935;border:1px solid #526775;border-radius:4px"><div id="financeInfo">Государственные программы и банковское финансирование</div><button id="grantRequest" style="width:100%;margin-top:7px">🏛 Запросить субсидию</button><div style="display:flex;gap:5px;margin-top:7px"><input id="loanAmount" type="number" min="10000" step="10000" value="1000000" style="width:60%;padding:7px"><button id="loanRequest" style="flex:1">Взять кредит</button></div><small>Кредитная ставка: ключевая ставка ЦБ + 5 п.п. Платёж и проценты учитываются в бюджете.</small></div><h3>СТРОИТЕЛЬСТВО</h3><div class="tools" id="tools"></div>
 <h4 style="color:#ffda8a;margin:12px 0 6px">РАСШИРЕНИЕ ГОРОДА</h4><div class="note" style="padding:9px;background:#1b2935;border:1px solid #526775;border-radius:4px"><div>Размер карты: <b id="mapSizeLabel" style="color:#ffd27c">24 × 24</b></div><div id="expandCost" style="margin:7px 0">Следующее расширение: 25 000 ₽</div><button id="expandMap" style="width:100%">🗺️ Купить новые земли</button><small style="display:block;margin-top:7px">Расширение добавляет свободную территорию справа и снизу карты. Новые земли оплачиваются из городского бюджета.</small></div><h3>📖 СПРАВОЧНИК</h3>
 <button id="guideToggle" style="width:100%;padding:9px">Открыть руководство по игре</button>
 <div id="guidePanel" class="note" style="display:none;margin-top:8px;padding:12px;line-height:1.55;background:#172630;border:1px solid #bd8d54">
@@ -235,17 +235,19 @@ function setAuthUser(user){
 }
 function refreshAfterCloudLoad(){
  people.length=0;
- migratePrivateSector();
- rebuildRoadGraph();
- refreshPedestrianRoutes();
- initPeople();
- renderProposals();
- stats();
- updateUndoButton();
- refreshTaxUI();
- refreshExpansion();
- updateFinance();
- save();
+ const safeStep=(name,fn)=>{try{fn()}catch(error){console.error('Murino restore step failed: '+name,error)}};
+ safeStep('statistics before migration',stats);
+ safeStep('private sector migration',migratePrivateSector);
+ safeStep('road graph',rebuildRoadGraph);
+ safeStep('pedestrian routes',refreshPedestrianRoutes);
+ safeStep('people',initPeople);
+ safeStep('proposals',renderProposals);
+ safeStep('statistics',stats);
+ safeStep('undo button',updateUndoButton);
+ safeStep('tax UI',refreshTaxUI);
+ safeStep('map expansion',refreshExpansion);
+ safeStep('finance',updateFinance);
+ safeStep('local save',save);
 }
 async function uploadCloudSave(userId){
  if(!supabaseClient||!userId)return;
@@ -291,39 +293,31 @@ async function handleAuthSession(session){
   const {data,error}=await supabaseClient.from('player_saves').select('save_data,updated_at').eq('user_id',user.id).maybeSingle();
   if(authUser?.id!==user.id)return;
   if(error)throw error;
-  const preferenceKey='murino_cloud_sync_mode_'+user.id;
   const lastOwner=localStorage.getItem('murino_last_cloud_user');
-  let syncMode=localStorage.getItem(preferenceKey);
-  if(localSaveWasInvalid){syncMode='cloud';localStorage.setItem(preferenceKey,'cloud')}
-  else if(lastOwner&&lastOwner!==user.id){syncMode='cloud';localStorage.setItem(preferenceKey,'cloud')}
-  else if(syncMode!=='cloud'&&syncMode!=='local'){syncMode=lastOwner===user.id?'local':'cloud';localStorage.setItem(preferenceKey,syncMode)}
   if(data?.save_data){
    const cloudGame=data.save_data;
-   if(!Array.isArray(cloudGame.tiles)||cloudGame.tiles.length===0||!Number.isInteger(Math.sqrt(cloudGame.tiles.length))||Math.sqrt(cloudGame.tiles.length)<1)throw new Error('Облачное сохранение имеет неверный формат');
-   if(syncMode==='cloud'){
-    game=cloudGame;N=Math.sqrt(game.tiles.length);game.mapSize=N;game.paused=false;localSaveWasInvalid=false;
-    localStorage.setItem(KEY,JSON.stringify(game));localStorage.setItem('murino_last_cloud_user',user.id);
-    refreshAfterCloudLoad();
-    cloudMessage('☁️ Облачный город загружен · '+(data.updated_at?new Date(data.updated_at).toLocaleString('ru-RU'):'сохранение найдено'));
-    authMessage('Готово! Ты вошёл, город загружен из облака.');
-   }else{
-    await uploadCloudSave(user.id);if(authUser?.id!==user.id)return;
-    localStorage.setItem('murino_last_cloud_user',user.id);
-    cloudMessage('☁️ Текущий город синхронизирован с облаком.');
-    authMessage('Вход выполнен. Текущий город сохранён в облаке.');
-   }
+   if(!Array.isArray(cloudGame.tiles)||cloudGame.tiles.length===0||!Number.isInteger(Math.sqrt(cloudGame.tiles.length))||Math.sqrt(cloudGame.tiles.length)<1||!cloudGame.tiles.every(cell=>cell&&typeof cell==='object'&&!Array.isArray(cell)))throw new Error('Облачное сохранение имеет неверный формат');
+   // Existing cloud data is authoritative after every page reload.
+   game=cloudGame;N=Math.sqrt(game.tiles.length);game.mapSize=N;game.paused=false;localSaveWasInvalid=false;
+   const cloudSnapshot=JSON.stringify(game);
+   localStorage.setItem(KEY,cloudSnapshot);
+   localStorage.setItem(BACKUP_KEY,cloudSnapshot);
+   localStorage.setItem('murino_last_cloud_user',user.id);
+   refreshAfterCloudLoad();
+   cloudMessage('☁️ Облачный город загружен · '+(data.updated_at?new Date(data.updated_at).toLocaleString('ru-RU'):'сохранение найдено'));
+   authMessage('Готово! Ты вошёл, город загружен из облака.');
   }else{
    if(lastOwner&&lastOwner!==user.id){
-    game=newGame();game.proposals=[];game.parkways=0;game.nextProposalDay=4;N=24;refreshAfterCloudLoad();
+    game=newGame();game.proposals=[];game.parkways=0;game.nextProposalDay=4;N=24;localSaveWasInvalid=false;refreshAfterCloudLoad();
     await uploadCloudSave(user.id);
     authMessage('Для нового аккаунта создан отдельный город. Чужое локальное сохранение не переносилось.');
    }else{
+    if(localSaveWasInvalid){game=newGame();N=24;game.mapSize=N;game.proposals=[];game.parkways=0;game.nextProposalDay=4;localSaveWasInvalid=false;refreshAfterCloudLoad()}
     await uploadCloudSave(user.id);
     authMessage('Аккаунт подключён. Текущий город сохранён в облаке.');
    }
    if(authUser?.id!==user.id)return;
    localStorage.setItem('murino_last_cloud_user',user.id);
-   localStorage.setItem(preferenceKey,'local');
    cloudMessage('☁️ Облачное сохранение включено.');
   }
   cloudSyncReady=true;
@@ -1363,7 +1357,9 @@ function initPeople(){
  while(people.length<count){const i=people.length,r=roads[i%Math.max(1,roads.length)]||{x:3,y:12};people.push({id:i,x:r.x,y:r.y,color:['#e8c18a','#f5d66b','#a5cbe0','#f1a0a1'][i%4],path:[],state:'waiting',previous:null,destination:null,lastDestination:null,tripCount:0,stuck:0})}
  for(const p of people)if(!p.path.length&&p.state!=='inside')sendPerson(p);
 }
-migratePrivateSector();save();rebuildRoadGraph();initPeople();renderProposals();
+initMurinoAuth().catch(error=>console.error('Murino auth startup failed',error));
+try{migratePrivateSector();save();rebuildRoadGraph();initPeople();renderProposals()}
+catch(startupError){console.error('Murino startup preparation failed',startupError);try{rebuildRoadGraph()}catch(graphError){console.error('Murino road graph startup failed',graphError)}}
 function beginEntering(p){
  if(!p.destination){p.state='waiting';sendPerson(p);return}
  p.entryFrom={x:p.x,y:p.y};p.entryTo={x:p.destination.x,y:p.destination.y};p.entryTimer=10;p.state='entering';
@@ -1400,5 +1396,15 @@ setInterval(()=>{
   else{p.x+=dx/d*.035;p.y+=dy/d*.035;p.stuck=(p.stuck||0)+1;if(p.stuck>100){p.x=next.x;p.y=next.y;p.path.shift();p.stuck=0}}
  }
 },100);
-function frame(now){let dt=Math.max(0,now-prev);prev=now;if(!game.paused){clock+=dt*game.speed;while(clock>=60000){clock-=60000;daily();if(people.length<Math.min(40,Math.floor(game.pop)))initPeople()}}render();requestAnimationFrame(frame)}daily(true);stats();updateUndoButton();refreshExpansion();updateFinance();initMurinoAuth();requestAnimationFrame(frame)})();
+function frame(now){
+ try{
+  let dt=Math.max(0,now-prev);prev=now;
+  if(!game.paused){clock+=dt*game.speed;while(clock>=60000){clock-=60000;try{daily()}catch(error){console.error('Murino daily update failed',error)}if(people.length<Math.min(40,Math.floor(game.pop)))try{initPeople()}catch(error){console.error('Murino people update failed',error)}}}
+  try{render()}catch(error){console.error('Murino render failed',error)}
+ }catch(error){console.error('Murino frame failed',error)}
+ requestAnimationFrame(frame)
+}
+try{daily(true)}catch(error){console.error('Murino initial calculation failed',error)}
+try{stats();updateUndoButton();refreshExpansion();updateFinance()}catch(error){console.error('Murino initial UI update failed',error)}
+requestAnimationFrame(frame)})();
 </script></body></html>
