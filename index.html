@@ -214,7 +214,7 @@ if(!game.economyVersion){
  if(Array.isArray(game.undoStack))for(const item of game.undoStack){item.money=Math.round((item.money||0)*1000);item.tax=Math.round((item.tax||0)*1000);item.upkeep=Math.round((item.upkeep||0)*1000)}
  game.economyVersion=2;
 }
-if(!Number.isFinite(game.day)||game.day<1)game.day=1;if(Number.isFinite(game.year)){game.day=Math.max(1,(Math.max(1998,game.year)-1998)*30+game.day);delete game.year}game.paused=false;
+if(!Number.isFinite(game.day)||game.day<1)game.day=1;if(Number.isFinite(game.year)){game.day=Math.max(1,(Math.max(1998,game.year)-1998)*30+game.day);delete game.year}game.paused=false;if(!Number.isFinite(game.lastActiveAt))game.lastActiveAt=Date.now();
 if(!localSaveWasInvalid&&!graphicsSafePreview){
  try{const snapshot=JSON.stringify(game);localStorage.setItem(KEY,snapshot);localStorage.setItem(BACKUP_KEY,snapshot)}catch(error){console.warn('Не удалось обновить резервную копию сохранения',error)}
 }
@@ -298,6 +298,39 @@ if(!recalcOnly){
  game.loans=(game.loans||[]).filter(l=>l.balance>1);
 }
 if(!recalcOnly)advanceResidentialConstruction();game.upkeep=upkeep+loanInterest+loanPrincipalPayment;game.money+=game.tax-game.upkeep;if(game.money<0)game.happy=Math.max(10,game.happy-4);save();stats();if(typeof updateFinance==='function')updateFinance()}
+
+
+const OFFLINE_DAY_MS=10*60*1000;
+const OFFLINE_MAX_DAYS=72;
+let offlineReportShown=false;
+function applyOfflineProgress(){
+ const now=Date.now();
+ const previous=Number(game.lastActiveAt);
+ if(!Number.isFinite(previous)||previous<=0){game.lastActiveAt=now;return null}
+ const elapsed=Math.max(0,now-previous);
+ const days=Math.min(OFFLINE_MAX_DAYS,Math.floor(elapsed/OFFLINE_DAY_MS));
+ game.lastActiveAt=now;
+ if(days<1){save();return {elapsed,days:0,creditedDays:0}}
+ const before={money:game.money,pop:game.pop,jobs:game.jobs,day:game.day};
+ offlineProcessing=true;
+ try{for(let i=0;i<days;i++)daily(false)}
+ catch(error){console.error('Murino offline progress failed',error)}
+ finally{offlineProcessing=false}
+ game.lastActiveAt=now;
+ save();stats();
+ const report={elapsed,days,creditedDays:days,money:Math.round(game.money-before.money),pop:Math.round(game.pop-before.pop),jobs:Math.round(game.jobs-before.jobs),gameDays:Math.max(0,Math.floor(game.day-before.day))};
+ if(!offlineReportShown){
+  offlineReportShown=true;
+  const hours=Math.floor(elapsed/3600000),minutes=Math.floor((elapsed%3600000)/60000);
+  const away=hours?hours+' ч '+minutes+' мин':minutes+' мин';
+  const capNote=Math.floor(elapsed/OFFLINE_DAY_MS)>OFFLINE_MAX_DAYS?' Начисление ограничено 72 игровыми днями.':'';
+  notify('🌙 Пока тебя не было ('+away+'), город прожил '+days+' игровых дней. Бюджет: '+(report.money>=0?'+':'')+report.money.toLocaleString('ru-RU')+' ₽ · население: '+(report.pop>=0?'+':'')+report.pop+'.'+capNote);
+ }
+ return report;
+}
+function markLastActive(){if(!game||graphicsSafePreview)return;game.lastActiveAt=Date.now();save()}
+window.addEventListener('pagehide',markLastActive);
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')markLastActive()});
 
 const SUPABASE_URL='https://agximdxiokrncogevbjn.supabase.co';
 const SUPABASE_PUBLISHABLE_KEY='sb_publishable_TpCcXy4j8aYDzx0bi1S9LA_V3PIcPEu';
@@ -386,7 +419,7 @@ async function handleAuthSession(session){
    const cloudGame=data.save_data;
    if(!Array.isArray(cloudGame.tiles)||cloudGame.tiles.length===0||!Number.isInteger(Math.sqrt(cloudGame.tiles.length))||Math.sqrt(cloudGame.tiles.length)<1||!cloudGame.tiles.every(cell=>cell&&typeof cell==='object'&&!Array.isArray(cell)))throw new Error('Облачное сохранение имеет неверный формат');
    // Existing cloud data is authoritative after every page reload.
-   game=cloudGame;N=Math.sqrt(game.tiles.length);game.mapSize=N;game.paused=false;localSaveWasInvalid=false;
+   game=cloudGame;N=Math.sqrt(game.tiles.length);game.mapSize=N;game.paused=false;localSaveWasInvalid=false;applyOfflineProgress();
    const cloudSnapshot=JSON.stringify(game);
    localStorage.setItem(KEY,cloudSnapshot);
    localStorage.setItem(BACKUP_KEY,cloudSnapshot);
@@ -524,7 +557,7 @@ async function initMurinoAuth(){
 }
 
 function save(){
- if(graphicsSafePreview)return;
+ if(graphicsSafePreview||offlineProcessing)return;
  if(!isValidGameSave(game)){console.warn('Сохранение пропущено: карта имеет неверный размер. Последняя рабочая копия защищена.');return}
  if(localSaveWasInvalid&&!cloudSyncReady){console.warn('Сохранение отложено до восстановления последней рабочей карты.');return}
  try{const snapshot=JSON.stringify(game);localStorage.setItem(KEY,snapshot);localStorage.setItem(BACKUP_KEY,snapshot)}
@@ -543,7 +576,8 @@ function refreshExpansion(){let cost=expansionPrices[N]??(Math.round(420000000*M
 function expandMap(){if(N>=64)return;let cost=expansionPrices[N]??Math.round(420000000*Math.pow(1.7,(N-56)/8)/1000)*1000;if(game.money<cost){notify('Не хватает денег на покупку новых земель');return}pushUndo('Покупка новых земель');let oldN=N,old=game.tiles,newN=N+8,newTiles=Array.from({length:newN*newN},(_,i)=>({ground:rand(i%newN,Math.floor(i/newN))>.84?'dark':'grass',type:'',level:0,age:0}));for(let y=0;y<oldN;y++)for(let x=0;x<oldN;x++)newTiles[y*newN+x]=old[y*oldN+x];N=newN;game.mapSize=N;game.tiles=newTiles;rebuildRoadGraph();refreshPedestrianRoutes();game.money-=cost;save();stats();refreshExpansion();notify('🗺️ Город расширен до '+N+' × '+N+' клеток! Новые земли ждут освоения.')}
 document.getElementById('expandMap').onclick=expandMap;
 
-function notify(s){document.getElementById('message').textContent=s}function tileCount(types){let n=0;for(const t of game.tiles)if(types.includes(t.type))n++;return n}
+let offlineProcessing=false;
+function notify(s){if(offlineProcessing)return;document.getElementById('message').textContent=s}function tileCount(types){let n=0;for(const t of game.tiles)if(types.includes(t.type))n++;return n}
 const countTypes=types=>tileCount(types);
 const storyMissions=[
  {title:'Оживить центр Мурино',desc:'Поставь сквер от середины главной улицы вправо.',goal:'Прогулочный сквер',progress:()=>game.parkways||0,target:1,done:()=> (game.parkways||0)>=1,action:'park'},
@@ -1543,6 +1577,7 @@ function frame(now){
  }catch(error){console.error('Murino frame failed',error)}
  requestAnimationFrame(frame)
 }
+try{applyOfflineProgress()}catch(error){console.error('Murino offline startup failed',error)}
 try{daily(true)}catch(error){console.error('Murino initial calculation failed',error)}
 try{stats();updateUndoButton();refreshExpansion();updateFinance()}catch(error){console.error('Murino initial UI update failed',error)}
 requestAnimationFrame(frame)})();
