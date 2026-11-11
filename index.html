@@ -8,7 +8,7 @@ header{height:auto;min-height:60px}
 @media(max-width:750px){header{align-items:center}.controlRail{flex-direction:row;order:3;width:100%;justify-content:flex-start;border:0;margin:0;padding:5px 0;gap:10px}.controlRail button{width:48px;min-width:48px;min-height:50px;font-size:11px}.stats{flex:1}}
 .ctrlIcon{font-size:17px;font-weight:700;line-height:1}.ctrlLabel{font-size:9px;line-height:1.05;letter-spacing:-.15px}
 @media(max-width:750px){.controlRail{overflow-x:auto;max-width:100%;padding-bottom:8px;scrollbar-width:thin}}
-</style></head><body><header><div><h1>🏙️ МУРИНО <small>Новый мэр • pixel edition 5.3</small></h1></div><div class="controlRail"><button id="pause" title="Пауза"><span class="ctrlIcon">Ⅱ</span><span class="ctrlLabel">Пауза</span></button><button id="speed" title="Скорость"><span class="ctrlIcon">▶</span><span class="ctrlLabel">Скорость</span></button><button id="undo" title="Отменить"><span class="ctrlIcon">↶</span><span class="ctrlLabel">Отмена</span></button><button id="save" title="Сохранить"><span class="ctrlIcon">💾</span><span class="ctrlLabel">Сохранить</span></button><button id="exportSave" title="Экспорт города"><span class="ctrlIcon">⬇</span><span class="ctrlLabel">Экспорт</span></button><button id="importSave" title="Импорт города"><span class="ctrlIcon">⬆</span><span class="ctrlLabel">Импорт</span></button><input id="importFile" type="file" accept="application/json,.json" hidden><button id="reset" title="Заново"><span class="ctrlIcon">↻</span><span class="ctrlLabel">Заново</span></button><button id="inspectQuick" title="Осмотр"><span class="ctrlIcon">🔎</span><span class="ctrlLabel">Осмотр</span></button><button id="accountBtn" title="Вход и облачное сохранение"><span class="ctrlIcon">👤</span><span class="ctrlLabel">Войти</span></button></div><div class="stats"><span class="stat">💰 <b id="cash">—</b> ₽</span><span class="stat">👥 <b id="pop">—</b></span><span class="stat">😊 <b id="happy">—</b>%</span><span class="stat">📅 <b id="day">—</b></span><span class="stat">💼 <b id="jobs">—</b></span><span class="stat">⭐ <b id="reputation">—</b></span></div></header><div class="layout"><aside class="side"><h3>СВОДКА</h3><div id="summary" class="note"></div><h3>🧰 ЭФФЕКТ ОБЪЕКТА</h3><div id="effectPanel" class="note" style="margin-top:10px;padding:10px;background:#1b2935;border:1px solid #526775;border-radius:4px"><b style="color:#ffda8a">ЭФФЕКТ ОБЪЕКТА</b><div id="effectTitle" style="margin:6px 0;color:#fff">Выбери объект строительства</div><div id="effectCost"></div><div id="effectDetails" style="margin-top:6px;line-height:1.6">Здесь появятся прогнозируемые изменения бюджета, населения, рабочих мест и качества жизни.</div></div><h3>📜 ЗАДАНИЕ МЭРА</h3><div id="storyPanel" class="note" style="padding:10px;background:#1b2935;border:1px solid #bd8d54;border-radius:4px;line-height:1.55"></div><h3>🏗 ПРЕДЛОЖЕНИЯ ЧАСТНИКОВ</h3><div id="proposalPanel" class="note" style="padding:9px;background:#1b2935;border:1px solid #bd8d54;border-radius:4px">Пока предложений нет. Частные владельцы будут обращаться по мере развития города.</div><h3>НАЛОГОВАЯ ПОЛИТИКА</h3><div class="note" style="padding:9px;background:#1b2935;border:1px solid #526775;border-radius:4px"><label for="taxObject" style="display:block;margin-bottom:6px;color:#ffda8a">Объект налогообложения</label><select id="taxObject" style="width:100%;padding:7px;background:#3b5260;color:#fff;border:1px solid #718894;border-radius:3px"></select><div style="display:flex;justify-content:space-between;margin:9px 0 4px"><span>Ставка налога</span><b id="taxRateLabel" style="color:#ffd27c">100%</b></div><input id="taxRate" type="range" min="50" max="150" step="5" value="100" style="width:100%"><div style="display:flex;gap:5px;justify-content:space-between"><small>50% · льготная</small><small>150% · высокая</small></div><div id="taxEffect" style="margin-top:8px;line-height:1.5">100% — базовая ставка</div><div style="display:flex;gap:5px;margin-top:8px"><button id="taxDown" style="flex:1;padding:6px">− 5%</button><button id="taxUp" style="flex:1;padding:6px">+ 5%</button></div></div><h3>💳 КРЕДИТ</h3><div class="note" style="padding:9px;background:#1b2935;border:1px solid #526775;border-radius:4px"><div id="financeInfo">Государственные программы и банковское финансирование</div><button id="grantRequest" style="width:100%;margin-top:7px">🏛 Запросить субсидию</button><div style="display:flex;gap:5px;margin-top:7px"><input id="loanAmount" type="number" min="10000" step="10000" value="1000000" style="width:60%;padding:7px"><button id="loanRequest" style="flex:1">Взять кредит</button></div><small>Кредитная ставка: ключевая ставка ЦБ + 5 п.п. Платёж и проценты учитываются в бюджете.</small></div><h3>СТРОИТЕЛЬСТВО</h3><div class="tools" id="tools"></div>
+</style></head><body><header><div><h1>🏙️ МУРИНО <small>Новый мэр • pixel edition 5.4</small></h1></div><div class="controlRail"><button id="pause" title="Пауза"><span class="ctrlIcon">Ⅱ</span><span class="ctrlLabel">Пауза</span></button><button id="speed" title="Скорость"><span class="ctrlIcon">▶</span><span class="ctrlLabel">Скорость</span></button><button id="undo" title="Отменить"><span class="ctrlIcon">↶</span><span class="ctrlLabel">Отмена</span></button><button id="save" title="Сохранить"><span class="ctrlIcon">💾</span><span class="ctrlLabel">Сохранить</span></button><button id="exportSave" title="Экспорт города"><span class="ctrlIcon">⬇</span><span class="ctrlLabel">Экспорт</span></button><button id="importSave" title="Импорт города"><span class="ctrlIcon">⬆</span><span class="ctrlLabel">Импорт</span></button><input id="importFile" type="file" accept="application/json,.json" hidden><button id="reset" title="Заново"><span class="ctrlIcon">↻</span><span class="ctrlLabel">Заново</span></button><button id="inspectQuick" title="Осмотр"><span class="ctrlIcon">🔎</span><span class="ctrlLabel">Осмотр</span></button><button id="accountBtn" title="Вход и облачное сохранение"><span class="ctrlIcon">👤</span><span class="ctrlLabel">Войти</span></button></div><div class="stats"><span class="stat">💰 <b id="cash">—</b> ₽</span><span class="stat">👥 <b id="pop">—</b></span><span class="stat">😊 <b id="happy">—</b>%</span><span class="stat">📅 <b id="day">—</b></span><span class="stat">💼 <b id="jobs">—</b></span><span class="stat">⭐ <b id="reputation">—</b></span></div></header><div class="layout"><aside class="side"><h3>СВОДКА</h3><div id="summary" class="note"></div><h3>🧰 ЭФФЕКТ ОБЪЕКТА</h3><div id="effectPanel" class="note" style="margin-top:10px;padding:10px;background:#1b2935;border:1px solid #526775;border-radius:4px"><b style="color:#ffda8a">ЭФФЕКТ ОБЪЕКТА</b><div id="effectTitle" style="margin:6px 0;color:#fff">Выбери объект строительства</div><div id="effectCost"></div><div id="effectDetails" style="margin-top:6px;line-height:1.6">Здесь появятся прогнозируемые изменения бюджета, населения, рабочих мест и качества жизни.</div></div><h3>📜 ЗАДАНИЕ МЭРА</h3><div id="storyPanel" class="note" style="padding:10px;background:#1b2935;border:1px solid #bd8d54;border-radius:4px;line-height:1.55"></div><h3>🏗 ПРЕДЛОЖЕНИЯ ЧАСТНИКОВ</h3><div id="proposalPanel" class="note" style="padding:9px;background:#1b2935;border:1px solid #bd8d54;border-radius:4px">Пока предложений нет. Частные владельцы будут обращаться по мере развития города.</div><h3>НАЛОГОВАЯ ПОЛИТИКА</h3><div class="note" style="padding:9px;background:#1b2935;border:1px solid #526775;border-radius:4px"><label for="taxObject" style="display:block;margin-bottom:6px;color:#ffda8a">Объект налогообложения</label><select id="taxObject" style="width:100%;padding:7px;background:#3b5260;color:#fff;border:1px solid #718894;border-radius:3px"></select><div style="display:flex;justify-content:space-between;margin:9px 0 4px"><span>Ставка налога</span><b id="taxRateLabel" style="color:#ffd27c">100%</b></div><input id="taxRate" type="range" min="50" max="150" step="5" value="100" style="width:100%"><div style="display:flex;gap:5px;justify-content:space-between"><small>50% · льготная</small><small>150% · высокая</small></div><div id="taxEffect" style="margin-top:8px;line-height:1.5">100% — базовая ставка</div><div style="display:flex;gap:5px;margin-top:8px"><button id="taxDown" style="flex:1;padding:6px">− 5%</button><button id="taxUp" style="flex:1;padding:6px">+ 5%</button></div></div><h3>💳 КРЕДИТ</h3><div class="note" style="padding:9px;background:#1b2935;border:1px solid #526775;border-radius:4px"><div id="financeInfo">Государственные программы и банковское финансирование</div><button id="grantRequest" style="width:100%;margin-top:7px">🏛 Запросить субсидию</button><div style="display:flex;gap:5px;margin-top:7px"><input id="loanAmount" type="number" min="10000" step="10000" value="1000000" style="width:60%;padding:7px"><button id="loanRequest" style="flex:1">Взять кредит</button></div><small>Кредитная ставка: ключевая ставка ЦБ + 5 п.п. Платёж и проценты учитываются в бюджете.</small></div><h3>СТРОИТЕЛЬСТВО</h3><div class="tools" id="tools"></div>
 <h4 style="color:#ffda8a;margin:12px 0 6px">РАСШИРЕНИЕ ГОРОДА</h4><div class="note" style="padding:9px;background:#1b2935;border:1px solid #526775;border-radius:4px"><div>Размер карты: <b id="mapSizeLabel" style="color:#ffd27c">24 × 24</b></div><div id="expandCost" style="margin:7px 0">Следующее расширение: 25 000 ₽</div><button id="expandMap" style="width:100%">🗺️ Купить новые земли</button><small style="display:block;margin-top:7px">Расширение добавляет свободную территорию справа и снизу карты. Новые земли оплачиваются из городского бюджета.</small></div><h3>📖 СПРАВОЧНИК</h3>
 <button id="guideToggle" style="width:100%;padding:9px">Открыть руководство по игре</button>
 <div id="guidePanel" class="note" style="display:none;margin-top:8px;padding:12px;line-height:1.55;background:#172630;border:1px solid #bd8d54">
@@ -965,24 +965,18 @@ function size(){let r=c.getBoundingClientRect();c.width=Math.round(r.width*devic
 }
 function groundTile(x,y,ground,ix,iy){
  const v=rand(ix*13+7,iy*17+3);
- const g=ctx.createLinearGradient(x-28,y-15,x+28,y+17);
- if(ground==='dark'){g.addColorStop(0,'#547f49');g.addColorStop(.55,'#699a55');g.addColorStop(1,'#4c7546')}
- else{g.addColorStop(0,v>.55?'#8bbf68':'#80b564');g.addColorStop(.55,v>.55?'#77ad5e':'#8ebd6d');g.addColorStop(1,'#62984f')}
- diamond(x,y,g,'#6a9b5c');
- const p=rand(ix*5+11,iy*7+23);
- if(p>.34){
-  const ox=(rand(ix+9,iy+4)-.5)*34,oy=(rand(ix+2,iy+15)-.5)*12;
-  poly([[x+ox-5,y+oy+2],[x+ox,y+oy-1],[x+ox+8,y+oy+3],[x+ox,y+oy+6]],p>.72?'#95c777':'#74a958');
- }
- if(p>.62){
-  for(let k=0;k<3;k++){
-   const fx=x+(rand(ix+k*7,iy+31)-.5)*45,fy=y+(rand(ix+17,iy+k*11)-.5)*18;
-   rect(fx,fy,1.5,1.5,k===0?'#f4df9e':k===1?'#e9e6c0':'#d7df8a');
+ const base=ground==='dark'?(v>.5?'#618b50':'#567e49'):(v>.6?'#86b968':v>.3?'#7db15d':'#75a957');
+ diamond(x,y,base,'#6a9b5c');
+ if(zoom>.72){
+  const p=rand(ix*5+11,iy*7+23);
+  if(p>.38){
+   const ox=(rand(ix+9,iy+4)-.5)*34,oy=(rand(ix+2,iy+15)-.5)*12;
+   poly([[x+ox-5,y+oy+2],[x+ox,y+oy-1],[x+ox+8,y+oy+3],[x+ox,y+oy+6]],p>.72?'#95c777':'#74a958');
   }
- }
- if(rand(ix+41,iy+19)>.83){
-  ctx.strokeStyle='#9ac678';ctx.lineWidth=.7;
-  ctx.beginPath();ctx.moveTo(x-12,y+13);ctx.lineTo(x-8,y+11);ctx.lineTo(x-6,y+13);ctx.stroke();
+  if(p>.68){
+   const fx=x+(rand(ix+7,iy+31)-.5)*45,fy=y+(rand(ix+17,iy+11)-.5)*18;
+   rect(fx,fy,1.5,1.5,p>.82?'#f4df9e':'#e9e6c0');
+  }
  }
 }
 function lotTile(x,y,t,ix,iy){
@@ -1026,6 +1020,10 @@ function roadTile(x,y,ix,iy){
  const v=rand(ix*11+31,iy*7+9);
  if(v>.91){
   rect(x-22,y+14,2,2,'#d3d0bd');rect(x+17,y+18,2,2,'#d3d0bd');
+ }
+ if(v>.965){
+  rect(x+20,y+9,2,12,'#53615f');rect(x+17,y+8,7,2,'#c9c7a9');
+  ctx.save();ctx.shadowColor='#f4d68b';ctx.shadowBlur=5;ctx.fillStyle='#ffe3a2';ctx.beginPath();ctx.arc(x+20,y+8,1.8,0,Math.PI*2);ctx.fill();ctx.restore();
  }
 }
 function drawShadow(x,y,rx,ry,alpha=.25){
@@ -1115,6 +1113,11 @@ function drawShopSign(x,y,label,color='#f6e6b8',ink='#293b43',width=40){
  poly([[x-width/2,y+5],[x+width/2,y+5],[x+width/2-2,y+13],[x-width/2-2,y+13]],color,'#4b5352');
  ctx.fillStyle=ink;ctx.font='bold 5px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
  ctx.fillText(String(label||'МАГАЗИН').toUpperCase().slice(0,16),x,y+9,width-4);
+}
+function drawNeonSign(x,y,label,color='#ffd58d',width=42){
+ poly([[x-width/2,y+5],[x+width/2,y+5],[x+width/2-2,y+14],[x-width/2-2,y+14]],'#26343b','#68777b');
+ ctx.save();ctx.shadowColor=color;ctx.shadowBlur=5;ctx.fillStyle=color;ctx.font='bold 6px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(String(label||'МАГАЗИН').toUpperCase().slice(0,15),x,y+9,width-5);ctx.restore();
+ ctx.strokeStyle=color;ctx.globalAlpha=.65;ctx.lineWidth=.7;ctx.strokeRect(x-width/2,y+5,width-1,8);ctx.globalAlpha=1;
 }
 function drawTreeModel(x,y,style=0){
  const palettes=[
@@ -1257,7 +1260,7 @@ function drawObject(t,x,y,ix,iy){
    bank:'БАНК',office:'ОФИСЫ',gas:'АЗС',carwash:'МОЙКА',autoservice:'АВТО'
   };
   const label=t.brandName||labels[type]||'МАГАЗИН';
-  drawShopSign(x,y,label,type==='post'?'#f2c83d':'#f4e6b7',type==='post'?'#a52a25':'#26353b',Math.min(48,w*2));
+  if(type==='coffee'||type==='cinema'||type==='pizzeria'||type==='restaurant')drawNeonSign(x,y,label,type==='pizzeria'?'#ff806b':type==='cinema'?'#ff8b92':'#f4d39a',Math.min(48,w*2));else drawShopSign(x,y,label,type==='post'?'#f2c83d':'#f4e6b7',type==='post'?'#a52a25':'#26353b',Math.min(48,w*2));
   if(type==='pharmacy'||type==='clinic_private'){
    rect(x-3,y-8,6,15,'#f4f5e8');rect(x-8,y-3,16,5,'#d34b4b');
   }
