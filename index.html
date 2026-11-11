@@ -327,7 +327,7 @@ function applyOfflineProgress(){
  }
  return report;
 }
-function markLastActive(){if(!game||graphicsSafePreview)return;game.lastActiveAt=Date.now();save()}
+function markLastActive(){if(!game||graphicsSafePreview)return;game.lastActiveAt=Date.now();save();if(authUser&&cloudSyncReady)flushCloudSave().catch(error=>console.warn('Murino final cloud save failed',error))}
 window.addEventListener('pagehide',markLastActive);
 document.addEventListener('visibilitychange',()=>{
  if(document.visibilityState==='hidden')markLastActive();
