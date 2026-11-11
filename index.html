@@ -1254,6 +1254,8 @@ function drawShopSign(x,y,label,color='#f6e6b8',ink='#293b43'){
 }
 const knownBuildingTypes=new Set(['tree','road','village','farm','shop','res','com','ind','park','school','university','clinic','hospital','citypharmacy',...Object.keys(business)]);
 function drawObject(t,x,y,ix,iy){
+ if(t.type==='busstop'){poly([[x,y+4],[x+12,y+10],[x,y+16],[x-12,y+10]],'#d9d0b5','#7d786b');rect(x-2,y-18,4,25,'#52616a');rect(x-9,y-22,18,12,'#e4bd55','#514b3e');rect(x-6,y-19,12,6,'#b9d5d6');rect(x-9,y-10,18,2,'#f3e6c1');return}
+ if(t.type==='busdepot'){poly([[x,y+5],[x+22,y+16],[x,y+27],[x-22,y+16]],'#a9a18d','#67665d');building(x,y,23,15,20,'#7f9d9e','#526f78',0);rect(x-15,y+5,30,10,'#d7dfd5');rect(x-11,y+7,9,6,'#5d8792');rect(x+2,y+7,9,6,'#5d8792');rect(x-12,y+15,24,2,'#d9b94f');return}
  const r=rand(ix*7+3,iy*11+9),style=Number.isFinite(t.modelVariant)?Math.abs(Math.floor(t.modelVariant))%6:Math.floor(r*6);
  if(t.type==='tree'){
   ctx.save();ctx.globalAlpha=.24;ctx.fillStyle='#14251c';ctx.beginPath();ctx.ellipse(x+3,y+18,12,5,0,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;
