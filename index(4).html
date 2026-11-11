@@ -1,0 +1,595 @@
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Мурино: новый мэр</title><style>
+*{box-sizing:border-box}body{margin:0;background:#151d24;color:#e8ebd9;font:14px system-ui,Arial}header{height:60px;background:#26313b;border-bottom:3px solid #111a20;display:flex;align-items:center;justify-content:space-between;padding:8px 16px;gap:10px;flex-wrap:wrap}h1{font-size:18px;margin:0;color:#ffd27c}small{color:#aab9bc}.stats{display:flex;gap:16px;flex-wrap:wrap;align-items:center}.stat b{color:#f7d883}.layout{display:flex;height:calc(100vh - 60px);min-height:520px}.side{width:310px;flex-shrink:0;background:#26313b;border-right:3px solid #121b21;padding:13px;overflow:auto}.side h3{margin:10px 0;color:#ffda8a}.tools{display:grid;grid-template-columns:1fr 1fr;gap:6px}.tools button{font-size:11px;line-height:1.25;padding:8px 4px;min-height:42px}button{font:inherit;color:#ecf3e5;background:#3b5260;border:2px solid #182832;padding:10px 5px;cursor:pointer;border-radius:3px}button:hover{background:#4c6b78}button.active{background:#b87943;border-color:#ffda8a;color:#fff}.note{color:#b9c7c4;line-height:1.5;font-size:12px}.game{position:relative;flex:1;overflow:hidden;background:#81b5bd}canvas{display:block;width:100%;height:100%;image-rendering:pixelated;cursor:crosshair;touch-action:none}.hud{position:absolute;bottom:12px;left:12px;background:#1b2935e8;border:2px solid #5b7180;padding:10px;max-width:390px;font-size:13px;pointer-events:none}.topnote{position:absolute;top:12px;right:12px;background:#1b2935db;padding:8px 12px;border:1px solid #6c8590;font-size:12px}.row{display:flex;gap:7px;margin-top:8px}.row button{flex:1}#message{min-height:34px;color:#ffe2a0}.intro{position:fixed;inset:0;background:#101820d9;display:grid;place-items:center;z-index:5;padding:20px}.intro.hidden{display:none}.modal{background:#2d3e49;border:4px solid #bd8d54;max-width:480px;padding:25px;box-shadow:10px 10px #10191f}.modal h2{color:#ffdb89;margin-top:0}.modal p{line-height:1.65}.modal button{background:#a56e3c;width:100%;font-weight:700}@media(max-width:750px){header{height:auto;min-height:65px}.layout{height:calc(100dvh - 90px)}.side{width:158px;padding:7px}.tools{grid-template-columns:1fr}.side h3{font-size:13px}.note{font-size:11px}.stats{gap:8px;font-size:11px}.hud{max-width:240px;font-size:11px}}
+
+.controlRail{display:flex;flex-direction:row;flex-wrap:nowrap;align-items:center;gap:10px;align-self:center;justify-content:center;margin-right:8px;padding:4px 4px;border-left:1px solid #526775;border-right:1px solid #526775}
+.controlRail button{width:48px;min-width:48px;min-height:52px;padding:4px 2px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:11px;line-height:1.05;white-space:nowrap}
+.controlRail button:disabled{opacity:.35;cursor:default}
+header{height:auto;min-height:60px}
+@media(max-width:750px){header{align-items:center}.controlRail{flex-direction:row;order:3;width:100%;justify-content:flex-start;border:0;margin:0;padding:5px 0;gap:10px}.controlRail button{width:48px;min-width:48px;min-height:50px;font-size:11px}.stats{flex:1}}
+.ctrlIcon{font-size:17px;font-weight:700;line-height:1}.ctrlLabel{font-size:9px;line-height:1.05;letter-spacing:-.15px}
+</style></head><body><header><div><h1>🏙️ МУРИНО <small>Новый мэр • pixel edition 4.6</small></h1></div><div class="controlRail"><button id="pause" title="Пауза"><span class="ctrlIcon">Ⅱ</span><span class="ctrlLabel">Пауза</span></button><button id="speed" title="Скорость"><span class="ctrlIcon">▶</span><span class="ctrlLabel">Скорость</span></button><button id="undo" title="Отменить"><span class="ctrlIcon">↶</span><span class="ctrlLabel">Отмена</span></button><button id="save" title="Сохранить"><span class="ctrlIcon">💾</span><span class="ctrlLabel">Сохранить</span></button><button id="exportSave" title="Экспорт города"><span class="ctrlIcon">⬇</span><span class="ctrlLabel">Экспорт</span></button><button id="importSave" title="Импорт города"><span class="ctrlIcon">⬆</span><span class="ctrlLabel">Импорт</span></button><input id="importFile" type="file" accept="application/json,.json" hidden><button id="reset" title="Заново"><span class="ctrlIcon">↻</span><span class="ctrlLabel">Заново</span></button><button id="inspectQuick" title="Осмотр"><span class="ctrlIcon">🔎</span><span class="ctrlLabel">Осмотр</span></button></div><div class="stats"><span class="stat">💰 <b id="cash">—</b> ₽</span><span class="stat">👥 <b id="pop">—</b></span><span class="stat">😊 <b id="happy">—</b>%</span><span class="stat">📅 <b id="day">—</b></span><span class="stat">💼 <b id="jobs">—</b></span><span class="stat">⭐ <b id="reputation">—</b></span></div></header><div class="layout"><aside class="side"><h3>СТРОИТЕЛЬСТВО</h3><div class="tools" id="tools"></div><div id="effectPanel" class="note" style="margin-top:10px;padding:10px;background:#1b2935;border:1px solid #526775;border-radius:4px"><b style="color:#ffda8a">ЭФФЕКТЫ ОБЪЕКТА</b><div id="effectTitle" style="margin:6px 0;color:#fff">Выбери объект строительства</div><div id="effectCost"></div><div id="effectDetails" style="margin-top:6px;line-height:1.6">Здесь появятся прогнозируемые изменения бюджета, населения, рабочих мест и качества жизни.</div></div>
+<h3>📖 СПРАВОЧНИК</h3>
+<button id="guideToggle" style="width:100%;padding:9px">Открыть руководство по игре</button>
+<div id="guidePanel" class="note" style="display:none;margin-top:8px;padding:12px;line-height:1.55;background:#172630;border:1px solid #bd8d54">
+ <div style="display:flex;justify-content:space-between;align-items:center"><b style="color:#ffda8a">📖 ПОЛНОЕ РУКОВОДСТВО МЭРА</b><button id="guideClose">✕</button></div>
+ <h4>1. Цель игры</h4><p>Развивай деревню Мурино в большой город: привлекай жителей и инвесторов, создавай рабочие места, строй инфраструктуру и следи за бюджетом.</p>
+ <h4>2. Управление картой</h4><p>Выбирай инструмент в панели строительства, затем нажимай на клетку карты. Колесо мыши меняет масштаб, перетаскивание перемещает карту. На телефоне используй касания и жесты.</p>
+ <h4>3. Зонирование и строительство</h4><p>Жильё, коммерция и промышленность создают условия для частного развития. Частные объекты оплачивают владельцы, муниципальные дороги, парки, школы, аптеки, поликлиники, больницы и университеты строятся за счёт города.</p>
+ <h4>4. Частные инвесторы</h4><p>Инвесторы предлагают новые предприятия или филиалы действующих сетей. Ты согласуешь участок и цену. Сначала согласуй цену земли, затем выбери участок прямо на карте. Красная точка показывает предложение инвестора. Он может не принять новое место. Подъездные дороги инвестор строит сам.</p>
+ <h4>5. Жилые застройщики</h4><p>Застройщик предлагает новый дом рядом с существующей жилой застройкой. Вокруг дома резервируются восемь клеток под проходы и дороги. Доступность улиц влияет на заселение.</p>
+ <h4>6. Население и рабочие места</h4><p>Жители заселяются в доступное жильё. Рабочие места создают частные предприятия и промышленность. Число фактически занятых работников ограничено населением города.</p>
+ <h4>7. Налоги и бюджет</h4><p>Налоговая политика позволяет менять ставки от 50% до 150%. Доходы города сравниваются с ежедневными расходами на муниципальную инфраструктуру. Высокие налоги могут снижать удовлетворённость жителей.</p>
+ <h4>8. Дороги и доступность</h4><p>Дороги соединяют здания с городской сетью. Без примыкания к дороге жильё заселяется хуже, а бизнесу сложнее работать. Частные инвесторы оплачивают подъездные дороги своих проектов.</p>
+ <h4>9. Скверы и парки</h4><p>Первое задание предлагает одной кнопкой создать прогулочный сквер от центра главной улицы вправо. Дополнительные аллеи можно строить инструментом сквера и поворачивать экранной кнопкой.</p>
+ <h4>10. Задания мэра</h4><p>Выполняй последовательные поручения: за них выдаются деньги и репутация. Следующее задание открывается после выполнения предыдущего.</p>
+ <h4>11. Скорость и сохранение</h4><p>Пауза останавливает ход времени. Скорость ускоряет игровые дни. Сохранение записывает прогресс в браузере. «Заново» начинает новую игру и сбрасывает текущий город.</p>
+ <h4>12. Практические советы</h4><ul><li>Сначала прокладывай дороги, затем развивай участки.</li><li>Не строй слишком много муниципальных объектов без стабильных налоговых поступлений.</li><li>Разнообразь бизнес и распределяй его по разным районам.</li><li>Согласовывай расположение инвестиций с учётом будущих улиц.</li><li>Следи за занятостью, счастьем и свободными местами в жилье.</li></ul>
+</div>
+<h3>🏗 ПРЕДЛОЖЕНИЯ ЧАСТНИКОВ</h3><div id="proposalPanel" class="note" style="padding:9px;background:#1b2935;border:1px solid #bd8d54;border-radius:4px">Пока предложений нет. Частные владельцы будут обращаться по мере развития города.</div><h3>🏛 ГОРОДСКИЕ ФИНАНСЫ</h3><div class="note" style="padding:9px;background:#1b2935;border:1px solid #526775;border-radius:4px"><div id="financeInfo">Государственные программы и банковское финансирование</div><button id="grantRequest" style="width:100%;margin-top:7px">🏛 Запросить субсидию</button><div style="display:flex;gap:5px;margin-top:7px"><input id="loanAmount" type="number" min="10000" step="10000" value="1000000" style="width:60%;padding:7px"><button id="loanRequest" style="flex:1">Взять кредит</button></div><small>Кредитная ставка: ключевая ставка ЦБ + 5 п.п. Платёж и проценты учитываются в бюджете.</small></div><h3>СВОДКА</h3><div id="summary" class="note"></div><h3>📜 ЗАДАНИЕ МЭРА</h3><div id="storyPanel" class="note" style="padding:10px;background:#1b2935;border:1px solid #bd8d54;border-radius:4px;line-height:1.55"></div><h3>НАЛОГОВАЯ ПОЛИТИКА</h3><div class="note" style="padding:9px;background:#1b2935;border:1px solid #526775;border-radius:4px"><label for="taxObject" style="display:block;margin-bottom:6px;color:#ffda8a">Объект налогообложения</label><select id="taxObject" style="width:100%;padding:7px;background:#3b5260;color:#fff;border:1px solid #718894;border-radius:3px"></select><div style="display:flex;justify-content:space-between;margin:9px 0 4px"><span>Ставка налога</span><b id="taxRateLabel" style="color:#ffd27c">100%</b></div><input id="taxRate" type="range" min="50" max="150" step="5" value="100" style="width:100%"><div style="display:flex;gap:5px;justify-content:space-between"><small>50% · льготная</small><small>150% · высокая</small></div><div id="taxEffect" style="margin-top:8px;line-height:1.5">100% — базовая ставка</div><div style="display:flex;gap:5px;margin-top:8px"><button id="taxDown" style="flex:1;padding:6px">− 5%</button><button id="taxUp" style="flex:1;padding:6px">+ 5%</button></div></div><h3>РАСШИРЕНИЕ ГОРОДА</h3><div class="note" style="padding:9px;background:#1b2935;border:1px solid #526775;border-radius:4px"><div>Размер карты: <b id="mapSizeLabel" style="color:#ffd27c">24 × 24</b></div><div id="expandCost" style="margin:7px 0">Следующее расширение: 25 000 ₽</div><button id="expandMap" style="width:100%">🗺️ Купить новые земли</button><small style="display:block;margin-top:7px">Расширение добавляет свободную территорию справа и снизу карты. Новые земли оплачиваются из городского бюджета.</small></div><h3>СОВЕТ МЭРУ</h3><div class="note">Выбирай конкретный бизнес в нужной категории. Строй дороги рядом с коммерцией и жильём. Жилые дома растут, когда есть работа и услуги. Деревья можно вырубать отдельным инструментом или автоматически убирать при строительстве. У каждого бизнеса своя цена, рабочие места и нагрузка на содержание. Инструмент «Перенести объект» работает в два клика: сначала выбери здание, затем свободную клетку. Стоимость — 150 000 ₽. Старые деревенские дома можно снести и переселить жителей в новые кварталы.</div></aside><main class="game"><canvas id="view"></canvas><div class="topnote">Колёсико: масштаб · Правая кнопка/перетаскивание: карта</div><div class="hud"><div id="message">Выберите инструмент и нажмите на клетку.</div><div id="tileinfo">Мурино ждёт решений нового мэра.</div></div></main></div><div id="intro" class="intro"><div class="modal"><h2>МУРИНО</h2><p>Деревня живёт своей жизнью: люди ходят на работу, покупают хлеб в сельпо и возвращаются в деревянные дома. Но прежний глава ушёл в отставку.</p><p><b>Новым мэром назначен ты.</b> В твоих руках бюджет, земля и будущее Мурино. Преврати деревню в мегаполис, не оставив жителей без крыши над головой.</p><button id="start">ПРИНЯТЬ ДОЛЖНОСТЬ МЭРА</button></div></div>
+<style>
+.dealOverlay{position:fixed;inset:0;z-index:20;background:#071018ed;display:none;align-items:center;justify-content:center;padding:18px}
+.dealOverlay.show{display:flex}.dealBox{width:min(620px,96vw);max-height:92vh;overflow:auto;background:#263b47;border:4px solid #d34b4b;box-shadow:0 0 0 9999px #0008;padding:22px;color:#f2f3e8}
+.dealBox h2{color:#ff7777;margin:0 0 10px}.dealBox input{padding:10px;background:#14232d;color:white;border:1px solid #8096a0;width:100%;margin:6px 0}
+.dealActions{display:flex;gap:8px;margin-top:12px}.dealActions button{flex:1;padding:12px}.dealHint{color:#ffd58a;line-height:1.5}
+</style>
+<div id="dealMapBar" style="display:none;position:fixed;z-index:19;top:12px;left:50%;transform:translateX(-50%);width:min(620px,94vw);background:#172630f2;border:3px solid #d34b4b;padding:12px;color:#fff;box-shadow:0 5px 25px #0009;text-align:center"><b style="color:#ff7777">ВЫБОР УЧАСТКА</b><div class="dealHint">Красная точка — предложение инвестора. Нажми на свободную клетку карты, чтобы предложить другое место.</div><div style="margin:6px">Выбранный участок: <b id="dealSiteLabel">—</b></div><div class="dealActions"><button id="dealConfirmSite">Предложить это место</button><button id="dealBackPrice">Назад к цене</button><button id="dealCancel">Отклонить</button></div></div>
+<div id="dealOverlay" class="dealOverlay"><div class="dealBox"><h2>🔴 ИНВЕСТОР ХОЧЕТ КУПИТЬ ЗЕМЛЮ</h2><div id="dealBody"></div></div></div>
+<script>
+(()=>{'use strict';let N=24;const TW=64,TH=32,KEY='murino_pixel_v46';const defs={inspect:['🔎 Осмотр',0],road:['🛣 Дорога',120000],res:['🏘 Жилая зона',350000],com:['🏬 Коммерческая зона',450000],ind:['🏭 Промзона',650000],park:['🌳 Сквер',280000],school:['🏫 Школа',12000000],citypharmacy:['💊 Городская аптека',2000000,8,2],hospital:['🏥 Больница',18000000,90,5],university:['🎓 Университет',50000000],clinic:['🏥 Поликлиника',8000000],clearTree:['🪓 Вырубить дерево',25000],bulldoze:['🧨 Снести',80000],move:['↔️ Перенести объект',150000]};
+const business={
+ grocery:['🛒 Продуктовый магазин',950000,12,1], minimarket:['🏪 Мини-маркет',1250000,14,1], supermarket:['🛍 Супермаркет',4200000,42,3], hypermarket:['🏬 Гипермаркет',9500000,85,5],
+ ozon:['📦 ПВЗ Ozon',650000,5,1],wildberries:['🟣 ПВЗ Wildberries',650000,5,1],yandexmarket:['🟡 ПВЗ Яндекс Маркета',700000,6,1],post:['📮 Почта России',1100000,9,1],
+ coffee:['☕ Кофейня',850000,8,1],bakery:['🥐 Пекарня',1100000,11,1],cafe:['🍽 Кафе',1600000,16,2],restaurant:['🍷 Ресторан',3800000,32,3],fastfood:['🍔 Фастфуд',2100000,22,2],pizzeria:['🍕 Пиццерия',1900000,18,2],bar:['🍺 Бар',1750000,14,2],
+ pharmacy:['💊 Аптека',1250000,9,1],clinic_private:['🩺 Частная клиника',5200000,38,3],flowers:['💐 Цветочный магазин',850000,6,1],clothes:['👕 Магазин одежды',1450000,12,1],electronics:['📱 Электроника',2200000,17,2],household:['🧹 Товары для дома',1550000,13,1],beauty:['💇 Салон красоты',1350000,11,1],barber:['💈 Барбершоп',950000,7,1],petshop:['🐾 Зоомагазин',1050000,8,1],bookshop:['📚 Книжный магазин',1150000,7,1],
+gym:['🏋️ Фитнес-клуб',3600000,24,3],cinema:['🎬 Кинотеатр',6800000,48,4],hotel:['🏨 Гостиница',7200000,40,4],bank:['🏦 Банк',4400000,30,3],office:['🏢 Офисный центр',8200000,110,4],gas:['⛽ АЗС',3100000,18,2],carwash:['🚿 Автомойка',1700000,10,1],autoservice:['🔧 Автосервис',2800000,22,2]
+};
+for(const [k,v] of Object.entries(business)) defs[k]=v;
+const businessGroups={
+ 'Продукты и повседневные покупки':['grocery','minimarket','supermarket','hypermarket','pharmacy','flowers','clothes','electronics','household','petshop','bookshop'],
+ 'Маркетплейсы и сервисы':['ozon','wildberries','yandexmarket','post'],
+ 'Еда и напитки':['coffee','bakery','cafe','restaurant','fastfood','pizzeria','bar'],
+ 'Услуги и досуг':['beauty','barber','gym','cinema','hotel','bank','clinic_private'],
+ 'Деловая и автомобильная инфраструктура':['office','gas','carwash','autoservice']
+};let mode='inspect',alleyRotation=0,game,hover=null,moveSource=null,drag=false,lastX=0,lastY=0,shiftX=0,shiftY=0,zoom=1,clock=0,prev=performance.now(),people=[];const c=document.getElementById('view'),ctx=c.getContext('2d');ctx.imageSmoothingEnabled=false;function rand(x,y){let v=Math.sin(x*127.1+y*311.7)*43758.5453;return v-Math.floor(v)}function blank(){return Array.from({length:N*N},(_,i)=>({ground:rand(i%N,Math.floor(i/N))>.84?'dark':'grass',type:'',level:0,age:0}))}function newGame(){let tiles=blank();function put(x,y,type,level=1){tiles[y*N+x]={...tiles[y*N+x],type,level}}for(let x=3;x<21;x++)put(x,12,'road');[[5,11],[9,13],[13,11],[17,13]].forEach(([x,y])=>put(x,y,'village'));put(7,11,'grocery');put(12,13,'coffee');put(18,11,'post');for(let i=0;i<65;i++){let x=Math.floor(rand(i,5)*N),y=Math.floor(rand(i,8)*N);if(tiles[y*N+x].type===''&&rand(x+9,y+6)>.52)put(x,y,'tree')}return {tiles,mapSize:N,money:20000000,pop:16,happy:72,reputation:25,storyStage:0,proposals:[],nextProposalDay:4,day:1,jobs:30,tax:0,upkeep:0,paused:false,speed:1,economyVersion:4,seed:Math.random()}}try{game=JSON.parse(localStorage.getItem(KEY))||JSON.parse(localStorage.getItem('murino_pixel_v45'))||JSON.parse(localStorage.getItem('murino_pixel_v44'))||JSON.parse(localStorage.getItem('murino_pixel_v43'))||JSON.parse(localStorage.getItem('murino_pixel_v42'))||JSON.parse(localStorage.getItem('murino_pixel_v41'))||JSON.parse(localStorage.getItem('murino_pixel_v40'))||JSON.parse(localStorage.getItem('murino_pixel_v35'))||JSON.parse(localStorage.getItem('murino_pixel_v32'))||JSON.parse(localStorage.getItem('murino_pixel_v31'))||JSON.parse(localStorage.getItem('murino_pixel_v30'))||JSON.parse(localStorage.getItem('murino_pixel_v29'))||JSON.parse(localStorage.getItem('murino_pixel_v28'))||JSON.parse(localStorage.getItem('murino_pixel_v27'))||JSON.parse(localStorage.getItem('murino_pixel_v26'))||JSON.parse(localStorage.getItem('murino_pixel_v25'))||JSON.parse(localStorage.getItem('murino_pixel_v24'))||JSON.parse(localStorage.getItem('murino_pixel_v21'))||JSON.parse(localStorage.getItem('murino_pixel_v20'))||JSON.parse(localStorage.getItem('murino_pixel_v19'))||JSON.parse(localStorage.getItem('murino_pixel_v18'))||JSON.parse(localStorage.getItem('murino_pixel_v03'));if(!game||!Array.isArray(game.tiles)||!Number.isInteger(Math.sqrt(game.tiles.length)))throw 0;N=Math.sqrt(game.tiles.length);game.mapSize=N;game.reputation=Number.isFinite(game.reputation)?game.reputation:25;game.storyStage=Math.max(0,game.storyStage||0);game.proposals=Array.isArray(game.proposals)?game.proposals:[];game.loans=Array.isArray(game.loans)?game.loans:[];game.grantYear=game.grantYear||0;game.parkways=Number.isFinite(game.parkways)?game.parkways:0;game.dealsClosed=Number.isFinite(game.dealsClosed)?game.dealsClosed:0;game.nextProposalDay=Number.isFinite(game.nextProposalDay)?game.nextProposalDay:game.day+3;
+if(!game.economyVersion){
+ game.money=Math.round((game.money||0)*1000);
+ game.tax=Math.round((game.tax||0)*1000);
+ game.upkeep=Math.round((game.upkeep||0)*1000);
+ if(Array.isArray(game.undoStack))for(const item of game.undoStack){item.money=Math.round((item.money||0)*1000);item.tax=Math.round((item.tax||0)*1000);item.upkeep=Math.round((item.upkeep||0)*1000)}
+ game.economyVersion=2;
+}
+if(!Number.isFinite(game.day)||game.day<1)game.day=1;if(Number.isFinite(game.year)){game.day=Math.max(1,(Math.max(1998,game.year)-1998)*30+game.day);delete game.year}game.paused=false;localStorage.setItem(KEY,JSON.stringify(game))}catch(e){game=newGame()}
+const taxObjects={
+ village:'Деревенский дом',res:'Жилые кварталы',grocery:'Продуктовый магазин',minimarket:'Мини-маркет',supermarket:'Супермаркет',hypermarket:'Гипермаркет',
+ ozon:'ПВЗ Ozon',wildberries:'ПВЗ Wildberries',yandexmarket:'ПВЗ Яндекс Маркета',post:'Почта России',
+ coffee:'Кофейня',bakery:'Пекарня',cafe:'Кафе',restaurant:'Ресторан',fastfood:'Фастфуд',pizzeria:'Пиццерия',bar:'Бар',
+ pharmacy:'Аптека',clinic_private:'Частная клиника',flowers:'Цветочный магазин',clothes:'Магазин одежды',electronics:'Электроника',household:'Товары для дома',beauty:'Салон красоты',barber:'Барбершоп',petshop:'Зоомагазин',bookshop:'Книжный магазин',
+ gym:'Фитнес-клуб',cinema:'Кинотеатр',hotel:'Гостиница',bank:'Банк',office:'Офисный центр',gas:'АЗС',carwash:'Автомойка',autoservice:'Автосервис',
+ university:'Университет',ind:'Промышленность',farm:'Ферма',shop:'Сельпо'
+};
+game.taxRates=game.taxRates||{};
+for(const k of Object.keys(taxObjects))if(game.taxRates[k]==null)game.taxRates[k]=100;
+function tile(x,y){return x>=0&&y>=0&&x<N&&y<N?game.tiles[y*N+x]:null}function connected(x,y){return hasRoadFrontage(x,y)}function hasRoadFrontage(x,y){return [[1,0],[-1,0],[0,1],[0,-1]].some(([dx,dy])=>tile(x+dx,y+dy)?.type==='road')}function capacity(t){return t.type==='village'?7:t.type==='res'?[0,16,55,135,280,520,900][Math.min(t.level,6)]:0}
+function housingLevelName(level){return ['','Малый дом','Многоквартирный дом','Жилой комплекс','Большой жилой комплекс','Высотный жилой комплекс','Мегакомплекс'][Math.min(Math.max(1,level),6)]}
+function residentsAt(x,y){
+ let remaining=Math.max(0,Math.floor(game.pop||0));
+ for(let yy=0;yy<N;yy++)for(let xx=0;xx<N;xx++){
+  let h=tile(xx,yy);if(!h||!['village','res'].includes(h.type))continue;
+  let limit=capacity(h),effective=connected(xx,yy)?limit:Math.floor(limit*.3);
+  let living=Math.min(limit,remaining,effective);
+  if(xx===x&&yy===y)return living;
+  remaining=Math.max(0,remaining-living);
+ }
+ return 0;
+}
+const DAILY_WAGE=1800, PAYROLL_TAX_RATE=.13;
+function payrollTax(staff,rate=100){return Math.round(staff*DAILY_WAGE*PAYROLL_TAX_RATE*rate/100)}
+function workersAt(x,y){
+ let remaining=Math.max(0,Math.floor(game.pop||0));
+ for(let yy=0;yy<N;yy++)for(let xx=0;xx<N;xx++){
+  let t=tile(xx,yy);if(!t)continue;
+  let b=business[t.type],offered=b?b[2]:t.type==='shop'?8:(t.type==='ind'?t.level*28:t.type==='farm'?15:0);
+  if(!offered)continue;
+  let employed=Math.min(offered,remaining);
+  if(xx===x&&yy===y)return employed;
+  remaining-=employed;
+ }
+ return 0;
+}
+function daily(recalcOnly=false){if(!recalcOnly)game.day=Math.max(1,Math.floor(game.day||1))+1;if(!recalcOnly)maybeCreateProposal();let cap=0,jobs=0,remainingWorkers=Math.max(0,Math.floor(game.pop||0)),services=0,parks=0,roads=0,upkeep=0,taxTotal=0,taxableCount=0,taxRateSum=0;
+for(let y=0;y<N;y++)for(let x=0;x<N;x++){let t=tile(x,y),on=connected(x,y);if(t.type==='road'){roads++;upkeep+=150;if(t.promenade){parks++;upkeep+=1200}}
+if(t.type==='village'||t.type==='res'){cap+=on?capacity(t):Math.floor(capacity(t)*.3);let residentBase=120*Math.min(capacity(t),Math.max(0,game.pop/Math.max(1,cap))*(capacity(t)));let rate=game.taxRates[t.type]??100;taxTotal+=residentBase*rate/100;taxableCount++;taxRateSum+=rate;if(!recalcOnly&&t.type==='res'&&on&&t.level<6){
+ let popNeed=[0,0,35,90,180,320,550][t.level+1];
+ let jobsNeed=game.pop*.22;
+ if(game.pop>=popNeed&&game.jobs>=jobsNeed&&rand(x+game.day*10,y+game.day)>.76){t.age++;if(t.age>=5){t.level++;t.age=0;notify('🏗 '+housingLevelName(t.level)+' вырос! Вместимость: '+capacity(t)+' жителей')}}
+}}
+if(business[t.type]||t.type==='shop'){let b=business[t.type];let offeredJobs=b?b[2]:8,jobCount=Math.min(offeredJobs,remainingWorkers);remainingWorkers-=jobCount;jobs+=jobCount;services+=b?b[3]:1;let rate=game.taxRates[t.type]??100;taxTotal+=payrollTax(jobCount,rate);taxableCount++;taxRateSum+=rate}
+if(t.type==='com'&&!recalcOnly&&on&&game.pop>=16){t.age++;if(t.age>=5){let options=game.pop<45?['grocery','coffee','bakery','pharmacy','petshop']:game.pop<100?['grocery','minimarket','coffee','cafe','pharmacy','barber','bakery','petshop']:['supermarket','cafe','restaurant','pharmacy','office','gym','cinema','bank','clothes'];let pickIndex=Math.floor(rand(x+game.day*7,y+game.day*3)*options.length);t.type=options[pickIndex];t.level=1;t.age=0;notify('🏪 Частный инвестор открыл '+business[t.type][0]+' на купленном участке');}}
+if(t.type==='ind'||t.type==='farm'){let offeredJobs=t.type==='farm'?15:t.level*28,jobCount=Math.min(offeredJobs,remainingWorkers);remainingWorkers-=jobCount;jobs+=jobCount;let rate=game.taxRates[t.type]??100;taxTotal+=payrollTax(jobCount,rate);taxableCount++;taxRateSum+=rate}
+if(t.type==='park'){parks++;upkeep+=1200}if(t.type==='school'||t.type==='clinic'||t.type==='university'){services+=t.type==='university'?6:3;upkeep+=t.type==='university'?90000:25000}}
+if(recalcOnly){game.jobs=jobs;game.tax=Math.round(taxTotal);game.upkeep=upkeep;save();stats();return}let demand=Math.min(cap,Math.round(jobs*2.7+services*12+parks*3));let target=Math.min(cap,demand);let change=Math.max(-4,Math.min(5,Math.round((target-game.pop)*.12)));game.pop=Math.max(0,game.pop+change);game.jobs=jobs;
+let avgTax=taxableCount?taxRateSum/taxableCount:100;
+game.happy=Math.max(15,Math.min(98,Math.round(48+services*2+parks*3+(jobs>=game.pop*.35?12:-12)+(cap>=game.pop?9:-18)-Math.max(0,game.pop-200)/70+(avgTax<85?3:avgTax>120?-5:0))));
+game.tax=Math.round(taxTotal);
+const loanInterest=(game.loans||[]).reduce((s,l)=>s+l.balance*l.rate/100/365,0);
+let loanPrincipalPayment=0;
+if(!recalcOnly){
+ for(const l of (game.loans||[])){
+  const elapsed=Math.max(0,Math.floor((game.day||1)-(l.day||1)));
+  const remaining=Math.max(1,(l.termDays||180)-elapsed+1);
+  const principal=Math.min(l.balance,l.balance/remaining);
+  l.balance=Math.max(0,l.balance-principal);loanPrincipalPayment+=principal;
+ }
+ game.loans=(game.loans||[]).filter(l=>l.balance>1);
+}
+game.upkeep=upkeep+loanInterest+loanPrincipalPayment;game.money+=game.tax-game.upkeep;if(game.money<0)game.happy=Math.max(10,game.happy-4);save();stats();if(typeof updateFinance==='function')updateFinance()}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(game))}catch(e){if(game.undoStack?.length){game.undoStack.shift();try{localStorage.setItem(KEY,JSON.stringify(game))}catch(e2){console.warn('Не удалось сохранить игру: недостаточно места в хранилище')}}else console.warn('Не удалось сохранить игру: недостаточно места в хранилище')}}
+function pushUndo(label){game.undoStack=game.undoStack||[];game.undoStack.push({label,tiles:JSON.parse(JSON.stringify(game.tiles)),money:game.money,pop:game.pop,happy:game.happy,reputation:game.reputation,storyStage:game.storyStage,dealsClosed:game.dealsClosed,parkways:game.parkways,jobs:game.jobs,tax:game.tax,upkeep:game.upkeep,taxRates:{...(game.taxRates||{})},mapSize:N});if(game.undoStack.length>8)game.undoStack.shift();save();updateUndoButton()}
+function updateUndoButton(){let b=document.getElementById('undo');if(b){let n=game.undoStack?.length||0;b.disabled=!n;b.textContent=n?'↶ Отменить ('+n+')':'↶ Отменить';b.title=n?'Последнее действие: '+game.undoStack[n-1].label:'История действий пуста'}}
+function undoLast(){let h=game.undoStack||[];if(!h.length){notify('Нечего отменять');return}let s=h.pop();game.tiles=s.tiles;N=s.mapSize||Math.sqrt(s.tiles.length);game.mapSize=N;rebuildRoadGraph();refreshPedestrianRoutes();game.money=s.money;game.pop=s.pop;game.happy=s.happy;game.reputation=s.reputation??game.reputation;game.storyStage=s.storyStage??game.storyStage;game.dealsClosed=s.dealsClosed??game.dealsClosed;game.parkways=s.parkways??game.parkways;game.jobs=s.jobs;game.tax=s.tax;game.upkeep=s.upkeep;game.taxRates=s.taxRates||game.taxRates;game.undoStack=h;save();stats();refreshTaxUI();refreshExpansion();updateUndoButton();notify('↶ Отменено: '+s.label)}
+document.getElementById('undo').onclick=undoLast;
+const expansionPrices={24:25000000,32:60000000,40:125000000,48:240000000,56:420000000};
+function refreshExpansion(){let cost=expansionPrices[N]??(Math.round(420000000*Math.pow(1.7,(N-56)/8)/1000)*1000);document.getElementById('mapSizeLabel').textContent=N+' × '+N;document.getElementById('expandCost').textContent=N>=64?'Достигнут максимальный размер карты':('Следующее расширение: '+cost.toLocaleString('ru-RU')+' ₽');let b=document.getElementById('expandMap');b.disabled=N>=64||game.money<cost;b.textContent=N>=64?'Максимальный размер':'🗺️ Купить новые земли · '+cost.toLocaleString('ru-RU')+' ₽'}
+function expandMap(){if(N>=64)return;let cost=expansionPrices[N]??Math.round(420000000*Math.pow(1.7,(N-56)/8)/1000)*1000;if(game.money<cost){notify('Не хватает денег на покупку новых земель');return}pushUndo('Покупка новых земель');let oldN=N,old=game.tiles,newN=N+8,newTiles=Array.from({length:newN*newN},(_,i)=>({ground:rand(i%newN,Math.floor(i/newN))>.84?'dark':'grass',type:'',level:0,age:0}));for(let y=0;y<oldN;y++)for(let x=0;x<oldN;x++)newTiles[y*newN+x]=old[y*oldN+x];N=newN;game.mapSize=N;game.tiles=newTiles;rebuildRoadGraph();refreshPedestrianRoutes();game.money-=cost;save();stats();refreshExpansion();notify('🗺️ Город расширен до '+N+' × '+N+' клеток! Новые земли ждут освоения.')}
+document.getElementById('expandMap').onclick=expandMap;
+
+function notify(s){document.getElementById('message').textContent=s}function tileCount(types){let n=0;for(const t of game.tiles)if(types.includes(t.type))n++;return n}
+const countTypes=types=>tileCount(types);
+const storyMissions=[
+ {title:'Оживить центр Мурино',desc:'Поставь сквер от середины главной улицы вправо.',goal:'Прогулочный сквер',progress:()=>game.parkways||0,target:1,done:()=> (game.parkways||0)>=1,action:'park'},
+ {title:'Дать людям крышу над головой',desc:'Построй два жилых дома.',goal:'Жилые дома',progress:()=>countTypes(['res']),target:2,done:()=>countTypes(['res'])>=2},
+ {title:'Создать рабочие места',desc:'Открой первые три частных предприятия.',goal:'Коммерческие объекты',progress:()=>countTypes(Object.keys(business)),target:3,done:()=>countTypes(Object.keys(business))>=3},
+ {title:'Поднять качество жизни',desc:'Добейся счастья жителей не ниже 75%.',goal:'Счастье жителей',progress:()=>game.happy,target:75,done:()=>game.happy>=75},
+ {title:'Стать городом возможностей',desc:'Вырасти до 50 жителей.',goal:'Жители',progress:()=>Math.floor(game.pop),target:50,done:()=>game.pop>=50},
+ {title:'Сбалансировать бюджет',desc:'Добейся положительного ежедневного баланса.',goal:'Баланс бюджета, ₽/день',progress:()=>Math.max(0,Math.round((game.tax||0)-(game.upkeep||0))),target:1,done:()=>game.tax>game.upkeep},
+ {title:'Связать районы улицами',desc:'Построй сеть дорог.',goal:'Дорожные клетки',progress:()=>countTypes(['road']),target:30,done:()=>countTypes(['road'])>=30},
+ {title:'Открыть торговую улицу',desc:'Размести пять коммерческих объектов.',goal:'Бизнесы',progress:()=>countTypes(Object.keys(business)),target:5,done:()=>countTypes(Object.keys(business))>=5},
+ {title:'Привлечь новые семьи',desc:'Увеличь население до 100 жителей.',goal:'Жители',progress:()=>Math.floor(game.pop),target:100,done:()=>game.pop>=100},
+ {title:'Построить школу',desc:'Построй муниципальную школу.',goal:'Школы',progress:()=>countTypes(['school']),target:1,done:()=>countTypes(['school'])>=1},
+ {title:'Позаботиться о здоровье',desc:'Построй муниципальную поликлинику.',goal:'Поликлиники',progress:()=>countTypes(['clinic']),target:1,done:()=>countTypes(['clinic'])>=1},
+ {title:'Открыть городскую аптеку',desc:'Построй муниципальную аптеку. Это объект городской системы здравоохранения.',goal:'Муниципальные аптеки',progress:()=>countTypes(['citypharmacy']),target:1,done:()=>countTypes(['citypharmacy'])>=1},
+ {title:'Поддержать малый бизнес',desc:'Добейся работы не менее 40 человек.',goal:'Занятые жители',progress:()=>game.jobs,target:40,done:()=>game.jobs>=40},
+ {title:'Сделать город зелёным',desc:'Создай три прогулочные зоны или парка.',goal:'Парки и скверы',progress:()=>countTypes(['park'])+(game.parkways||0),target:3,done:()=>countTypes(['park'])+(game.parkways||0)>=3},
+ {title:'Построить районную больницу',desc:'Построй полноценную муниципальную больницу.',goal:'Больницы',progress:()=>countTypes(['hospital']),target:1,done:()=>countTypes(['hospital'])>=1},
+ {title:'Первый крупный район',desc:'Добейся населения в 150 человек.',goal:'Жители',progress:()=>Math.floor(game.pop),target:150,done:()=>game.pop>=150},
+ {title:'Разнообразить торговлю',desc:'Открой не менее шести разных типов бизнеса.',goal:'Разные типы бизнеса',progress:()=>new Set(game.tiles.filter(t=>business[t.type]).map(t=>t.type)).size,target:6,done:()=>new Set(game.tiles.filter(t=>business[t.type]).map(t=>t.type)).size>=6},
+ {title:'Привлечь инвесторов',desc:'Заключи три сделки с частными владельцами.',goal:'Сделки',progress:()=>game.dealsClosed||0,target:3,done:()=> (game.dealsClosed||0)>=3},
+ {title:'Новый жилой квартал',desc:'Построй пять жилых комплексов.',goal:'Жилые дома',progress:()=>countTypes(['res']),target:5,done:()=>countTypes(['res'])>=5},
+ {title:'Город для прогулок',desc:'Подними счастье жителей до 85%.',goal:'Счастье жителей',progress:()=>game.happy,target:85,done:()=>game.happy>=85},
+ {title:'Экономический рост',desc:'Добейся ежедневного положительного баланса не менее 100 000 ₽.',goal:'Баланс бюджета, ₽/день',progress:()=>Math.max(0,Math.round((game.tax||0)-(game.upkeep||0))),target:100000,done:()=>game.tax-game.upkeep>=100000},
+ {title:'Деловой центр',desc:'Построй офисный центр.',goal:'Офисные центры',progress:()=>countTypes(['office']),target:1,done:()=>countTypes(['office'])>=1},
+ {title:'Образовательный город',desc:'Построй университет.',goal:'Университеты',progress:()=>countTypes(['university']),target:1,done:()=>countTypes(['university'])>=1},
+ {title:'Городской масштаб',desc:'Достигни населения 400 человек.',goal:'Жители',progress:()=>Math.floor(game.pop),target:400,done:()=>game.pop>=400},
+ {title:'Сильная репутация',desc:'Подними репутацию мэра до 80 пунктов.',goal:'Репутация',progress:()=>game.reputation||0,target:80,done:()=>game.reputation>=80},
+ {title:'Мурино не остановить',desc:'Достигни населения 600 человек.',goal:'Жители',progress:()=>Math.floor(game.pop),target:600,done:()=>game.pop>=600},
+ {title:'Городская сеть услуг',desc:'Размести десять коммерческих объектов.',goal:'Бизнесы',progress:()=>countTypes(Object.keys(business)),target:10,done:()=>countTypes(Object.keys(business))>=10},
+ {title:'Миллион возможностей',desc:'Добейся ежедневного дохода бюджета выше миллиона рублей.',goal:'Баланс бюджета, ₽/день',progress:()=>Math.max(0,Math.round((game.tax||0)-(game.upkeep||0))),target:1000000,done:()=>game.tax-game.upkeep>=1000000},
+ {title:'Мегаполис начинается',desc:'Вырасти до 900 жителей.',goal:'Жители',progress:()=>Math.floor(game.pop),target:900,done:()=>game.pop>=900},
+ {title:'Новый горизонт',desc:'Расширь городскую карту хотя бы один раз.',goal:'Размер карты',progress:()=>N,target:32,done:()=>N>=32},
+ {title:'Мэр, которым гордятся',desc:'Добейся счастья жителей 95% и репутации не ниже 90.',goal:'Счастье жителей',progress:()=>game.happy,target:95,done:()=>game.happy>=95&&game.reputation>=90}
+];
+
+function buildStarterPark(){
+ if((game.parkways||0)>0){notify('Сквер на главной улице уже создан');return}
+ const y=12,startX=12,endX=Math.min(N-1,20),cells=[];
+ for(let x=startX;x<=endX;x++){
+  const road=tile(x,y);
+  if(!road||!(road.type===''||road.type==='road')){notify('На маршруте сквера есть препятствие. Освободи центральную улицу.');return}
+  if(road.type!=='road')cells.push({x,y,type:'road'});
+  if((x-startX)%2===0){
+   for(const sy of [y-1,y+1]){
+    const side=tile(x,sy);
+    if(side&&!side.type)cells.push({x,y:sy,type:'tree'});
+   }
+  }
+ }
+ const treeCount=cells.filter(q=>q.type==='tree').length;
+ const cost=280000+treeCount*25000;
+ if(game.money<cost){notify('Не хватает денег на сквер: '+fmtRub(cost));return}
+ pushUndo('Сквер вдоль главной улицы');
+ game.money-=cost;
+ for(const q of cells){const t=tile(q.x,q.y);if(t&&!t.type){t.type=q.type;t.level=1;t.age=0}}
+ game.parkways=(game.parkways||0)+1;
+ rebuildRoadGraph();refreshPedestrianRoutes();save();stats();
+ notify('🌳 Сквер проложен от центра главной улицы вправо');
+}
+
+function updateStory(){
+ const panel=document.getElementById('storyPanel');if(!panel)return;
+ game.reputation=Math.max(0,Math.min(100,Math.round(game.reputation||0)));
+ if(game.storyStage>=storyMissions.length){panel.innerHTML='<b style="color:#ffda8a">🏆 Мурино стало настоящим городом!</b><br>Ты выполнил все поручения. Дальше развивай мегаполис на своё усмотрение.';return}
+ const m=storyMissions[game.storyStage],v=m.progress(),pct=Math.max(0,Math.min(100,Math.round(v/m.target*100)));
+ panel.innerHTML='<b style="color:#ffda8a">'+(game.storyStage+1)+'. '+m.title+'</b><div style="margin:6px 0">'+m.desc+'</div><div>'+m.goal+': <b>'+Math.floor(v).toLocaleString('ru-RU')+' / '+m.target.toLocaleString('ru-RU')+'</b></div><div style="height:8px;background:#40525d;margin:7px 0;border-radius:5px;overflow:hidden"><div style="height:100%;width:'+pct+'%;background:#e4b66b"></div></div><div>Награда: <b>+8 репутации</b></div>';
+ if(m.action==='park'){
+  panel.innerHTML+='<button id="buildStarterPark" style="width:100%;margin-top:9px;padding:9px;background:#668b59">🌳 Поставить сквер</button>';
+  document.getElementById('buildStarterPark').onclick=buildStarterPark;
+ }
+ if(m.done()){game.storyStage++;game.reputation=Math.min(100,game.reputation+8);panel.innerHTML='<b style="color:#9fe0a7">✓ Поручение выполнено!</b><br>'+m.title+'<br>Награда: +8 репутации';save();notify('🎉 Мэр, поручение выполнено: '+m.title+'!');}
+}
+function stats(){const fmt=n=>Math.round(n).toLocaleString('ru-RU');cash.textContent=fmt(game.money);pop.textContent=fmt(game.pop);happy.textContent=game.happy;day.textContent='День '+Math.floor(game.day||1);jobs.textContent=game.jobs;document.getElementById('reputation').textContent=game.reputation||0;updateStory();document.getElementById('summary').innerHTML=`Налоги: <b>+${fmt(game.tax)} ₽/день</b><br>Содержание: <b>−${fmt(game.upkeep)} ₽/день</b><br>Баланс: <b>${fmt(game.tax-game.upkeep)} ₽/день</b><br>Занятость: ${game.jobs} работников из ${Math.floor(game.pop)} жителей<br>Скорость: ${game.paused?'пауза':game.speed+'×'}`;document.getElementById('pause').textContent=game.paused?'▶ Продолжить':'⏸ Пауза';document.getElementById('speed').textContent='▶ '+game.speed+'×'}const taxSelect=document.getElementById('taxObject'),taxSlider=document.getElementById('taxRate');
+for(const [key,label] of Object.entries(taxObjects)){let opt=document.createElement('option');opt.value=key;opt.textContent=label;taxSelect.appendChild(opt)}
+function refreshTaxUI(){let key=taxSelect.value||'village',rate=game.taxRates[key]??100;taxSlider.value=rate;document.getElementById('taxRateLabel').textContent=rate+'%';let impact=rate<85?'Льготная ставка: ниже налоговая нагрузка, но меньше доход бюджета.':rate>120?'Высокая ставка: больше доход бюджета, но жители и бизнес могут быть недовольны.':'Базовая ставка: стандартная налоговая нагрузка.';document.getElementById('taxEffect').textContent=impact+' Изменение вступит в силу со следующего игрового дня.'}
+function setTaxRate(v){let key=taxSelect.value,next=Math.max(50,Math.min(150,Math.round(v/5)*5));if((game.taxRates[key]??100)!==next){pushUndo('Изменение налога: '+taxObjects[key]);game.taxRates[key]=next}refreshTaxUI();save();stats();notify('Налог для «'+taxObjects[key]+'» установлен: '+game.taxRates[key]+'%')}
+taxSelect.addEventListener('change',refreshTaxUI);taxSlider.addEventListener('change',()=>setTaxRate(Number(taxSlider.value)));document.getElementById('taxDown').onclick=()=>setTaxRate(Number(taxSlider.value)-5);document.getElementById('taxUp').onclick=()=>setTaxRate(Number(taxSlider.value)+5);refreshTaxUI();
+const tools=document.getElementById('tools');
+document.getElementById('guideToggle').onclick=()=>{const g=document.getElementById('guidePanel');g.style.display=g.style.display==='none'?'block':'none';document.getElementById('guideToggle').textContent=g.style.display==='none'?'Открыть руководство по игре':'Свернуть руководство'};
+document.getElementById('guideClose').onclick=()=>{document.getElementById('guidePanel').style.display='none';document.getElementById('guideToggle').textContent='Открыть руководство по игре'};
+
+
+// Private owners periodically propose expansions. Roads in accepted projects are built and paid for by the developer.
+function fmtRub(n){return Math.round(n).toLocaleString('ru-RU')+' ₽'}
+function findAccessRoad(center){
+ const dirs=[[1,0],[-1,0],[0,1],[0,-1]];
+ const queue=[],seen=new Set();
+ for(const [dx,dy] of dirs){
+  const x=center.x+dx,y=center.y+dy;
+  if(x<0||y<0||x>=N||y>=N)continue;
+  const t=tile(x,y);
+  if(t?.type==='road')return [];
+  if(t&&!t.type){queue.push({x,y,path:[{x,y}]});seen.add(x+','+y)}
+ }
+ while(queue.length){
+  const cur=queue.shift();
+  if(hasRoadFrontage(cur.x,cur.y))return cur.path;
+  for(const [dx,dy] of dirs){
+   const x=cur.x+dx,y=cur.y+dy,k=x+','+y;
+   if(x<0||y<0||x>=N||y>=N||seen.has(k))continue;
+   const t=tile(x,y);
+   if(t&&!t.type){seen.add(k);queue.push({x,y,path:[...cur.path,{x,y}]})}
+  }
+ }
+ return null;
+}
+function findPrivateSite(isBuilder,owner){
+ const candidates=[];
+ const branches=[];
+ if(!isBuilder){
+  for(let y=0;y<N;y++)for(let x=0;x<N;x++){
+   const t=tile(x,y);
+   if(t&&t.type===owner.type)branches.push({x,y});
+  }
+ }
+ for(let y=1;y<N-1;y++)for(let x=1;x<N-1;x++){
+  const center=tile(x,y);
+  if(!center||center.type)continue;
+  if(isBuilder){
+   // A housing project reserves the full 3x3 footprint: one home plus eight walkable cells.
+   let clear=true;
+   for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){
+    if(dx===0&&dy===0)continue;
+    const t=tile(x+dx,y+dy);
+    if(!t||!(t.type===''||t.type==='road'))clear=false;
+   }
+   if(!clear)continue;
+  }else{
+   // Franchise branches should spread across town, not stack beside the parent location.
+   const nearest=branches.length?Math.min(...branches.map(b=>Math.abs(x-b.x)+Math.abs(y-b.y))):99;
+   if(nearest<5)continue;
+  }
+  const roadPath=findAccessRoad({x,y});
+  if(roadPath===null)continue;
+  candidates.push({x,y,roadPath});
+ }
+ // If the city is already dense, relax the distance rule gradually rather than stopping all expansion.
+ if(!candidates.length&&!isBuilder){
+  for(let y=1;y<N-1;y++)for(let x=1;x<N-1;x++){
+   const center=tile(x,y);
+   if(!center||center.type)continue;
+   const roadPath=findAccessRoad({x,y});
+   if(roadPath===null)continue;
+   candidates.push({x,y,roadPath});
+  }
+ }
+ if(!candidates.length)return null;
+ return candidates[Math.floor(Math.random()*candidates.length)];
+}
+function makePrivateProposal(){
+ const owned=[];
+ for(let y=0;y<N;y++)for(let x=0;x<N;x++){
+  const t=tile(x,y);
+  if(t&&(t.type==='res'||business[t.type]))owned.push({x,y,type:t.type});
+ }
+ if(!owned.length)return null;
+ const owner=owned[Math.floor(Math.random()*owned.length)];
+ const isBuilder=owner.type==='res';
+ let buildType=isBuilder?'res':owner.type;
+ let isNewBusiness=false;
+ if(!isBuilder&&Math.random()<.55){
+  const existing=new Set(owned.filter(o=>business[o.type]).map(o=>o.type));
+  const choices=Object.keys(business).filter(k=>!existing.has(k));
+  if(choices.length){buildType=choices[Math.floor(Math.random()*choices.length)];isNewBusiness=true}
+ }
+ const site=findPrivateSite(isBuilder,{...owner,type:buildType});
+ if(!site)return null;
+ const kind=isBuilder?'Жилой застройщик':(isNewBusiness?'Новый инвестор · '+(business[buildType]?.[0]||buildType):'Сеть '+(business[buildType]?.[0]||'бизнеса').replace(/^[^ ]+ /,''));
+
+ const baseLand=landPrice(buildType);
+ const roadCellsNeeded=site.roadPath.length;
+ const roadCost=roadCellsNeeded*120000;
+ const constructionValue=isBuilder?1800000:(business[buildType]?.[1]||1000000);
+ const recommended=baseLand+roadCost+Math.round(constructionValue*.08);
+ const offer=Math.max(baseLand,Math.round(recommended*(.72+Math.random()*.12)));
+ return {id:'p'+Date.now()+Math.floor(Math.random()*9999),owner:{x:owner.x,y:owner.y,type:owner.type},kind,buildType,parcels:[{x:site.x,y:site.y}],roadPath:site.roadPath,offer,recommended,maxPrice:Math.round(recommended*(1.35+Math.random()*.35)),createdDay:game.day,roadCellsNeeded,constructionValue,isBuilder,isNewBusiness};
+}
+
+const CB_KEY_RATE=14; // ключевая ставка Банка России на 11.11.2026
+let activeDealId=null;
+function dealOverlay(show){document.getElementById('dealOverlay').classList.toggle('show',!!show)}
+function currentDeal(){return game.proposals.find(p=>p.id===activeDealId)||null}
+function beginDeal(p){
+ if(activeDealId)return;
+ activeDealId=p.id;game.paused=true;p.phase='price';p.mayorPrice=p.recommended;
+ showDealPrice();stats();render();
+}
+function showDealPrice(){
+ const p=currentDeal();if(!p)return;document.getElementById('dealMapBar').style.display='none';dealOverlay(true);
+ document.getElementById('dealBody').innerHTML=`<p><b>${p.kind}</b> хочет построить: ${p.buildType==='res'?'жилой дом':(defs[p.buildType]?.[0]||p.buildType)}</p>
+ <p>Инвестор предлагает городу <b>${fmtRub(p.offer)}</b> за участок. Рекомендуемая цена: <b>${fmtRub(p.recommended)}</b>. Его предел: <b>${fmtRub(p.maxPrice)}</b>.</p>
+ <p class="dealHint">Сначала договоритесь о цене. Место выберете только после согласования суммы.</p>
+ <label>Цена земли для инвестора</label><input id="dealPrice" type="number" min="${p.offer}" step="10000" value="${p.mayorPrice||p.recommended}">
+ <div class="dealActions"><button id="dealPriceNext">Согласовать цену</button><button id="dealReject">Отклонить предложение</button></div>`;
+ document.getElementById('dealPriceNext').onclick=()=>{
+  const price=Math.round(Number(document.getElementById('dealPrice').value)||0);
+  if(price<p.offer){notify('Инвестор не согласен платить меньше '+fmtRub(p.offer));return}
+  if(price>p.maxPrice){dealInvestorRefuses(p,'Цена выше его максимума');return}
+  p.mayorPrice=price;p.phase='location';p.selectedSite={...p.parcels[0]};
+  dealOverlay(false);
+  document.getElementById('dealMapBar').style.display='block';
+  document.getElementById('dealSiteLabel').textContent=(p.selectedSite.x+1)+', '+(p.selectedSite.y+1);
+  document.getElementById('dealConfirmSite').onclick=()=>finalizeDeal();
+  document.getElementById('dealBackPrice').onclick=showDealPrice;
+  document.getElementById('dealCancel').onclick=()=>rejectActiveDeal();
+  render();
+ };
+ document.getElementById('dealReject').onclick=()=>rejectActiveDeal();
+}
+function dealInvestorRefuses(p,reason){
+ document.getElementById('dealBody').innerHTML=`<p><b>Инвестор отказался от сделки.</b></p><p>${reason}. Его максимальная цена: ${fmtRub(p.maxPrice)}.</p><div class="dealActions"><button id="dealCloseRefusal">Закрыть уведомление</button></div>`;
+ document.getElementById('dealCloseRefusal').onclick=()=>{game.proposals=game.proposals.filter(q=>q.id!==p.id);activeDealId=null;dealOverlay(false);document.getElementById('dealMapBar').style.display='none';game.paused=false;save();renderProposals();stats()};
+}
+function rejectActiveDeal(){
+ const p=currentDeal();if(p)game.proposals=game.proposals.filter(q=>q.id!==p.id);
+ activeDealId=null;dealOverlay(false);document.getElementById('dealMapBar').style.display='none';game.paused=false;save();renderProposals();stats();notify('Сделка отклонена. Город продолжает работу.');
+}
+function chooseDealSite(x,y){
+ const p=currentDeal();if(!p||p.phase!=='location')return false;
+ const t=tile(x,y);if(!t||t.type){notify('Для инвестора нужна свободная клетка');return true}
+ if(p.isBuilder){
+  for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){if(!dx&&!dy)continue;const q=tile(x+dx,y+dy);if(!q||!(q.type===''||q.type==='road')){notify('Для жилого дома нужно свободное пространство вокруг участка');return true}}
+ }
+ const path=findAccessRoad({x,y});if(path===null){notify('Инвестор не сможет подвести дорогу к этому месту');return true}
+ p.selectedSite={x,y};render();const lab=document.getElementById('dealSiteLabel');if(lab)lab.textContent=(x+1)+', '+(y+1);return true;
+}
+function finalizeDeal(){
+ const p=currentDeal();if(!p)return;
+ const parcel=p.selectedSite||p.parcels[0],price=p.mayorPrice;
+ const target=tile(parcel.x,parcel.y),roadPlan=findAccessRoad(parcel);
+ if(!target||target.type){notify('Участок занят. Выбери другое место на карте.');return}
+ if(roadPlan===null){notify('К выбранному участку нельзя подвести дорогу.');return}
+ // Investor independently evaluates the proposed location.
+ const siteScore=Math.max(0,100-roadPlan.length*9-(p.isBuilder?5:0));
+ const acceptanceLimit=siteScore>=55?35:siteScore>=35?55:75;
+ if(Math.random()*100<acceptanceLimit){dealInvestorRefuses(p,'Инвестору не подошёл предложенный участок');return}
+ pushUndo('Сделка с частным инвестором');
+ game.money+=price;
+ for(const q of roadPlan){const t=tile(q.x,q.y);if(t&&!t.type){t.type='road';t.level=1}}
+ target.type=p.buildType;target.level=1;target.age=0;
+ game.proposals=game.proposals.filter(q=>q.id!==p.id);game.dealsClosed=(game.dealsClosed||0)+1;
+ activeDealId=null;dealOverlay(false);document.getElementById('dealMapBar').style.display='none';game.paused=false;
+ rebuildRoadGraph();refreshPedestrianRoutes();save();daily(true);stats();renderProposals();
+ notify('🤝 Сделка заключена! Земля продана за '+fmtRub(price)+'. Инвестор построит объект и подъездные дороги.');
+}
+function updateFinance(){
+ const rate=(game.loans||[]).reduce((s,l)=>s+l.principal,0);
+ const debt=(game.loans||[]).reduce((s,l)=>s+l.balance,0);
+ const ratePct=(CB_KEY_RATE+5);
+ document.getElementById('financeInfo').innerHTML=`Ключевая ставка ЦБ: <b>${CB_KEY_RATE}%</b><br>Ставка городского кредита: <b>${ratePct}% годовых</b><br>Долг города: <b>${fmtRub(debt)}</b><br>Проценты в день: <b>${fmtRub((game.loans||[]).reduce((s,l)=>s+l.balance*l.rate/100/365,0))}</b><br>Погашение основного долга: по графику за 180 игровых дней`;
+}
+document.getElementById('grantRequest').onclick=()=>{
+ const year=Math.floor((game.day||1)/360);if(game.grantYearIndex!==year){game.grantYearIndex=year;game.grantYearCount=0}const used=game.grantYearCount||0;if(used>=3){notify('Город уже получил три субсидии в этом году');return}
+ const grant=250000+Math.min(750000,Math.floor(game.pop)*5000);
+ game.money+=grant;game.grantYearCount=used+1;save();stats();updateFinance();notify('🏛 Государственная субсидия одобрена: '+fmtRub(grant));
+};
+document.getElementById('loanRequest').onclick=()=>{
+ const amount=Math.max(10000,Math.min(50000000,Math.round(Number(document.getElementById('loanAmount').value)||0)));
+ game.loans=game.loans||[];const rate=(CB_KEY_RATE+5);
+ game.loans.push({principal:amount,balance:amount,rate,termDays:180,day:game.day||1});
+ game.money+=amount;save();stats();updateFinance();notify('🏦 Кредит выдан: '+fmtRub(amount)+' под '+rate+'% годовых. Срок 180 игровых дней.');
+};
+
+function renderProposals(){
+ const panel=document.getElementById('proposalPanel');if(!panel)return;
+ if(!game.proposals.length){panel.innerHTML='Пока предложений нет. Частные владельцы будут обращаться по мере развития города.';return}
+ panel.innerHTML=game.proposals.map(p=>`<div style="padding:8px;margin:7px 0;background:#2d414d;border:1px solid #667b83;border-radius:4px"><b style="color:#ffda8a">${p.kind}</b><div>Новый объект: ${defs[p.buildType]?.[0]||p.buildType}<br>Предложение: ${fmtRub(p.offer)}<br>Рекомендация: ${fmtRub(p.recommended)}</div><button data-open-deal="${p.id}" style="width:100%;margin-top:6px">Открыть сделку</button></div>`).join('');
+ panel.querySelectorAll('[data-open-deal]').forEach(b=>b.onclick=()=>{const p=game.proposals.find(q=>q.id===b.dataset.openDeal);if(p)beginDeal(p)});
+ if(!activeDealId&&game.proposals.length)beginDeal(game.proposals[0]);
+}
+function rejectProposal(id){if(activeDealId===id){rejectActiveDeal();return}game.proposals=game.proposals.filter(q=>q.id!==id);save();renderProposals()}
+
+function maybeCreateProposal(){
+ if(game.proposals.length>=3||game.day<(game.nextProposalDay||4))return;
+ const chance=Math.min(.48,.12+game.pop/500);
+ if(Math.random()>chance)return;
+ const p=makePrivateProposal();
+ game.nextProposalDay=game.day+3+Math.floor(Math.random()*5);
+ if(p){game.proposals.push(p);save();renderProposals();notify('📨 Инвестор предлагает купить городской участок. Город поставлен на паузу до решения по сделке.')}
+}
+
+const effectNames={money:'Деньги',pop:'Жители',jobs:'Рабочие места',rep:'Репутация',life:'Качество жизни',happy:'Счастье',upkeep:'Содержание'};
+// Private developers buy municipal land; the city receives a one-time land-sale payment.
+function isPrivateDevelopment(key){return key==='res'||key==='com'||key==='ind'||!!business[key]}
+function landPrice(key){
+ if(key==='res')return 180000;
+ if(key==='com')return 350000;
+ if(key==='ind')return 280000;
+ const buildCost=(defs[key]||['',0])[1]||0;
+ return Math.max(150000,Math.round(buildCost*.15));
+}
+function isMunicipalObject(key){return ['road','park','school','university','clinic'].includes(key)}
+function effectData(key){
+ const cost=(defs[key]||['',0])[1]||0;
+ let e={money:0,pop:0,jobs:0,rep:0,life:0,happy:0,upkeep:0,tax:0,extra:''};
+ if(key==='inspect'){e.extra='Осмотр территории. Ничего не строится и бюджет не меняется.';return e}
+ if(key==='clearTree'){e.money=-25;e.rep=-1;e.life=-1;e.extra='Освобождает клетку. Вырубка немного ухудшает экологию.';return e}
+ if(key==='bulldoze'){e.money=-80;e.rep=-1;e.life=-1;e.extra='Снос освобождает участок. Если снести жильё, часть жителей потеряет дом.';return e}
+ if(key==='road'){e.money=-cost;e.jobs=1;e.life=1;e.rep=1;e.upkeep=150;e.extra='Муниципальная инфраструктура: город строит и обслуживает дорогу за счёт бюджета. Дорога улучшает доступность соседних участков и помогает заселению/работе бизнеса.';return e}
+ if(key==='res'){e.money=landPrice(key);e.pop=16;e.jobs=0;e.happy=2;e.life=2;e.upkeep=0;e.tax=2880;e.extra='Частная недвижимость: собственник строит и обслуживает жильё, город получает налог с жителей. Частный застройщик может постепенно превратить небольшой дом в высотный жилой комплекс до 6 уровня и вместимостью до 900 жителей. Жители появятся при наличии дорог, рабочих мест и услуг.';return e}
+ if(key==='com'){e.money=landPrice(key);e.jobs=18;e.happy=1;e.life=2;e.upkeep=0;e.tax=3240;e.extra='Частный бизнес: владелец строит и обслуживает объект, город получает налоги. Коммерческая зона со временем развивается при наличии покупателей и дороги. Конкретный бизнес выбирается в коммерческих категориях ниже.';return e}
+ if(key==='ind'){e.money=landPrice(key);e.jobs=28;e.rep=-2;e.life=-2;e.upkeep=0;e.tax=5040;e.extra='Частное предприятие: владелец строит и обслуживает производство, город получает налоги. Промзона создаёт рабочие места и доход, но ухудшает экологию и комфорт.';return e}
+ if(key==='park'){e.money=-cost;e.rep=2;e.life=4;e.happy=3;e.upkeep=1200;e.extra='Прогулочная аллея: дорожка с деревьями по обеим сторонам через одну клетку. Промежутки остаются свободными под бизнес. Город оплачивает уборку, озеленение и обслуживание. Зелёная зона повышает привлекательность района и счастье жителей.';return e}
+ if(key==='school'){e.money=-cost;e.rep=3;e.life=5;e.happy=2;e.upkeep=25000;e.extra='Муниципальная школа: строится и обслуживается за счёт городского бюджета. Улучшает доступность образования и качество жизни. Требует расходов на содержание.';return e}
+ if(key==='university'){e.money=-cost;e.rep=5;e.life=8;e.happy=4;e.upkeep=90;e.extra='Муниципальный университет: город оплачивает преподавателей, коммунальные услуги и содержание кампуса.';return e}
+ if(key==='clinic'){e.money=-cost;e.rep=3;e.life=5;e.happy=2;e.upkeep=25000;e.extra='Муниципальная клиника: строится и обслуживается за счёт городского бюджета. Повышает доступность медицинской помощи и качество жизни.';return e}
+ if(business[key]){
+   const b=business[key], jobs=b[2], service=b[3];
+   const tax=Math.round(jobs*180);
+   e.money=landPrice(key);e.jobs=jobs;e.rep=1;e.life=service>=3?3:2;e.happy=service>=3?2:1;e.upkeep=0;e.tax=tax;
+   e.extra='Частный объект: собственник оплачивает строительство, зарплаты, коммунальные услуги, ремонт и содержание. Город не содержит этот бизнес, а получает налоговые поступления. Фактический налог зависит от числа рабочих мест и установленной ставки.';
+   return e;
+ }
+ e.money=-cost;e.extra='Строительство объекта.';return e;
+}
+function showEffects(key){
+ const e=effectData(key), title=(defs[key]||['Неизвестный объект'])[0];
+ const sign=n=>n>0?'+':'';
+ const line=(label,n,unit='')=>`<div>${label}: <b style="color:${n>0?'#8fe0a4':n<0?'#ff9b83':'#d5ded8'}">${sign(n)}${n.toLocaleString('ru-RU')}${unit}</b></div>`;
+ document.getElementById('effectTitle').textContent=title;
+ document.getElementById('effectCost').innerHTML=isPrivateDevelopment(key)
+  ? `Плата за землю в бюджет: <b style="color:#8fe0a4">${landPrice(key).toLocaleString('ru-RU')} ₽</b><br><span style="color:#b9c7c4">Строительство оплачивает частный инвестор</span>`
+  : `Стоимость строительства: <b style="color:#ffd27c">${(defs[key]?.[1]||0).toLocaleString('ru-RU')} ₽</b>`;
+ document.getElementById('effectDetails').innerHTML=
+  line(isPrivateDevelopment(key)?'Поступление от продажи земли':'Изменение бюджета',e.money,' ₽')+
+  line('Потенциал жителей',e.pop,' чел.')+
+  line('Рабочие места',e.jobs,'')+
+  line('Репутация',e.rep,' п.')+
+  line('Качество жизни',e.life,' п.')+
+  line('Счастье',e.happy,' п.')+
+  line('Налоговый доход в день',e.tax,' ₽')+line('Расходы города в день',e.upkeep,' ₽')+
+  `<div style="margin-top:7px;color:#b9c7c4">${e.extra}</div>`;
+  if(key==='park'){
+    document.getElementById('effectDetails').innerHTML += '<div style="margin-top:9px"><button id="rotateAlley" style="width:100%;padding:8px">↻ Повернуть аллею: '+(alleyRotation===0?'горизонтально':'вертикально')+'</button><small style="display:block;margin-top:5px">Нажми кнопку, чтобы переключить направление. Работает мышью и касанием на телефоне.</small></div>';
+    document.getElementById('rotateAlley').onclick=()=>{alleyRotation=1-alleyRotation;showEffects('park');notify('Аллея повернута: '+(alleyRotation===0?'горизонтально':'вертикально'))};
+  }
+
+}
+
+function addTool(key){let [name,cost]=defs[key];let b=document.createElement('button');let price=isPrivateDevelopment(key)?landPrice(key):cost;b.textContent=name+(price?' · '+price.toLocaleString('ru-RU')+'₽':'');b.dataset.key=key;b.onclick=()=>{mode=key;moveSource=null;if(key==='park')alleyRotation=0;document.querySelectorAll('.tools button').forEach(v=>v.classList.toggle('active',v.dataset.key===mode));notify(isPrivateDevelopment(key)?'Выбрано: '+name+' · продажа участка '+price.toLocaleString('ru-RU')+' ₽ в бюджет':'Выбрано: '+name+' · строительство '+cost.toLocaleString('ru-RU')+' ₽');showEffects(key)};tools.appendChild(b)}
+for(const key of ['inspect','road','res','com','ind','park','school','university','clinic','clearTree','bulldoze','move'])addTool(key);
+for(const [heading,keys] of Object.entries(businessGroups)){let h=document.createElement('h4');h.textContent='▸ '+heading;h.style.cssText='grid-column:1/-1;margin:12px 0 2px;color:#ffda8a;font-size:12px;letter-spacing:.2px';tools.appendChild(h);for(const key of keys)addTool(key)}
+document.querySelector('[data-key="inspect"]').classList.add('active');showEffects('inspect');document.getElementById('inspectQuick').onclick=()=>{mode='inspect';moveSource=null;document.querySelectorAll('.tools button').forEach(v=>v.classList.toggle('active',v.dataset.key===mode));showEffects('inspect');notify('🔎 Режим осмотра включён')};document.getElementById('pause').onclick=()=>{game.paused=!game.paused;notify(game.paused?'⏸ Игра остановлена':'▶ Игра продолжается');stats()};document.getElementById('speed').onclick=()=>{game.speed=game.speed===1?3:game.speed===3?8:1;stats()};document.getElementById('save').onclick=()=>{save();notify('💾 Город сохранён в браузере')};
+document.getElementById('exportSave').onclick=()=>{save();const blob=new Blob([JSON.stringify({format:'murino-save',version:5,game},null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='murino-city-save.json';a.click();URL.revokeObjectURL(a.href);notify('⬇️ Сохранение города выгружено в файл')};
+document.getElementById('importSave').onclick=()=>document.getElementById('importFile').click();
+document.getElementById('importFile').onchange=async e=>{const file=e.target.files?.[0];if(!file)return;try{const raw=JSON.parse(await file.text());const candidate=raw.game||raw;if(!candidate||!Array.isArray(candidate.tiles)||!Number.isInteger(Math.sqrt(candidate.tiles.length)))throw new Error('Неверный формат сохранения');if(!confirm('Заменить текущий город импортированным сохранением?'))return;game=candidate;N=Math.sqrt(game.tiles.length);game.mapSize=N;game.paused=false;rebuildRoadGraph();refreshPedestrianRoutes();game.reputation=Number.isFinite(game.reputation)?game.reputation:25;game.storyStage=Math.max(0,game.storyStage||0);game.proposals=Array.isArray(game.proposals)?game.proposals:[];game.loans=Array.isArray(game.loans)?game.loans:[];game.grantYear=game.grantYear||0;game.parkways=Number.isFinite(game.parkways)?game.parkways:0;game.dealsClosed=Number.isFinite(game.dealsClosed)?game.dealsClosed:0;game.nextProposalDay=Number.isFinite(game.nextProposalDay)?game.nextProposalDay:game.day+3;save();renderProposals();stats();refreshExpansion();notify('✅ Город успешно импортирован')}catch(err){notify('❌ Не удалось импортировать: '+err.message)}finally{e.target.value=''}};document.getElementById('reset').onclick=()=>{if(confirm('Начать новую историю Мурино? Старое сохранение исчезнет.')){game=newGame();game.proposals=[];game.parkways=0;game.nextProposalDay=4;N=24;save();renderProposals();stats();refreshExpansion();notify('Новая деревня готова')}};document.getElementById('start').onclick=()=>{document.getElementById('intro').classList.add('hidden');save()};if(localStorage.getItem(KEY))document.getElementById('intro').classList.add('hidden');
+function size(){let r=c.getBoundingClientRect();c.width=Math.round(r.width*devicePixelRatio);c.height=Math.round(r.height*devicePixelRatio);ctx.imageSmoothingEnabled=false}window.addEventListener('resize',size);size();function iso(x,y){return {x:(x-y)*TW/2,y:(x+y)*TH/2}}function poly(pts,color,stroke){ctx.beginPath();pts.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.closePath();ctx.fillStyle=color;ctx.fill();if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=1;ctx.stroke()}}function rect(x,y,w,h,color){ctx.fillStyle=color;ctx.fillRect(Math.round(x),Math.round(y),Math.round(w),Math.round(h))}function diamond(x,y,color){poly([[x,y],[x+32,y+16],[x,y+32],[x-32,y+16]],color,'#568353')}function building(x,y,w,h,z,wall,roof){let top=y-z;poly([[x-w,y+16],[x,y+16+w*.5],[x,y+16+w*.5-z],[x-w,top+16]],'#0000');poly([[x-w,top+16],[x,top+16+w*.5],[x,top+16+w*.5+z],[x-w,y+16+z]],wall);poly([[x,top+16+w*.5],[x+w,top+16],[x+w,y+16+z],[x,y+16+w*.5+z]],'#8b8f80');poly([[x,top],[x+w,top+16],[x,top+32],[x-w,top+16]],roof,'#34434a');for(let k=1;k<z/10;k++){rect(x-w+5,top+17+k*10,5,5,'#d7e3ac');rect(x+7,top+20+k*10,5,5,'#b6d6df')}}const knownBuildingTypes=new Set(['tree','road','village','farm','shop','res','com','ind','park','school','university','clinic','hospital','citypharmacy',...Object.keys(business)]);function drawObject(t,x,y,ix,iy){let r=rand(ix,iy);if(t.type==='tree'){rect(x-2,y+8,4,14,'#715337');rect(x-8,y+2,16,10,'#28653e');rect(x-5,y-5,12,12,'#367e48');rect(x-1,y-9,9,9,'#58a85b')}if(t.type==='road'){poly([[x,y+2],[x+30,y+16],[x,y+30],[x-30,y+16]],'#666b6b');if(tile(ix+1,iy)?.type==='road'||tile(ix-1,iy)?.type==='road'){rect(x-2,y+10,4,4,'#d8c47e')}if(tile(ix,iy+1)?.type==='road'||tile(ix,iy-1)?.type==='road'){rect(x+8,y+14,5,2,'#d8c47e')}}if(t.type==='village'){building(x,y,15,12,14,'#b8a076','#86533e');rect(x-3,y+23,5,7,'#49392c')}if(t.type==='farm'){building(x,y,19,10,11,'#b99c68','#874d3b');rect(x-20,y+25,10,3,'#d7b55a')}if(t.type==='shop'){building(x,y,20,14,15,'#e5c38a','#ae5c46');rect(x-10,y+24,18,5,'#e7b04c')}if(t.type==='res'){let widths=[0,17,20,23,25,28,31],heights=[0,22,45,68,92,118,148];building(x,y,widths[Math.min(t.level,6)]||17,16,heights[Math.min(t.level,6)]||22,'#c3bba4',t.level===1?'#d58c66':t.level<=3?'#a8b1ad':'#778d9c');if(t.level>=4){rect(x-5,y-heights[t.level]+20,4,5,'#f2d58a');rect(x+8,y-heights[t.level]+34,4,5,'#f2d58a')}}if(t.type==='com'||business[t.type]){let b=business[t.type],colors={grocery:'#6eae65',minimarket:'#e0a64d',supermarket:'#4b9a68',hypermarket:'#4b82a8',ozon:'#3978bb',wildberries:'#9c5aa8',yandexmarket:'#d8b33f',coffee:'#8d6248',bakery:'#d8a65b',cafe:'#b56e55',restaurant:'#a75d52',fastfood:'#d64f3f',pizzeria:'#c96d42',pharmacy:'#69a6ad',flowers:'#d17aa5',electronics:'#6e8fc2',gym:'#6d9c75',cinema:'#8c6fb0',bank:'#b69b5c',office:'#668ca8',gas:'#d0a54b'};let col=colors[t.type]||'#86b7bc';building(x,y,20,16,t.type==='com'?t.level*13+15:25,col,t.type==='com'?'#477e90':'#536c80');rect(x-13,y+25,26,6,t.type==='com'?'#ffcc6c':'#f2d27b');rect(x-3,y+26,6,4,'#334b55');if(b){let signNames={grocery:'ПРОДУКТЫ',minimarket:'МИНИ',supermarket:'СУПЕР',hypermarket:'ГИПЕР',ozon:'OZON',wildberries:'WB',yandexmarket:'Я.МАРКЕТ',post:'ПОЧТА',coffee:'КОФЕ',bakery:'ПЕКАРНЯ',cafe:'КАФЕ',restaurant:'РЕСТОРАН',fastfood:'ФАСТФУД',pizzeria:'ПИЦЦА',bar:'БАР',pharmacy:'АПТЕКА',clinic_private:'КЛИНИКА',flowers:'ЦВЕТЫ',clothes:'ОДЕЖДА',electronics:'ТЕХНИКА',household:'ДОМ',beauty:'САЛОН',barber:'БАРБЕР',petshop:'ЗОО',bookshop:'КНИГИ',gym:'ФИТНЕС',cinema:'КИНО',hotel:'ОТЕЛЬ',bank:'БАНК',office:'ОФИСЫ',gas:'АЗС',carwash:'МОЙКА',autoservice:'АВТОСЕРВИС'};let label=signNames[t.type]||'МАГАЗИН';rect(x-18,y+7,36,8,t.type==='post'?'#f2c83d':'#f4e6b7');ctx.fillStyle=t.type==='post'?'#b52625':'#26353b';ctx.font='bold 5px monospace';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(label,x,y+11,35);rect(x-13,y+25,26,6,t.type==='com'?'#ffcc6c':'#f2d27b');rect(x-3,y+26,6,4,'#334b55')}}if(t.type==='ind'){building(x,y,22,15,25,'#a6a6a0','#777e84');rect(x+11,y-19,8,30,'#b8775e');rect(x+13,y-25,5,7,'#d8d5bd')}if(t.type==='park'){poly([[x,y+5],[x+25,y+17],[x,y+29],[x-25,y+17]],'#b99a67','#806b4c');rect(x-2,y+10,4,13,'#d8c18c');rect(x-16,y+16,5,3,'#e5d5a8');rect(x+11,y+16,5,3,'#e5d5a8');rect(x-3,y+7,2,3,'#f2df9a')}if(t.type==='school'){building(x,y,24,14,20,'#c9a78c','#ae604d');rect(x-10,y+26,18,4,'#e8d68b')}if(t.type==='university'){building(x,y,30,18,38,'#d8d0b4','#647e9b');poly([[x-17,y-2],[x,y-13],[x+17,y-2],[x,y+8]],'#b7a06c','#5b4c35');rect(x-19,y+18,38,8,'#f0e5c5');ctx.fillStyle='#253747';ctx.font='bold 7px monospace';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('УНИВЕРСИТЕТ',x,y+22,38);rect(x-3,y+27,6,8,'#514537')}if(t.type==='hospital'){building(x,y,30,18,34,'#e4e8e5','#bd5555');rect(x-3,y+4,6,17,'#c94343');rect(x-9,y+10,18,5,'#c94343')}if(t.type==='citypharmacy'){building(x,y,22,14,20,'#d5e7d8','#6a9c79');rect(x-3,y+5,6,13,'#fff');rect(x-7,y+9,14,5,'#c94343')}if(t.type==='clinic'){building(x,y,23,15,23,'#d9e1df','#6c929b');rect(x-2,y+6,5,13,'#d35151');rect(x-6,y+10,13,5,'#d35151')}if(t.type&&!knownBuildingTypes.has(t.type)){building(x,y,19,14,24,'#c4b99c','#8b6958');rect(x-17,y+7,34,8,'#f4e6b7');ctx.fillStyle='#26353b';ctx.font='bold 5px monospace';ctx.textAlign='center';ctx.fillText(String(t.type).toUpperCase().slice(0,12),x,y+11,33)}}function render(){ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,c.width,c.height);ctx.fillStyle='#83b7bf';ctx.fillRect(0,0,c.width,c.height);let unit=devicePixelRatio*zoom;ctx.setTransform(unit,0,0,unit,c.width/2+shiftX*devicePixelRatio,c.height/2-(N*16)*unit+shiftY*devicePixelRatio);for(let y=0;y<N;y++)for(let x=0;x<N;x++){let p=iso(x,y),t=tile(x,y);diamond(p.x,p.y,t.ground==='dark'?'#6c9b5b':(rand(x,y)>.5?'#83b766':'#8ec373'));if(!t.type&&rand(x+40,y+30)>.76){rect(p.x+6,p.y+17,2,2,'#b2cb7b')}}for(let sum=0;sum<=2*(N-1);sum++)for(let y=Math.max(0,sum-(N-1));y<=Math.min(N-1,sum);y++){let x=sum-y,p=iso(x,y),t=tile(x,y);if(t.type&&t.type!=='road'&&t.type!=='tree'){ctx.save();ctx.globalAlpha=.95;poly([[p.x,p.y+3],[p.x+13,p.y+9],[p.x,p.y+16],[p.x-13,p.y+9]],'#d8c28a','#5a4936');ctx.restore()}ctx.save();ctx.translate(p.x,p.y);ctx.scale(.78,.78);drawObject(t,0,0,x,y);ctx.restore()}for(let p of people){if(p.state==='inside')continue;let a=iso(p.x,p.y);rect(a.x-3,a.y+8,6,8,'#293a45');rect(a.x-3,a.y+3,6,5,p.color)}if(activeDealId){const deal=currentDeal();if(deal){const site=deal.selectedSite||deal.parcels?.[0];if(site){const m=iso(site.x,site.y);ctx.save();ctx.globalAlpha=.95;ctx.fillStyle='#f02f3b';ctx.beginPath();ctx.arc(m.x,m.y+8,9,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.stroke();ctx.fillStyle='#fff';ctx.font='bold 16px sans-serif';ctx.textAlign='center';ctx.fillText('!',m.x,m.y+13);ctx.restore()}}}if(hover){let p=iso(hover.x,hover.y);poly([[p.x,p.y],[p.x+32,p.y+16],[p.x,p.y+32],[p.x-32,p.y+16]],'#ffffff35','#ffef9e')}}function pick(mx,my){let u=(mx-c.width/2-shiftX*devicePixelRatio)/(devicePixelRatio*zoom),v=(my-c.height/2+(N*16)*devicePixelRatio*zoom-shiftY*devicePixelRatio)/(devicePixelRatio*zoom);let a=v/TH+u/TW,b=v/TH-u/TW;let x=Math.floor(a),y=Math.floor(b);return x>=0&&y>=0&&x<N&&y<N?{x,y}:null}function act(x,y){let t=tile(x,y);if(!t)return;if(mode==='move'){if(!moveSource){if(!t.type||t.type==='tree'){notify('Выбери построенный объект для переноса');return}moveSource={x,y,type:t.type,level:t.level,age:t.age};notify('Объект выбран. Теперь укажи свободную клетку назначения');return}if(x===moveSource.x&&y===moveSource.y){moveSource=null;notify('Перенос отменён');return}if(t.type){notify('Клетка занята. Выбери свободное место');return}if(!hasRoadFrontage(x,y)){notify('🚧 Для переноса сначала подведи дорогу к новому участку');return}if(game.money<150000){notify('Не хватает 150 000 ₽ на перенос');return}pushUndo('Перенос объекта');let src=tile(moveSource.x,moveSource.y);game.tiles[y*N+x]={...t,type:moveSource.type,level:moveSource.level,age:moveSource.age};src.type='';src.level=0;src.age=0;game.money-=150000;moveSource=null;rebuildRoadGraph();refreshPedestrianRoutes();save();stats();notify('↔️ Объект перенесён за 150 000 ₽');return}if(mode==='inspect'){let labels={village:'Деревенский дом',res:'Жилой квартал',com:'Коммерческая зона',ind:'Промышленность',road:'Дорога',tree:'Лес',shop:'Сельпо',farm:'Ферма',park:'Парк',school:'Школа',university:'Университет',clinic:'Поликлиника',hospital:'Больница',citypharmacy:'Городская аптека'};let b=business[t.type];let title=b?defs[t.type][0]:(labels[t.type]||defs[t.type]?.[0]||'Свободная земля');notify(title+' · клетка '+(x+1)+','+(y+1));document.getElementById('tileinfo').textContent='Уровень: '+t.level+' · Рядом дорога: '+(connected(x,y)?'да':'нет')+(t.type==='com'?' · Развитие: '+t.age+'/5 дней':['village','res'].includes(t.type)?' · Живёт: '+residentsAt(x,y)+' / '+capacity(t)+' чел. · '+housingLevelName(t.level):'');if(t.type&&t.type!=='tree'&&t.type!=='road'){showEffects(t.type);document.getElementById('effectTitle').textContent=title;document.getElementById('effectCost').innerHTML='Текущий объект · '+(t.type==='com'?'частный участок':business[t.type]?'частный бизнес':'муниципальный объект');let extra=document.querySelector('#effectDetails');if(['village','res'].includes(t.type)){let maxPeople=capacity(t),living= residentsAt(x,y);extra.innerHTML='<div>Живёт сейчас: <b>'+living+' человек</b></div><div>Вместимость по уровню: <b>'+maxPeople+' человек</b></div><div>Свободных мест: <b>'+Math.max(0,maxPeople-living)+' человек</b></div><div>Заселение зависит от общей численности населения, подключения к дороге и доступности жилья</div>';}else if(t.type==='com'){extra.innerHTML='<div>Статус: <b>участок ожидает инвестора</b></div><div>Прогресс развития: <b>'+t.age+'/5 дней</b></div><div>Условие: подключённая дорога и население от 16 жителей</div><div>После появления спроса предприниматель сам откроет здесь бизнес, заплатит городу за землю и начнёт платить налоги</div>';}else if(business[t.type]){extra.innerHTML='<div>Владелец: <b>частный предприниматель</b></div><div>Рабочие места: <b>'+b[2]+' максимум</b></div><div>Сотрудников сейчас: <b>'+workersAt(x,y)+' человек</b></div><div>Свободных вакансий: <b>'+Math.max(0,b[2]-workersAt(x,y))+'</b></div><div>Налоговый доход по текущей ставке: <b>'+Math.round(workersAt(x,y)*DAILY_WAGE*PAYROLL_TAX_RATE*(game.taxRates?.[t.type]??100)/100).toLocaleString('ru-RU')+' ₽/день</b></div><div>Фонд оплаты труда: <b>'+(workersAt(x,y)*DAILY_WAGE).toLocaleString('ru-RU')+' ₽/день</b></div><div>Ставка налога с зарплат: <b>13%</b> (корректируется городским налогом)</div><div>Содержание: <b>за счёт владельца</b></div><div>Собственник может развивать бизнес при росте спроса</div>';}else if(t.type==='ind'||t.type==='farm'){let offered=t.type==='farm'?15:t.level*28,staff=workersAt(x,y);extra.innerHTML='<div>Рабочие места: <b>'+offered+' максимум</b></div><div>Сотрудников сейчас: <b>'+staff+' человек</b></div><div>Свободных вакансий: <b>'+Math.max(0,offered-staff)+'</b></div><div>Частный владелец оплачивает содержание предприятия</div>';}else if(['school','university','clinic','hospital','citypharmacy','park','road'].includes(t.type)){extra.innerHTML+='<div>Владелец: <b>муниципалитет</b></div><div>Строительство и содержание оплачивает городской бюджет</div>';}}return}if(mode==='park'){
+ const cells=[];
+ const dx=alleyRotation===0?1:0,dy=alleyRotation===0?0:1;
+ for(let i=0;i<5;i++){
+  const px=x+dx*i,py=y+dy*i;
+  if(px<0||py<0||px>=N||py>=N){notify('Для аллеи не хватает места в выбранном направлении');return}
+  if(tile(px,py)?.type&&!(px===x&&py===y&&tile(px,py).type==='road')){notify('Для аллеи нужны пять свободных клеток по прямой');return}
+  cells.push({x:px,y:py,type:'road'});
+  if(i%2===0){
+   const sides=alleyRotation===0?[{x:px,y:py-1},{x:px,y:py+1}]:[{x:px-1,y:py},{x:px+1,y:py}];
+   for(const q of sides)if(q.x>=0&&q.y>=0&&q.x<N&&q.y<N&&!tile(q.x,q.y)?.type)cells.push({...q,type:'tree'});
+  }
+ }
+ if(cells.filter(q=>q.type==='road').length<3){notify('Не хватает места для прогулочной аллеи');return}
+ const cost=280000+cells.filter(q=>q.type==='tree').length*25000;
+ if(game.money<cost){notify('Не хватает денег на аллею: '+fmtRub(cost));return}
+ pushUndo('Строительство прогулочной аллеи');
+ game.money-=cost;
+ for(const q of cells){const t=tile(q.x,q.y);if(t&&!t.type){t.type=q.type;t.level=1;t.age=0;if(q.type==='road'&&q.x===x&&q.y===y)t.promenade=true}}
+ game.parkways=(game.parkways||0)+1;
+ rebuildRoadGraph();refreshPedestrianRoutes();save();stats();notify('🌳 Аллея построена '+(alleyRotation===0?'горизонтально':'вертикально')+': дорожка, деревья через клетку и свободные места под бизнес');return
+}if(mode==='clearTree'){if(t.type!=='tree'){notify('На этой клетке нет дерева');return}if(game.money<25){notify('Не хватает денег на вырубку');return}pushUndo('Вырубка дерева');game.money-=25000;t.type='';t.level=0;t.age=0;notify('🪓 Дерево вырублено. Участок свободен');save();stats();return}if(mode==='bulldoze'){if(!t.type){notify('Тут нечего сносить');return}if(game.money<80000){notify('Не хватает денег');return}if(['village','res'].includes(t.type)){let lost=Math.min(game.pop,Math.floor(capacity(t)*.65));game.pop-=lost;notify('🏚 Снесено жильё. '+lost+' жителей ищут новый дом.')}else notify('Участок расчищен');pushUndo('Снос объекта');game.money-=80000;t.type='';t.level=0;rebuildRoadGraph();refreshPedestrianRoutes();save();stats();return}if(mode!=='road'&&mode!=='park'&&!hasRoadFrontage(x,y)){notify('🚧 Нельзя строить: сначала подведи дорогу к участку (дорога должна примыкать к клетке)');return}let cost=defs[mode][1],privateBuild=isPrivateDevelopment(mode),landFee=privateBuild?landPrice(mode):0,treeCost=t.type==='tree'?25000:0;
+if(!privateBuild&&game.money<cost+treeCost){notify('💸 Не хватает денег на строительство');return}
+if(t.type==='tree'){if(!privateBuild&&game.money<cost+25000){notify('Не хватает денег на строительство и вырубку дерева');return}}else if(t.type){notify('Участок занят. Сначала снеси объект.');return}
+pushUndo((privateBuild?'Продажа участка под застройку: ':'Строительство: ')+defs[mode][0]);
+if(treeCost)game.money-=treeCost;
+if(privateBuild){game.money+=landFee;notify('🏗 Частный инвестор приобрёл участок за '+landFee.toLocaleString('ru-RU')+' ₽ и построил: '+defs[mode][0])}
+else{game.money-=cost;notify('🏗 Построено за счёт города: '+defs[mode][0])}
+t.type=mode;t.level=1;t.age=0;game.paused=false;refreshPedestrianRoutes();save();stats()}
+c.addEventListener('contextmenu',e=>e.preventDefault());c.addEventListener('pointerdown',e=>{c.setPointerCapture(e.pointerId);drag=e.button===2||e.shiftKey;lastX=e.clientX;lastY=e.clientY;c.dataset.moved='0'});c.addEventListener('pointermove',e=>{if(e.buttons&&drag){shiftX+=e.clientX-lastX;shiftY+=e.clientY-lastY;c.dataset.moved='1'}lastX=e.clientX;lastY=e.clientY;let r=c.getBoundingClientRect();hover=pick((e.clientX-r.left)*devicePixelRatio,(e.clientY-r.top)*devicePixelRatio)});c.addEventListener('pointerup',e=>{if(!drag&&c.dataset.moved!=='1'&&hover){if(!chooseDealSite(hover.x,hover.y))act(hover.x,hover.y)};drag=false});c.addEventListener('wheel',e=>{e.preventDefault();zoom=Math.max(.55,Math.min(2.2,zoom*(e.deltaY>0?.9:1.1)))},{passive:false});let touchStart=null;c.addEventListener('touchstart',e=>{touchStart={x:e.touches[0].clientX,y:e.touches[0].clientY}},{passive:true});c.addEventListener('touchmove',e=>{if(touchStart&&e.touches.length===1){let dx=e.touches[0].clientX-touchStart.x,dy=e.touches[0].clientY-touchStart.y;if(Math.abs(dx)+Math.abs(dy)>8){shiftX+=dx;shiftY+=dy;touchStart={x:e.touches[0].clientX,y:e.touches[0].clientY};c.dataset.moved='1'}}},{passive:true});let roadGraph={cells:[],neighbors:new Map()};
+function rebuildRoadGraph(){
+ const cells=[],neighbors=new Map(),key=(x,y)=>x+','+y;
+ for(let y=0;y<N;y++)for(let x=0;x<N;x++)if(tile(x,y)?.type==='road')cells.push({x,y});
+ for(const r of cells){
+  const ns=[[1,0],[-1,0],[0,1],[0,-1]].map(([dx,dy])=>({x:r.x+dx,y:r.y+dy})).filter(q=>tile(q.x,q.y)?.type==='road');
+  neighbors.set(key(r.x,r.y),ns);
+ }
+ roadGraph={cells,neighbors};
+}
+function roadCells(){return roadGraph.cells}
+function roadNeighbors(x,y){return roadGraph.neighbors.get(x+','+y)||[]}
+function roadPath(from,to){
+ const key=q=>q.x+','+q.y,queue=[from],prev=new Map([[key(from),null]]);
+ while(queue.length){const q=queue.shift();if(q.x===to.x&&q.y===to.y)break;for(const n of roadNeighbors(q.x,q.y)){const k=key(n);if(!prev.has(k)){prev.set(k,key(q));queue.push(n)}}}
+ const target=key(to);if(!prev.has(target))return[];const path=[];let k=target;while(k){const [x,y]=k.split(',').map(Number);path.unshift({x,y});k=prev.get(k)}return path
+}
+function destinations(){
+ const out=[];for(let y=0;y<N;y++)for(let x=0;x<N;x++){const t=tile(x,y);if(!t.type||['tree','road','park'].includes(t.type))continue;
+  const fronts=[[x+1,y],[x-1,y],[x,y+1],[x,y-1]].map(([x,y])=>({x,y})).filter(q=>roadGraph.neighbors.has(q.x+','+q.y));
+  if(fronts.length)out.push({x,y,type:t.type,front:fronts[0]});
+ }return out
+}
+function sendPerson(p){
+ const roads=roadGraph.cells;if(!roads.length){p.path=[];p.state='waiting';return}
+ let current={x:Math.round(p.x),y:Math.round(p.y)};
+ if(!roadGraph.neighbors.has(current.x+','+current.y)){current=roads[(p.id||0)%roads.length];p.x=current.x;p.y=current.y}
+ const places=destinations().filter(d=>!(p.lastDestination&&d.x===p.lastDestination.x&&d.y===p.lastDestination.y));
+ const candidates=places.map(d=>({...d,path:roadPath(current,d.front)})).filter(d=>d.path.length>=1);
+ if(candidates.length){const d=candidates[(p.id+ (p.tripCount||0))%candidates.length];p.path=d.path.slice(1);p.destination={x:d.x,y:d.y,front:d.front};p.state='walking';p.stuck=0;return}
+ const roadsReachable=roads.map(r=>({...r,path:roadPath(current,r)})).filter(r=>r.path.length>1);
+ if(roadsReachable.length){const r=roadsReachable[(p.id+(p.tripCount||0))%roadsReachable.length];p.path=r.path.slice(1);p.destination=null;p.state='walking'}else{p.path=[];p.destination=null;p.state='waiting'}
+}
+function refreshPedestrianRoutes(){
+ rebuildRoadGraph();
+ for(const p of people){
+  if(p.state==='inside'||p.state==='entering'||p.state==='exiting')continue;
+  p.path=[];p.state='waiting';p.destination=null;sendPerson(p);
+ }
+}
+function initPeople(){
+ const roads=roadGraph.cells;const count=Math.min(40,Math.max(1,Math.floor(game.pop)));
+ while(people.length<count){const i=people.length,r=roads[i%Math.max(1,roads.length)]||{x:3,y:12};people.push({id:i,x:r.x,y:r.y,color:['#e8c18a','#f5d66b','#a5cbe0','#f1a0a1'][i%4],path:[],state:'waiting',previous:null,destination:null,lastDestination:null,tripCount:0,stuck:0})}
+ for(const p of people)if(!p.path.length&&p.state!=='inside')sendPerson(p);
+}
+rebuildRoadGraph();initPeople();renderProposals();
+function beginEntering(p){
+ if(!p.destination){p.state='waiting';sendPerson(p);return}
+ p.entryFrom={x:p.x,y:p.y};p.entryTo={x:p.destination.x,y:p.destination.y};p.entryTimer=10;p.state='entering';
+}
+setInterval(()=>{
+ if(game.paused||activeDealId)return;
+ for(const p of people){
+  if(p.state==='entering'){
+   p.entryTimer--;
+   const progress=1-Math.max(0,p.entryTimer)/10;
+   p.x=p.entryFrom.x+(p.entryTo.x-p.entryFrom.x)*progress;
+   p.y=p.entryFrom.y+(p.entryTo.y-p.entryFrom.y)*progress;
+   if(p.entryTimer<=0){p.x=p.entryTo.x;p.y=p.entryTo.y;p.state='inside';p.dwell=25+((p.id*7)%35);p.entryFrom=null;p.entryTo=null}
+   continue;
+  }
+  if(p.state==='inside'){p.dwell=(p.dwell||0)-1;if(p.dwell<=0){
+   p.lastDestination=p.destination?{x:p.destination.x,y:p.destination.y}:null;
+   const exit=p.destination?.front;
+   if(exit){p.exitFrom={x:p.x,y:p.y};p.exitTo={x:exit.x,y:exit.y};p.exitTimer=10;p.state='exiting'}
+   else{p.destination=null;p.tripCount=(p.tripCount||0)+1;p.state='waiting';sendPerson(p)}
+  }continue}
+  if(p.state==='exiting'){
+   p.exitTimer--;
+   const progress=1-Math.max(0,p.exitTimer)/10;
+   p.x=p.exitFrom.x+(p.exitTo.x-p.exitFrom.x)*progress;
+   p.y=p.exitFrom.y+(p.exitTo.y-p.exitFrom.y)*progress;
+   if(p.exitTimer<=0){p.x=p.exitTo.x;p.y=p.exitTo.y;p.exitFrom=null;p.exitTo=null;p.destination=null;p.tripCount=(p.tripCount||0)+1;p.state='waiting';sendPerson(p)}
+   continue;
+  }
+  if(!p.path||!p.path.length){if(p.destination){beginEntering(p)}else sendPerson(p);continue}
+  const next=p.path[0];if(!roadGraph.neighbors.has(next.x+','+next.y)){p.path=[];p.destination=null;sendPerson(p);continue}
+  const dx=next.x-p.x,dy=next.y-p.y,d=Math.hypot(dx,dy);
+  if(d<.055){p.x=next.x;p.y=next.y;p.path.shift();p.stuck=0;if(!p.path.length&&p.destination){beginEntering(p)}}
+  else{p.x+=dx/d*.035;p.y+=dy/d*.035;p.stuck=(p.stuck||0)+1;if(p.stuck>100){p.x=next.x;p.y=next.y;p.path.shift();p.stuck=0}}
+ }
+},100);
+function frame(now){let dt=Math.max(0,now-prev);prev=now;if(!game.paused){clock+=dt*game.speed;while(clock>=60000){clock-=60000;daily();if(people.length<Math.min(40,Math.floor(game.pop)))initPeople()}}render();requestAnimationFrame(frame)}daily(true);stats();updateUndoButton();refreshExpansion();updateFinance();requestAnimationFrame(frame)})();
+</script></body></html>
