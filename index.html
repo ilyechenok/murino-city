@@ -114,7 +114,7 @@ const taxObjects={
 };
 game.taxRates=game.taxRates||{};
 for(const k of Object.keys(taxObjects))if(game.taxRates[k]==null)game.taxRates[k]=100;
-function tile(x,y){return x>=0&&y>=0&&x<N&&y<N?game.tiles[y*N+x]:null}function connected(x,y){return hasRoadFrontage(x,y)}function hasRoadFrontage(x,y){return [[1,0],[-1,0],[0,1],[0,-1]].some(([dx,dy])=>tile(x+dx,y+dy)?.type==='road')}function capacity(t){return t.type==='village'?7:t.type==='res'?[0,16,55,135,280,520,900][Math.min(t.level,6)]:0}
+function tile(x,y){return x>=0&&y>=0&&x<N&&y<N?game.tiles[y*N+x]:null}function connected(x,y){return [[1,0],[-1,0],[0,1],[0,-1]].some(([dx,dy])=>{const r=tile(x+dx,y+dy);return r?.type==='road'&&(!r.privateComplexRoad||r.complexRoadOpen===true)})}function hasRoadFrontage(x,y){return [[1,0],[-1,0],[0,1],[0,-1]].some(([dx,dy])=>tile(x+dx,y+dy)?.type==='road')}function capacity(t){return t.type==='village'?7:t.type==='res'?[0,16,55,135,280,520,900][Math.min(t.level,6)]:0}
 function housingLevelName(level){return ['','Малый дом','Многоквартирный дом','Жилой комплекс','Большой жилой комплекс','Высотный жилой комплекс','Мегакомплекс'][Math.min(Math.max(1,level),6)]}
 function housingOccupancy(){
  const homes=[];let totalCapacity=0;
@@ -379,9 +379,9 @@ function save(){
  catch(e){if(game.undoStack?.length){game.undoStack.shift();try{localStorage.setItem(KEY,JSON.stringify(game))}catch(e2){console.warn('Не удалось сохранить игру: недостаточно места в хранилище')}}else console.warn('Не удалось сохранить игру: недостаточно места в хранилище')}
  if(authUser&&cloudSyncReady)scheduleCloudSave();
 }
-function pushUndo(label){game.undoStack=game.undoStack||[];game.undoStack.push({label,tiles:JSON.parse(JSON.stringify(game.tiles)),money:game.money,pop:game.pop,happy:game.happy,reputation:game.reputation,storyStage:game.storyStage,dealsClosed:game.dealsClosed,parkways:game.parkways,jobs:game.jobs,tax:game.tax,upkeep:game.upkeep,taxRates:{...(game.taxRates||{})},mapSize:N});if(game.undoStack.length>8)game.undoStack.shift();save();updateUndoButton()}
+function pushUndo(label){game.undoStack=game.undoStack||[];game.undoStack.push({label,tiles:JSON.parse(JSON.stringify(game.tiles)),money:game.money,pop:game.pop,happy:game.happy,reputation:game.reputation,storyStage:game.storyStage,dealsClosed:game.dealsClosed,parkways:game.parkways,jobs:game.jobs,tax:game.tax,upkeep:game.upkeep,taxRates:{...(game.taxRates||{})},mapSize:N,privateCompanies:JSON.parse(JSON.stringify(game.privateCompanies||{developers:[],businesses:[]})),residentialComplexes:JSON.parse(JSON.stringify(game.residentialComplexes||[])),proposals:JSON.parse(JSON.stringify(game.proposals||[]))});if(game.undoStack.length>8)game.undoStack.shift();save();updateUndoButton()}
 function updateUndoButton(){let b=document.getElementById('undo');if(b){let n=game.undoStack?.length||0;b.disabled=!n;b.textContent=n?'↶ Отменить ('+n+')':'↶ Отменить';b.title=n?'Последнее действие: '+game.undoStack[n-1].label:'История действий пуста'}}
-function undoLast(){let h=game.undoStack||[];if(!h.length){notify('Нечего отменять');return}let s=h.pop();game.tiles=s.tiles;N=s.mapSize||Math.sqrt(s.tiles.length);game.mapSize=N;rebuildRoadGraph();refreshPedestrianRoutes();game.money=s.money;game.pop=s.pop;game.happy=s.happy;game.reputation=s.reputation??game.reputation;game.storyStage=s.storyStage??game.storyStage;game.dealsClosed=s.dealsClosed??game.dealsClosed;game.parkways=s.parkways??game.parkways;game.jobs=s.jobs;game.tax=s.tax;game.upkeep=s.upkeep;game.taxRates=s.taxRates||game.taxRates;game.undoStack=h;save();stats();refreshTaxUI();refreshExpansion();updateUndoButton();notify('↶ Отменено: '+s.label)}
+function undoLast(){let h=game.undoStack||[];if(!h.length){notify('Нечего отменять');return}let s=h.pop();game.tiles=s.tiles;N=s.mapSize||Math.sqrt(s.tiles.length);game.mapSize=N;rebuildRoadGraph();refreshPedestrianRoutes();game.money=s.money;game.pop=s.pop;game.happy=s.happy;game.reputation=s.reputation??game.reputation;game.storyStage=s.storyStage??game.storyStage;game.dealsClosed=s.dealsClosed??game.dealsClosed;game.parkways=s.parkways??game.parkways;game.jobs=s.jobs;game.tax=s.tax;game.upkeep=s.upkeep;game.taxRates=s.taxRates||game.taxRates;game.privateCompanies=s.privateCompanies||game.privateCompanies;game.residentialComplexes=s.residentialComplexes||[];game.proposals=s.proposals||[];activeDealId=null;game.undoStack=h;save();stats();refreshTaxUI();refreshExpansion();updateFinance();renderProposals();updateUndoButton();notify('↶ Отменено: '+s.label)}
 document.getElementById('undo').onclick=undoLast;
 const expansionPrices={24:25000000,32:60000000,40:125000000,48:240000000,56:420000000};
 function refreshExpansion(){let cost=expansionPrices[N]??(Math.round(420000000*Math.pow(1.7,(N-56)/8)/1000)*1000);document.getElementById('mapSizeLabel').textContent=N+' × '+N;document.getElementById('expandCost').textContent=N>=64?'Достигнут максимальный размер карты':('Следующее расширение: '+cost.toLocaleString('ru-RU')+' ₽');let b=document.getElementById('expandMap');b.disabled=N>=64||game.money<cost;b.textContent=N>=64?'Максимальный размер':'🗺️ Купить новые земли · '+cost.toLocaleString('ru-RU')+' ₽'}
@@ -645,8 +645,9 @@ function migratePrivateSector(){
    p.proposalType='business';
    let company=game.privateCompanies.businesses.find(c=>c.id===p.companyId);
    if(!company){
-    const owner=game.tiles.find(t=>t&&business[t.type]&&(!p.owner||t.companyId));
-    if(owner)company=game.privateCompanies.businesses.find(c=>c.id===owner.companyId);
+    const owner=p.owner&&tile(p.owner.x,p.owner.y);
+    if(owner?.companyId)company=game.privateCompanies.businesses.find(c=>c.id===owner.companyId);
+    if(!company){const anyOwner=game.tiles.find(t=>t&&business[t.type]&&t.companyId);if(anyOwner)company=game.privateCompanies.businesses.find(c=>c.id===anyOwner.companyId)}
    }
    if(!company)company=createBusinessCompany();
    p.companyId=company.id;p.companyName=company.name;
@@ -780,7 +781,7 @@ function chooseDealSite(x,y){
   if(!cells){notify('ЖК не помещается в границы карты. Выбери площадку ближе к центру города.');return true}
   for(const cell of cells){
    const t=tile(cell.x,cell.y);
-   if(!t||!(t.type===''||t.type==='tree'||(cell.kind==='road'&&t.type==='road'))){notify('Площадка ЖК занята. Нужна свободная территория 5 × 5.');return true}
+   if(!t||!(cell.kind==='house'?(t.type===''||t.type==='tree'):(t.type===''||t.type==='tree'||(t.type==='road'&&!t.privateComplexRoad)))){notify('Площадка ЖК занята. Нужна свободная территория 5 × 5.');return true}
   }
   p.selectedSite={x,y};
  }else{
@@ -817,7 +818,7 @@ function finalizeDeal(id=activeDealId){
   if(!cells){notify('Не удалось разместить ЖК: площадка вышла за границы карты.');return}
   for(const cell of cells){
    const t=tile(cell.x,cell.y);
-   if(!t||!(t.type===''||t.type==='tree'||(cell.kind==='road'&&t.type==='road'))){notify('Площадка ЖК уже занята. Выбери другое место.');return}
+   if(!t||!(cell.kind==='house'?(t.type===''||t.type==='tree'):(t.type===''||t.type==='tree'||(t.type==='road'&&!t.privateComplexRoad)))){notify('Площадка ЖК уже занята. Выбери другое место.');return}
   }
   company=game.privateCompanies.developers.find(c=>c.id===p.companyId);
   if(!company){notify('Не найден застройщик. Обнови список предложений.');return}
@@ -843,11 +844,11 @@ function finalizeDeal(id=activeDealId){
     const level=levels[cell.houseIndex]||3;
     Object.assign(t,{type:'res',level,age:0,complexId,complexName:complex.name,developerId:p.companyId,developerName:p.companyName,modelVariant:Math.floor(Math.random()*6),houseIndex:cell.houseIndex,underConstruction:true});
    }else if(cell.kind==='road'){
-    if(t.type!=='road')t.type='road';
-    t.level=1;t.privateComplexRoad=true;t.complexId=complexId;t.complexName=complex.name;
-   }else{
-    if(t.type==='')t.type='tree';
-    t.complexId=complexId;
+    if(t.type!=='road'){t.type='road';t.privateComplexRoad=true;t.complexId=complexId;t.complexName=complex.name}
+    else if(t.privateComplexRoad){t.complexId=complexId;t.complexName=complex.name}
+    t.level=1;
+   }else if(t.type===''){
+    t.type='tree';t.complexId=complexId;
    }
   }
  }else{
@@ -1216,6 +1217,24 @@ function rebuildRoadGraph(){
   neighbors.set(key(r.x,r.y),ns);
  }
  roadGraph={cells,neighbors};
+ updateResidentialComplexRoadAccess();
+}
+function updateResidentialComplexRoadAccess(){
+ for(const project of game.residentialComplexes||[]){
+  let linked=false;
+  for(const cell of project.roadCells||[]){
+   const road=tile(cell.x,cell.y);if(!road||road.type!=='road')continue;
+   if(!road.privateComplexRoad){linked=true;break}
+   for(const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1]]){
+    const neighbor=tile(cell.x+dx,cell.y+dy);
+    if(neighbor?.type==='road'&&!neighbor.privateComplexRoad){linked=true;break}
+   }
+   if(linked)break;
+  }
+  project.cityConnected=linked;
+  for(const cell of project.roadCells||[]){const road=tile(cell.x,cell.y);if(road?.complexId===project.id)road.complexRoadOpen=linked}
+  for(const cell of project.houseCells||[]){const home=tile(cell.x,cell.y);if(home?.complexId===project.id)home.complexRoadOpen=linked}
+ }
 }
 function roadCells(){return roadGraph.cells}
 function roadNeighbors(x,y){return roadGraph.neighbors.get(x+','+y)||[]}
@@ -1252,13 +1271,13 @@ function initPeople(){
  while(people.length<count){const i=people.length,r=roads[i%Math.max(1,roads.length)]||{x:3,y:12};people.push({id:i,x:r.x,y:r.y,color:['#e8c18a','#f5d66b','#a5cbe0','#f1a0a1'][i%4],path:[],state:'waiting',previous:null,destination:null,lastDestination:null,tripCount:0,stuck:0})}
  for(const p of people)if(!p.path.length&&p.state!=='inside')sendPerson(p);
 }
-migratePrivateSector();rebuildRoadGraph();initPeople();renderProposals();
+migratePrivateSector();save();rebuildRoadGraph();initPeople();renderProposals();
 function beginEntering(p){
  if(!p.destination){p.state='waiting';sendPerson(p);return}
  p.entryFrom={x:p.x,y:p.y};p.entryTo={x:p.destination.x,y:p.destination.y};p.entryTimer=10;p.state='entering';
 }
 setInterval(()=>{
- if(game.paused||activeDealId)return;
+ if(game.paused)return;
  for(const p of people){
   if(p.state==='entering'){
    p.entryTimer--;
