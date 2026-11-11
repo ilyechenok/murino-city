@@ -1410,7 +1410,7 @@ function render(){
   }
  }});
  }
- for(const person of people){if(person.state==='inside')continue;const a=iso(person.x,person.y);drawQueue.push({depth:person.x+person.y+.75,fn:()=>drawPerson(a.x,a.y,person.color)})}
+ for(const person of people){if(person.state==='inside')continue;const a=iso(person.x,person.y);drawQueue.push({depth:person.x+person.y+2.5,fn:()=>drawPerson(a.x,a.y,person.color)})}
  drawQueue.sort((a,b)=>a.depth-b.depth);
  for(const command of drawQueue)command.fn();
  if(activeDealId){const deal=game.proposals.find(q=>q.id===activeDealId);if(deal){const site=deal.selectedSite||hover;if(site){const cells=deal.proposalType==='residential'?residentialFootprint(site,deal.houseCount):[{x:site.x,y:site.y,kind:'business'}];if(cells){ctx.save();for(const cell of cells){const m=iso(cell.x,cell.y);ctx.globalAlpha=.38;poly([[m.x,m.y],[m.x+32,m.y+16],[m.x,m.y+32],[m.x-32,m.y+16]],cell.kind==='house'?'#ffd16b':cell.kind==='road'?'#6ba9d1':cell.kind==='green'?'#72bf76':'#f5c66d','#ffe6a3')}ctx.restore()}}}}
