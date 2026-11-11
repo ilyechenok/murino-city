@@ -1,0 +1,1533 @@
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Мурино: новый мэр</title><style>
+*{box-sizing:border-box}body{margin:0;background:#151d24;color:#e8ebd9;font:14px system-ui,Arial}header{height:60px;background:#26313b;border-bottom:3px solid #111a20;display:flex;align-items:center;justify-content:space-between;padding:8px 16px;gap:10px;flex-wrap:wrap}h1{font-size:18px;margin:0;color:#ffd27c}small{color:#aab9bc}.stats{display:flex;gap:16px;flex-wrap:wrap;align-items:center}.stat b{color:#f7d883}.layout{display:flex;height:calc(100vh - 60px);min-height:520px}.side{width:310px;flex-shrink:0;background:#26313b;border-right:3px solid #121b21;padding:13px;overflow:auto}.side h3{margin:10px 0;color:#ffda8a}.tools{display:grid;grid-template-columns:1fr 1fr;gap:6px}.tools button{font-size:11px;line-height:1.25;padding:8px 4px;min-height:42px}button{font:inherit;color:#ecf3e5;background:#3b5260;border:2px solid #182832;padding:10px 5px;cursor:pointer;border-radius:3px}button:hover{background:#4c6b78}button.active{background:#b87943;border-color:#ffda8a;color:#fff}.note{color:#b9c7c4;line-height:1.5;font-size:12px}.game{position:relative;flex:1;overflow:hidden;background:#81b5bd}canvas{display:block;width:100%;height:100%;image-rendering:pixelated;cursor:crosshair;touch-action:none}.hud{position:absolute;bottom:12px;left:12px;background:#1b2935e8;border:2px solid #5b7180;padding:10px;max-width:390px;font-size:13px;pointer-events:none}.topnote{position:absolute;top:12px;right:12px;background:#1b2935db;padding:8px 12px;border:1px solid #6c8590;font-size:12px}.row{display:flex;gap:7px;margin-top:8px}.row button{flex:1}#message{min-height:34px;color:#ffe2a0}.intro{position:fixed;inset:0;background:#101820d9;display:grid;place-items:center;z-index:5;padding:20px}.intro.hidden{display:none}.modal{background:#2d3e49;border:4px solid #bd8d54;max-width:480px;padding:25px;box-shadow:10px 10px #10191f}.modal h2{color:#ffdb89;margin-top:0}.modal p{line-height:1.65}.modal button{background:#a56e3c;width:100%;font-weight:700}@media(max-width:750px){header{height:auto;min-height:65px}.layout{height:calc(100dvh - 90px)}.side{width:158px;padding:7px}.tools{grid-template-columns:1fr}.side h3{font-size:13px}.note{font-size:11px}.stats{gap:8px;font-size:11px}.hud{max-width:240px;font-size:11px}}
+
+.controlRail{display:flex;flex-direction:row;flex-wrap:nowrap;align-items:center;gap:10px;align-self:center;justify-content:center;margin-right:8px;padding:4px 4px;border-left:1px solid #526775;border-right:1px solid #526775}
+.controlRail button{width:48px;min-width:48px;min-height:52px;padding:4px 2px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:11px;line-height:1.05;white-space:nowrap}
+.controlRail button:disabled{opacity:.35;cursor:default}
+header{height:auto;min-height:60px}
+@media(max-width:750px){header{align-items:center}.controlRail{flex-direction:row;order:3;width:100%;justify-content:flex-start;border:0;margin:0;padding:5px 0;gap:10px}.controlRail button{width:48px;min-width:48px;min-height:50px;font-size:11px}.stats{flex:1}}
+.ctrlIcon{font-size:17px;font-weight:700;line-height:1}.ctrlLabel{font-size:9px;line-height:1.05;letter-spacing:-.15px}
+@media(max-width:750px){.controlRail{overflow-x:auto;max-width:100%;padding-bottom:8px;scrollbar-width:thin}}
+</style>
+<style id="murino-isometric-theme">
+:root{--ink:#edf2f7;--muted:#aab6c7;--panel:#111827;--panel2:#182235;--line:#36445d;--violet:#8b5cf6;--violet2:#6d45d8;--gold:#f4c96b}
+*{box-sizing:border-box}
+html,body{width:100%;height:100%;overflow:hidden}
+body{background:#0b1220;color:var(--ink);font:14px/1.4 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Arial}
+header{position:relative;z-index:15;min-height:66px;height:auto;padding:8px 14px;background:linear-gradient(180deg,#202b3c 0%,#111827 100%);border:0;border-bottom:1px solid #3b465b;box-shadow:0 5px 20px #0005;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:nowrap}
+header h1{font-size:18px;letter-spacing:.1px;color:#f5f7fc;white-space:nowrap}
+header h1:before{content:"";display:inline-block;width:7px;height:20px;margin-right:8px;vertical-align:-4px;border-radius:4px;background:linear-gradient(#c4b5fd,#7c3aed);box-shadow:0 0 14px #8b5cf6}
+header small{display:block;margin-left:16px;color:#9eabc0;font-size:10px;font-weight:600;letter-spacing:1.1px;text-transform:uppercase}
+.stats{display:flex;align-items:center;justify-content:flex-end;gap:7px;flex:1;min-width:0}
+.stat{white-space:nowrap;padding:7px 9px;border:1px solid #344258;border-radius:11px;background:#1d293b;color:#c9d3e3;font-size:12px}
+.stat b{color:#f8fafc;font-variant-numeric:tabular-nums}
+.controlRail{order:0;display:flex;align-items:center;gap:5px;padding:0 8px;border:0;margin:0;min-width:0}
+.controlRail button{width:40px;min-width:40px;min-height:42px;padding:4px 2px;gap:2px;border:1px solid #3c4960;border-radius:11px;background:linear-gradient(180deg,#354259,#202b3d);color:#edf1fa;box-shadow:0 2px 5px #0003}
+.controlRail button:hover{background:linear-gradient(180deg,#4b5b7a,#2b3851);transform:translateY(-1px)}
+.controlRail button.active{background:linear-gradient(180deg,#9b76ff,#7045d7);border-color:#c4b5fd;color:#fff}
+.ctrlIcon{font-size:17px;line-height:1}.ctrlLabel{font-size:8px;color:#c2cce0;line-height:1}
+.layout{height:calc(100dvh - 66px);min-height:0;display:grid;grid-template-columns:178px minmax(340px,410px) minmax(0,1fr);gap:0;background:#0c1422}
+.navrail{z-index:12;display:flex;flex-direction:column;gap:8px;padding:12px 9px;background:linear-gradient(180deg,#172235,#101827);border-right:1px solid #344158;overflow:auto}
+.navrail button{display:flex;align-items:center;gap:11px;text-align:left;width:100%;min-height:48px;padding:8px 10px;border:1px solid #37445a;border-radius:12px;background:linear-gradient(180deg,#202c41,#182236);font-size:12px;font-weight:650;color:#dce4f1;box-shadow:0 3px 8px #0002}
+.navrail button .navIcon{width:23px;text-align:center;font-size:18px;flex:0 0 23px}
+.navrail button:hover{border-color:#8b73d5;background:#2b3650}
+.navrail button.active{color:#fff;border-color:#a78bfa;background:linear-gradient(135deg,#7548d3,#5031a8);box-shadow:0 0 0 1px #b49aff55,0 5px 18px #6d45d855}
+.side{position:relative;width:auto;min-width:0;flex-shrink:1;padding:14px 13px 24px;background:linear-gradient(180deg,#1a2435,#121b2a);border-right:1px solid #354157;overflow:auto;scrollbar-width:thin;scrollbar-color:#58647b transparent}
+.side h3{position:relative;margin:7px 0 10px;padding:10px 11px 9px;border:1px solid #36445d;border-radius:11px;background:linear-gradient(110deg,#202d43,#182236);color:#e8eaf8;font-size:12px;letter-spacing:.55px;font-weight:800;scroll-margin-top:12px}
+.side h3:after{content:"";position:absolute;left:0;top:8px;bottom:8px;width:3px;background:#9271f2;border-radius:0 4px 4px 0}
+.side .note{color:#c1ccda;line-height:1.55}
+#effectPanel,#storyPanel,#proposalPanel{background:linear-gradient(145deg,#202d43,#172235)!important;border:1px solid #3b4961!important;border-radius:13px!important;box-shadow:0 5px 16px #0002}
+#effectPanel b,#storyPanel b,#proposalPanel b{color:#f7d99a}
+.side button{border-radius:9px;border:1px solid #44536b;background:linear-gradient(180deg,#3a4962,#29364d);color:#f1f4fa}
+.side button:hover{border-color:#a78bfa;background:linear-gradient(180deg,#55437d,#3b315e)}
+.side input,.side select{border-radius:8px!important;border:1px solid #46546b!important;background:#111b2b!important;color:#f2f5fa!important}
+.tools{grid-template-columns:1fr 1fr;gap:7px}
+.tools button{min-height:44px;border-radius:10px;font-size:11px;background:linear-gradient(180deg,#35435b,#26334a);border:1px solid #4a5870}
+.game{position:relative;min-width:0;min-height:0;overflow:hidden;background:radial-gradient(ellipse at 52% 40%,#9ab3a0 0%,#607e77 58%,#344e4b 100%)}
+canvas{display:block;width:100%;height:100%;image-rendering:auto;cursor:crosshair;touch-action:none}
+.hud{position:absolute;bottom:14px;left:14px;max-width:min(420px,80%);padding:12px 15px;border:1px solid #64758b;border-radius:14px;background:linear-gradient(145deg,#101a2beF,#17253aeF);box-shadow:0 10px 32px #0007;color:#ecf2fb;pointer-events:none}
+#message{min-height:30px;color:#f7dca0;font-weight:700}
+#tileinfo{font-size:12px;color:#b8c7d9}
+.topnote{position:absolute;top:12px;right:14px;padding:8px 12px;border:1px solid #ffffff28;border-radius:11px;background:#101827c9;color:#e3ebf7;font-size:11px;box-shadow:0 4px 14px #0003}
+.sideClose{display:none}
+.intro{background:#060d19d9;backdrop-filter:blur(12px)}
+.modal{border:1px solid #9d7bee;border-radius:18px;background:linear-gradient(145deg,#202d43,#101827);box-shadow:0 25px 90px #000b;padding:28px}
+.modal h2{color:#e8dcff}.modal button{border-radius:12px;background:linear-gradient(135deg,#9568f4,#6335c6)}
+.dealBox,.authCard{border-radius:18px!important;border-color:#9070dc!important;background:linear-gradient(145deg,#202d43,#111827)!important}
+#proposalPanel button{border-radius:9px}
+@media(max-width:1100px) and (min-width:821px){.layout{grid-template-columns:150px minmax(300px,350px) minmax(0,1fr)}.navrail{padding:10px 7px}.navrail button{font-size:11px;padding:7px}.stats{gap:4px}.stat{padding:6px;font-size:11px}.controlRail button{width:36px;min-width:36px}}
+@media(max-width:820px){
+ header{display:grid;grid-template-columns:1fr;grid-template-rows:auto auto auto;gap:6px;padding:7px 9px;min-height:0}
+ header>div:first-child{grid-row:1}
+ header h1{font-size:16px}
+ header small{display:inline;margin-left:7px;font-size:8px;letter-spacing:.6px}
+ .stats{grid-row:2;justify-content:flex-start;overflow-x:auto;max-width:100%;padding-bottom:2px;scrollbar-width:none}
+ .stat{font-size:10px;padding:5px 7px}
+ .controlRail{grid-row:3;display:flex;max-width:100%;overflow-x:auto;justify-content:flex-start;padding:1px 0 3px;scrollbar-width:thin}
+ .controlRail button{width:39px;min-width:39px;min-height:36px}
+ .ctrlLabel{font-size:7px}
+ .layout{position:relative;display:block;height:calc(100dvh - 132px);min-height:0}
+ .game{position:absolute;inset:0}
+ .navrail{position:absolute;z-index:16;left:0;right:0;bottom:0;height:66px;padding:6px 7px;display:flex;flex-direction:row;gap:6px;overflow-x:auto;overflow-y:hidden;border-right:0;border-top:1px solid #45516a;background:#101827ed;backdrop-filter:blur(14px)}
+ .navrail button{flex:0 0 auto;width:auto;min-width:105px;min-height:50px;padding:6px 9px;font-size:10px;gap:7px}
+ .navrail button .navIcon{font-size:17px}
+ .side{display:none;position:absolute;z-index:15;left:8px;top:8px;bottom:74px;width:min(88vw,390px);max-height:none;padding:12px;border:1px solid #53617a;border-radius:16px;box-shadow:0 15px 55px #000b;background:#141e2ff2;backdrop-filter:blur(18px)}
+ .side.open{display:block}
+ .sideClose{display:block;position:sticky;top:0;z-index:2;float:right;width:34px;height:34px;padding:0;margin:0 0 4px 8px;border-radius:10px;background:#40345d}
+ .hud{left:8px;bottom:74px;max-width:calc(100% - 16px);padding:9px 11px}
+ .topnote{top:8px;right:8px;font-size:9px;padding:6px 8px;max-width:75%;text-align:right}
+}
+@media(max-width:480px){
+ header h1{font-size:15px}
+ header small{display:block;margin-left:15px;margin-top:-2px}
+ .stats{gap:4px}
+ .stat{font-size:9px;padding:4px 6px}
+ .layout{height:calc(100dvh - 142px)}
+ .navrail button{min-width:98px}
+ .hud{font-size:11px}
+}
+@media(orientation:landscape) and (max-width:820px){
+ header{grid-template-columns:auto 1fr;grid-template-rows:auto auto;align-items:center}
+ header>div:first-child{grid-column:1;grid-row:1}
+ .stats{grid-column:2;grid-row:1}
+ .controlRail{grid-column:1/-1;grid-row:2}
+ .layout{height:calc(100dvh - 94px)}
+}
+</style></head><body><header><div><h1>🏙️ МУРИНО <small>Новый мэр • isometric edition 6.0</small></h1></div><div class="controlRail"><button id="pause" title="Пауза"><span class="ctrlIcon">Ⅱ</span><span class="ctrlLabel">Пауза</span></button><button id="speed" title="Скорость"><span class="ctrlIcon">▶</span><span class="ctrlLabel">Скорость</span></button><button id="undo" title="Отменить"><span class="ctrlIcon">↶</span><span class="ctrlLabel">Отмена</span></button><button id="save" title="Сохранить"><span class="ctrlIcon">💾</span><span class="ctrlLabel">Сохранить</span></button><button id="exportSave" title="Экспорт города"><span class="ctrlIcon">⬇</span><span class="ctrlLabel">Экспорт</span></button><button id="importSave" title="Импорт города"><span class="ctrlIcon">⬆</span><span class="ctrlLabel">Импорт</span></button><input id="importFile" type="file" accept="application/json,.json" hidden><button id="reset" title="Заново"><span class="ctrlIcon">↻</span><span class="ctrlLabel">Заново</span></button><button id="inspectQuick" title="Осмотр"><span class="ctrlIcon">🔎</span><span class="ctrlLabel">Осмотр</span></button><button id="accountBtn" title="Вход и облачное сохранение"><span class="ctrlIcon">👤</span><span class="ctrlLabel">Войти</span></button></div><div class="stats"><span class="stat">💰 <b id="cash">—</b> ₽</span><span class="stat">👥 <b id="pop">—</b></span><span class="stat">😊 <b id="happy">—</b>%</span><span class="stat">📅 <b id="day">—</b></span><span class="stat">💼 <b id="jobs">—</b></span><span class="stat">⭐ <b id="reputation">—</b></span></div></header><div class="layout"><nav class="navrail" aria-label="Панель города"><button class="active" data-target="nav-summary"><span class="navIcon">▦</span>Сводка</button><button data-target="nav-effect"><span class="navIcon">✦</span>Эффект объекта</button><button data-target="nav-story"><span class="navIcon">★</span>Задания мэра</button><button data-target="nav-proposals"><span class="navIcon">▣</span>Предложения частников</button><button data-target="nav-tax"><span class="navIcon">％</span>Налоговая политика</button><button data-target="nav-credit"><span class="navIcon">♜</span>Кредит</button><button data-target="nav-build"><span class="navIcon">⚒</span>Строительство</button><button data-target="nav-guide"><span class="navIcon">▤</span>Руководство по игре</button></nav><aside class="side"><button class="sideClose" id="sideClose" aria-label="Закрыть меню">✕</button><h3 id="nav-summary">СВОДКА</h3><div id="summary" class="note"></div><h3 id="nav-effect">🧰 ЭФФЕКТ ОБЪЕКТА</h3><div id="effectPanel" class="note" style="margin-top:10px;padding:10px;background:#1b2935;border:1px solid #526775;border-radius:4px"><b style="color:#ffda8a">ЭФФЕКТ ОБЪЕКТА</b><div id="effectTitle" style="margin:6px 0;color:#fff">Выбери объект строительства</div><div id="effectCost"></div><div id="effectDetails" style="margin-top:6px;line-height:1.6">Здесь появятся прогнозируемые изменения бюджета, населения, рабочих мест и качества жизни.</div></div><h3 id="nav-story">📜 ЗАДАНИЕ МЭРА</h3><div id="storyPanel" class="note" style="padding:10px;background:#1b2935;border:1px solid #bd8d54;border-radius:4px;line-height:1.55"></div><h3 id="nav-proposals">🏗 ПРЕДЛОЖЕНИЯ ЧАСТНИКОВ</h3><div id="proposalPanel" class="note" style="padding:9px;background:#1b2935;border:1px solid #bd8d54;border-radius:4px">Пока предложений нет. Частные владельцы будут обращаться по мере развития города.</div><h3 id="nav-tax">НАЛОГОВАЯ ПОЛИТИКА</h3><div class="note" style="padding:9px;background:#1b2935;border:1px solid #526775;border-radius:4px"><label for="taxObject" style="display:block;margin-bottom:6px;color:#ffda8a">Объект налогообложения</label><select id="taxObject" style="width:100%;padding:7px;background:#3b5260;color:#fff;border:1px solid #718894;border-radius:3px"></select><div style="display:flex;justify-content:space-between;margin:9px 0 4px"><span>Ставка налога</span><b id="taxRateLabel" style="color:#ffd27c">100%</b></div><input id="taxRate" type="range" min="50" max="150" step="5" value="100" style="width:100%"><div style="display:flex;gap:5px;justify-content:space-between"><small>50% · льготная</small><small>150% · высокая</small></div><div id="taxEffect" style="margin-top:8px;line-height:1.5">100% — базовая ставка</div><div style="display:flex;gap:5px;margin-top:8px"><button id="taxDown" style="flex:1;padding:6px">− 5%</button><button id="taxUp" style="flex:1;padding:6px">+ 5%</button></div></div><h3 id="nav-credit">💳 КРЕДИТ</h3><div class="note" style="padding:9px;background:#1b2935;border:1px solid #526775;border-radius:4px"><div id="financeInfo">Государственные программы и банковское финансирование</div><button id="grantRequest" style="width:100%;margin-top:7px">🏛 Запросить субсидию</button><div style="display:flex;gap:5px;margin-top:7px"><input id="loanAmount" type="number" min="10000" step="10000" value="1000000" style="width:60%;padding:7px"><button id="loanRequest" style="flex:1">Взять кредит</button></div><small>Кредитная ставка: ключевая ставка ЦБ + 5 п.п. Платёж и проценты учитываются в бюджете.</small></div><h3 id="nav-build">СТРОИТЕЛЬСТВО</h3><div class="tools" id="tools"></div>
+<h4 style="color:#ffda8a;margin:12px 0 6px">РАСШИРЕНИЕ ГОРОДА</h4><div class="note" style="padding:9px;background:#1b2935;border:1px solid #526775;border-radius:4px"><div>Размер карты: <b id="mapSizeLabel" style="color:#ffd27c">24 × 24</b></div><div id="expandCost" style="margin:7px 0">Следующее расширение: 25 000 ₽</div><button id="expandMap" style="width:100%">🗺️ Купить новые земли</button><small style="display:block;margin-top:7px">Расширение добавляет свободную территорию справа и снизу карты. Новые земли оплачиваются из городского бюджета.</small></div><h3 id="nav-guide">📖 СПРАВОЧНИК</h3>
+<button id="guideToggle" style="width:100%;padding:9px">Открыть руководство по игре</button>
+<div id="guidePanel" class="note" style="display:none;margin-top:8px;padding:12px;line-height:1.55;background:#172630;border:1px solid #bd8d54">
+ <div style="display:flex;justify-content:space-between;align-items:center"><b style="color:#ffda8a">📖 ПОЛНОЕ РУКОВОДСТВО МЭРА</b><button id="guideClose">✕</button></div>
+ <h4>1. Цель игры</h4><p>Развивай деревню Мурино в большой город: привлекай жителей и инвесторов, создавай рабочие места, строй инфраструктуру и следи за бюджетом.</p>
+ <h4>2. Управление картой</h4><p>Выбирай инструмент в панели строительства, затем нажимай на клетку карты. Колесо мыши меняет масштаб, перетаскивание перемещает карту. На телефоне используй касания и жесты.</p>
+ <h4>3. Зонирование и строительство</h4><p>Жильё, коммерция и промышленность создают условия для частного развития. Частные объекты оплачивают владельцы, муниципальные дороги, парки, школы, аптеки, поликлиники, больницы и университеты строятся за счёт города.</p>
+ <h4>4. Частные инвесторы</h4><p>Инвесторы предлагают новые предприятия или филиалы действующих сетей. Ты согласуешь участок и цену. Сначала согласуй цену земли, затем выбери участок прямо на карте. Красная точка показывает предложение инвестора. Он может не принять новое место. Подъездные дороги инвестор строит сам.</p>
+ <h4>5. Жилые застройщики</h4><p>Застройщик предлагает новый дом рядом с существующей жилой застройкой. Вокруг дома резервируются восемь клеток под проходы и дороги. Доступность улиц влияет на заселение.</p>
+ <h4>6. Население и рабочие места</h4><p>Жители заселяются в доступное жильё. Рабочие места создают частные предприятия и промышленность. Число фактически занятых работников ограничено населением города.</p>
+ <h4>7. Налоги и бюджет</h4><p>Налоговая политика позволяет менять ставки от 50% до 150%. Доходы города сравниваются с ежедневными расходами на муниципальную инфраструктуру. Высокие налоги могут снижать удовлетворённость жителей.</p>
+ <h4>8. Дороги и доступность</h4><p>Дороги соединяют здания с городской сетью. Без примыкания к дороге жильё заселяется хуже, а бизнесу сложнее работать. Частные инвесторы оплачивают подъездные дороги своих проектов.</p>
+ <h4>9. Скверы и парки</h4><p>Первое задание предлагает одной кнопкой создать прогулочный сквер от центра главной улицы вправо. Дополнительные аллеи можно строить инструментом сквера и поворачивать экранной кнопкой.</p>
+ <h4>10. Задания мэра</h4><p>Выполняй последовательные поручения: за них выдаются деньги и репутация. Следующее задание открывается после выполнения предыдущего.</p>
+ <h4>11. Скорость и сохранение</h4><p>Пауза останавливает ход времени. Скорость ускоряет игровые дни. Сохранение записывает прогресс в браузере. «Заново» начинает новую игру и сбрасывает текущий город.</p>
+ <h4>12. Практические советы</h4><ul><li>Сначала прокладывай дороги, затем развивай участки.</li><li>Не строй слишком много муниципальных объектов без стабильных налоговых поступлений.</li><li>Разнообразь бизнес и распределяй его по разным районам.</li><li>Согласовывай расположение инвестиций с учётом будущих улиц.</li><li>Следи за занятостью, счастьем и свободными местами в жилье.</li></ul>
+<h4 style="color:#ffda8a;margin:12px 0 6px">ПРАКТИЧЕСКИЙ СОВЕТ</h4><div class="note">Выбирай конкретный бизнес в нужной категории. Строй дороги рядом с коммерцией и жильём. Жилые дома растут, когда есть работа и услуги. Деревья можно вырубать отдельным инструментом или автоматически убирать при строительстве. У каждого бизнеса своя цена, рабочие места и нагрузка на содержание. Инструмент «Перенести объект» работает в два клика: сначала выбери здание, затем свободную клетку. Стоимость — 150 000 ₽. Старые деревенские дома можно снести и переселить жителей в новые кварталы.</div></div>
+</aside><main class="game"><canvas id="view"></canvas><div class="topnote">Колёсико / два пальца: масштаб · Перетаскивание: карта</div><div class="hud"><div id="message">Выберите инструмент и нажмите на клетку.</div><div id="tileinfo">Мурино ждёт решений нового мэра.</div></div></main></div><div id="intro" class="intro"><div class="modal"><h2>МУРИНО</h2><p>Деревня живёт своей жизнью: люди ходят на работу, покупают хлеб в сельпо и возвращаются в деревянные дома. Но прежний глава ушёл в отставку.</p><p><b>Новым мэром назначен ты.</b> В твоих руках бюджет, земля и будущее Мурино. Преврати деревню в мегаполис, не оставив жителей без крыши над головой.</p><button id="start">ПРИНЯТЬ ДОЛЖНОСТЬ МЭРА</button></div></div>
+<style>
+.dealOverlay{position:fixed;inset:0;z-index:20;background:#071018ed;display:none;align-items:center;justify-content:center;padding:18px}
+.dealOverlay.show{display:flex}.dealBox{width:min(620px,96vw);max-height:92vh;overflow:auto;background:#263b47;border:4px solid #d34b4b;box-shadow:0 0 0 9999px #0008;padding:22px;color:#f2f3e8}
+.dealBox h2{color:#ff7777;margin:0 0 10px}.dealBox input{padding:10px;background:#14232d;color:white;border:1px solid #8096a0;width:100%;margin:6px 0}
+.dealActions{display:flex;gap:8px;margin-top:12px}.dealActions button{flex:1;padding:12px}.dealHint{color:#ffd58a;line-height:1.5}
+</style>
+<div id="dealMapBar" style="display:none;position:fixed;z-index:19;top:12px;left:50%;transform:translateX(-50%);width:min(620px,94vw);background:#172630f2;border:3px solid #d34b4b;padding:12px;color:#fff;box-shadow:0 5px 25px #0009;text-align:center"><b style="color:#ff7777">ВЫБОР УЧАСТКА</b><div class="dealHint">Красная точка — предложение инвестора. Нажми на свободную клетку карты, чтобы предложить другое место.</div><div style="margin:6px">Выбранный участок: <b id="dealSiteLabel">—</b></div><div class="dealActions"><button id="dealConfirmSite">Предложить это место</button><button id="dealBackPrice">Назад к цене</button><button id="dealCancel">Отклонить</button></div></div>
+<div id="dealOverlay" class="dealOverlay"><div class="dealBox"><h2>🔴 ИНВЕСТОР ХОЧЕТ КУПИТЬ ЗЕМЛЮ</h2><div id="dealBody"></div></div></div>
+<style>
+.authOverlay{position:fixed;inset:0;z-index:30;display:none;align-items:center;justify-content:center;padding:18px;background:#071018df}
+.authOverlay.show{display:flex}.authCard{width:min(440px,96vw);background:#263b47;border:3px solid #bd8d54;box-shadow:0 16px 50px #000b;padding:22px;color:#f2f3e8}
+.authCard h2{margin:0 0 8px;color:#ffda8a}.authCard p{line-height:1.5;color:#c3d0d1}
+.authCard label{display:block;margin:12px 0 5px;color:#ffda8a}.authCard input{width:100%;padding:12px;background:#14232d;color:white;border:1px solid #718894;border-radius:3px;font:inherit}
+.authActions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}.authActions button{min-height:42px}
+.authMinor{display:flex;justify-content:space-between;gap:8px;margin-top:10px;align-items:center;flex-wrap:wrap}
+.authMinor button{background:transparent;border:0;text-decoration:underline;padding:5px;color:#b9d9e2}
+#authFeedback{min-height:34px;margin-top:12px;color:#ffdf9d;line-height:1.4;font-size:13px}
+.authStatus{margin-top:12px;padding:10px;background:#172630;border:1px solid #526775;font-size:12px;line-height:1.5}
+</style>
+<div id="authOverlay" class="authOverlay" role="dialog" aria-modal="true" aria-labelledby="authTitle">
+ <div class="authCard">
+  <h2 id="authTitle">👤 Аккаунт Мурино</h2>
+  <p>Войди или создай аккаунт. Тогда твой город будет сохраняться в облаке и откроется на другом устройстве.</p>
+  <div id="authSignedOut">
+   <label for="authEmail">Электронная почта</label>
+   <input id="authEmail" type="email" autocomplete="email" placeholder="name@example.com">
+   <label for="authPassword">Пароль</label>
+   <input id="authPassword" type="password" autocomplete="current-password" placeholder="Не менее 8 символов">
+   <div id="authNewPasswordWrap" style="display:none">
+    <label for="authNewPassword">Новый пароль</label>
+    <input id="authNewPassword" type="password" autocomplete="new-password" placeholder="Не менее 8 символов">
+   </div>
+   <div class="authActions" id="authMainActions">
+    <button id="authLogin">Войти</button>
+    <button id="authRegister">Создать аккаунт</button>
+   </div>
+   <div class="authActions" id="authRecoveryActions" style="display:none">
+    <button id="authUpdatePassword">Сохранить новый пароль</button>
+    <button id="authCancelRecovery">Назад</button>
+   </div>
+   <div class="authMinor"><button id="authReset">Забыл пароль</button><button id="authClose">Закрыть</button></div>
+  </div>
+  <div id="authSignedIn" style="display:none">
+   <div style="margin:10px 0">Вошёл как <b id="authUserEmail"></b></div>
+   <div class="authActions"><button id="authSyncNow">Сохранить сейчас</button><button id="authLogout">Выйти</button></div>
+   <div class="authMinor"><button id="authCloseSigned">Закрыть</button></div>
+  </div>
+  <div id="authFeedback" role="status" aria-live="polite">Гость: сохранение пока хранится только в этом браузере.</div>
+  <div class="authStatus" id="cloudStatus">Облачное сохранение не подключено.</div>
+ </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0"></script>
+<script>
+(()=>{'use strict';const graphicsSafePreview=(new URLSearchParams(location.search).get('graphicsPreview')==='1')||location.hostname==='localhost'||location.hostname==='127.0.0.1'||location.hostname.endsWith('.replit.dev')||location.hostname.endsWith('.repl.co');let N=24;const TW=64,TH=32,KEY='murino_pixel_v46',BACKUP_KEY='murino_pixel_v46_last_good';const defs={inspect:['🔎 Осмотр',0],road:['🛣 Дорога',120000],res:['🏘 Жилая зона',350000],com:['🏬 Коммерческая зона',450000],ind:['🏭 Промзона',650000],park:['🌳 Сквер',280000],school:['🏫 Школа',12000000],citypharmacy:['💊 Городская аптека',2000000,8,2],hospital:['🏥 Больница',18000000,90,5],university:['🎓 Университет',50000000],clinic:['🏥 Поликлиника',8000000],clearTree:['🪓 Вырубить дерево',25000],bulldoze:['🧨 Снести',80000],move:['↔️ Перенести объект',150000]};
+const business={
+ grocery:['🛒 Продуктовый магазин',950000,12,1], minimarket:['🏪 Мини-маркет',1250000,14,1], supermarket:['🛍 Супермаркет',4200000,42,3], hypermarket:['🏬 Гипермаркет',9500000,85,5],
+ ozon:['📦 ПВЗ Ozon',650000,5,1],wildberries:['🟣 ПВЗ Wildberries',650000,5,1],yandexmarket:['🟡 ПВЗ Яндекс Маркета',700000,6,1],post:['📮 Почта России',1100000,9,1],
+ coffee:['☕ Кофейня',850000,8,1],bakery:['🥐 Пекарня',1100000,11,1],cafe:['🍽 Кафе',1600000,16,2],restaurant:['🍷 Ресторан',3800000,32,3],fastfood:['🍔 Фастфуд',2100000,22,2],pizzeria:['🍕 Пиццерия',1900000,18,2],bar:['🍺 Бар',1750000,14,2],
+ pharmacy:['💊 Частная аптека',1250000,9,1],clinic_private:['🩺 Частная клиника',5200000,38,3],flowers:['💐 Цветочный магазин',850000,6,1],clothes:['👕 Магазин одежды',1450000,12,1],electronics:['📱 Электроника',2200000,17,2],household:['🧹 Товары для дома',1550000,13,1],beauty:['💇 Салон красоты',1350000,11,1],barber:['💈 Барбершоп',950000,7,1],petshop:['🐾 Зоомагазин',1050000,8,1],bookshop:['📚 Книжный магазин',1150000,7,1],
+gym:['🏋️ Фитнес-клуб',3600000,24,3],cinema:['🎬 Кинотеатр',6800000,48,4],hotel:['🏨 Гостиница',7200000,40,4],bank:['🏦 Банк',4400000,30,3],office:['🏢 Офисный центр',8200000,110,4],gas:['⛽ АЗС',3100000,18,2],carwash:['🚿 Автомойка',1700000,10,1],autoservice:['🔧 Автосервис',2800000,22,2]
+};
+for(const [k,v] of Object.entries(business)) defs[k]=v;
+const businessGroups={
+ 'Продукты и повседневные покупки':['grocery','minimarket','supermarket','hypermarket','pharmacy','flowers','clothes','electronics','household','petshop','bookshop'],
+ 'Маркетплейсы и сервисы':['ozon','wildberries','yandexmarket','post'],
+ 'Еда и напитки':['coffee','bakery','cafe','restaurant','fastfood','pizzeria','bar'],
+ 'Услуги и досуг':['beauty','barber','gym','cinema','hotel','bank','clinic_private'],
+ 'Деловая и автомобильная инфраструктура':['office','gas','carwash','autoservice']
+};let mode='inspect',alleyRotation=0,game,localSaveWasInvalid=false,hover=null,moveSource=null,drag=false,mousePressed=false,mouseClick=false,mouseStartX=0,mouseStartY=0,lastX=0,lastY=0,shiftX=0,shiftY=0,zoom=1,clock=0,prev=performance.now(),people=[];const c=document.getElementById('view'),ctx=c.getContext('2d');ctx.imageSmoothingEnabled=true;function rand(x,y){let v=Math.sin(x*127.1+y*311.7)*43758.5453;return v-Math.floor(v)}function blank(){return Array.from({length:N*N},(_,i)=>({ground:rand(i%N,Math.floor(i/N))>.84?'dark':'grass',type:'',level:0,age:0}))}function newGame(){let tiles=blank();function put(x,y,type,level=1){tiles[y*N+x]={...tiles[y*N+x],type,level}}for(let x=3;x<21;x++)put(x,12,'road');[[5,11],[9,13],[13,11],[17,13]].forEach(([x,y])=>put(x,y,'village'));put(7,11,'grocery');put(12,13,'coffee');put(18,11,'post');for(let i=0;i<65;i++){let x=Math.floor(rand(i,5)*N),y=Math.floor(rand(i,8)*N);if(tiles[y*N+x].type===''&&rand(x+9,y+6)>.52)put(x,y,'tree')}return {tiles,mapSize:N,money:20000000,pop:16,happy:72,reputation:25,storyStage:0,proposals:[],nextProposalDay:4,day:1,jobs:30,tax:0,upkeep:0,paused:false,speed:1,economyVersion:4,seed:Math.random()}}function isValidGameSave(candidate){
+ if(!candidate||!Array.isArray(candidate.tiles)||candidate.tiles.length===0)return false;
+ const size=Math.sqrt(candidate.tiles.length);
+ if(!Number.isInteger(size)||size<1||size>128)return false;
+ return candidate.tiles.every(cell=>cell&&typeof cell==='object'&&!Array.isArray(cell));
+}
+function loadLocalGame(){
+ const keys=[KEY,BACKUP_KEY,'murino_pixel_v45','murino_pixel_v44','murino_pixel_v43','murino_pixel_v42','murino_pixel_v41','murino_pixel_v40','murino_pixel_v35','murino_pixel_v32','murino_pixel_v31','murino_pixel_v30','murino_pixel_v29','murino_pixel_v28','murino_pixel_v27','murino_pixel_v26','murino_pixel_v25','murino_pixel_v24','murino_pixel_v21','murino_pixel_v20','murino_pixel_v19','murino_pixel_v18','murino_pixel_v03'];
+ let foundInvalid=false;
+ for(const key of keys){
+  let raw=null;
+  try{raw=localStorage.getItem(key)}catch(error){foundInvalid=true;continue}
+  if(raw===null)continue;
+  let candidate=null;
+  try{candidate=JSON.parse(raw)}catch(error){foundInvalid=true;continue}
+  if(isValidGameSave(candidate)){
+   if(key!==KEY)foundInvalid=true;
+   localSaveWasInvalid=foundInvalid;
+   return candidate;
+  }
+  foundInvalid=true;
+ }
+ localSaveWasInvalid=foundInvalid;
+ return newGame();
+}
+game=loadLocalGame();
+N=Math.sqrt(game.tiles.length);game.mapSize=N;game.reputation=Number.isFinite(game.reputation)?game.reputation:25;game.storyStage=Math.max(0,game.storyStage||0);game.proposals=Array.isArray(game.proposals)?game.proposals:[];game.loans=Array.isArray(game.loans)?game.loans:[];game.grantYear=game.grantYear||0;game.parkways=Number.isFinite(game.parkways)?game.parkways:0;game.dealsClosed=Number.isFinite(game.dealsClosed)?game.dealsClosed:0;game.nextProposalDay=Number.isFinite(game.nextProposalDay)?game.nextProposalDay:game.day+3;
+if(!game.economyVersion){
+ game.money=Math.round((game.money||0)*1000);
+ game.tax=Math.round((game.tax||0)*1000);
+ game.upkeep=Math.round((game.upkeep||0)*1000);
+ if(Array.isArray(game.undoStack))for(const item of game.undoStack){item.money=Math.round((item.money||0)*1000);item.tax=Math.round((item.tax||0)*1000);item.upkeep=Math.round((item.upkeep||0)*1000)}
+ game.economyVersion=2;
+}
+if(!Number.isFinite(game.day)||game.day<1)game.day=1;if(Number.isFinite(game.year)){game.day=Math.max(1,(Math.max(1998,game.year)-1998)*30+game.day);delete game.year}game.paused=false;
+if(!localSaveWasInvalid&&!graphicsSafePreview){
+ try{const snapshot=JSON.stringify(game);localStorage.setItem(KEY,snapshot);localStorage.setItem(BACKUP_KEY,snapshot)}catch(error){console.warn('Не удалось обновить резервную копию сохранения',error)}
+}
+const taxObjects={
+ village:'Деревенский дом',res:'Жилые кварталы',grocery:'Продуктовый магазин',minimarket:'Мини-маркет',supermarket:'Супермаркет',hypermarket:'Гипермаркет',
+ ozon:'ПВЗ Ozon',wildberries:'ПВЗ Wildberries',yandexmarket:'ПВЗ Яндекс Маркета',post:'Почта России',
+ coffee:'Кофейня',bakery:'Пекарня',cafe:'Кафе',restaurant:'Ресторан',fastfood:'Фастфуд',pizzeria:'Пиццерия',bar:'Бар',
+ pharmacy:'Частная аптека',clinic_private:'Частная клиника',flowers:'Цветочный магазин',clothes:'Магазин одежды',electronics:'Электроника',household:'Товары для дома',beauty:'Салон красоты',barber:'Барбершоп',petshop:'Зоомагазин',bookshop:'Книжный магазин',
+ gym:'Фитнес-клуб',cinema:'Кинотеатр',hotel:'Гостиница',bank:'Банк',office:'Офисный центр',gas:'АЗС',carwash:'Автомойка',autoservice:'Автосервис',
+ university:'Университет',citypharmacy:'Городская аптека',ind:'Промышленность',farm:'Ферма',shop:'Сельпо'
+};
+game.taxRates=game.taxRates||{};
+for(const k of Object.keys(taxObjects))if(game.taxRates[k]==null)game.taxRates[k]=100;
+function tile(x,y){return x>=0&&y>=0&&x<N&&y<N?game.tiles[y*N+x]:null}function connected(x,y){return [[1,0],[-1,0],[0,1],[0,-1]].some(([dx,dy])=>{const r=tile(x+dx,y+dy);return r?.type==='road'&&(!r.privateComplexRoad||r.complexRoadOpen===true)})}function hasRoadFrontage(x,y){return [[1,0],[-1,0],[0,1],[0,-1]].some(([dx,dy])=>tile(x+dx,y+dy)?.type==='road')}function capacity(t){return t.type==='village'?7:t.type==='res'?[0,16,55,135,280,520,900][Math.min(t.level,6)]:0}
+function housingLevelName(level){return ['','Малый дом','Многоквартирный дом','Жилой комплекс','Большой жилой комплекс','Высотный жилой комплекс','Мегакомплекс'][Math.min(Math.max(1,level),6)]}
+function housingOccupancy(){
+ const homes=[];let totalCapacity=0;
+ for(let y=0;y<N;y++)for(let x=0;x<N;x++){
+  const h=tile(x,y);if(!h||!['village','res'].includes(h.type)||h.underConstruction)continue;
+  const limit=capacity(h),effective=connected(x,y)?limit:Math.floor(limit*.3);
+  if(effective>0){homes.push({x,y,effective,living:0,fraction:0});totalCapacity+=effective}
+ }
+ const population=Math.min(Math.max(0,Math.floor(game.pop||0)),totalCapacity);
+ const result=new Map();
+ if(!population||!totalCapacity)return result;
+ let assigned=0;
+ for(const home of homes){
+  const exact=population*home.effective/totalCapacity;
+  home.living=Math.floor(exact);
+  home.fraction=exact-home.living;
+  assigned+=home.living;
+ }
+ homes.sort((a,b)=>b.fraction-a.fraction||a.y-b.y||a.x-b.x);
+ for(let i=0;i<population-assigned&&i<homes.length;i++)homes[i].living++;
+ for(const home of homes)result.set(home.y*N+home.x,home.living);
+ return result;
+}
+function residentsAt(x,y){return housingOccupancy().get(y*N+x)||0}
+const DAILY_WAGE=1800, PAYROLL_TAX_RATE=.13;
+function payrollTax(staff,rate=100){return Math.round(staff*DAILY_WAGE*PAYROLL_TAX_RATE*rate/100)}
+function workersAt(x,y){
+ let remaining=Math.max(0,Math.floor(game.pop||0));
+ for(let yy=0;yy<N;yy++)for(let xx=0;xx<N;xx++){
+  let t=tile(xx,yy);if(!t)continue;
+  let b=business[t.type],offered=b?b[2]:t.type==='shop'?8:(t.type==='ind'?t.level*28:t.type==='farm'?15:0);
+  if(!offered)continue;
+  let employed=Math.min(offered,remaining);
+  if(xx===x&&yy===y)return employed;
+  remaining-=employed;
+ }
+ return 0;
+}
+function daily(recalcOnly=false){if(!recalcOnly)game.day=Math.max(1,Math.floor(game.day||1))+1;if(!recalcOnly)maybeCreateProposal();let cap=0,jobs=0,remainingWorkers=Math.max(0,Math.floor(game.pop||0)),services=0,parks=0,roads=0,upkeep=0,taxTotal=0,taxableCount=0,taxRateSum=0;
+const housingResidents=housingOccupancy();
+for(let y=0;y<N;y++)for(let x=0;x<N;x++){let t=tile(x,y),on=connected(x,y);if(t.type==='road'){roads++;if(!t.privateComplexRoad)upkeep+=150;if(t.promenade){parks++;upkeep+=1200}}
+if(t.type==='village'||t.type==='res'){cap+=t.underConstruction?0:(on?capacity(t):Math.floor(capacity(t)*.3));let residentBase=120*(housingResidents.get(y*N+x)||0);let rate=game.taxRates[t.type]??100;taxTotal+=residentBase*rate/100;taxableCount++;taxRateSum+=rate;if(!recalcOnly&&t.type==='res'&&!t.underConstruction&&on&&t.level<6){
+ let popNeed=[0,0,35,90,180,320,550][t.level+1];
+ let jobsNeed=game.pop*.22;
+ if(game.pop>=popNeed&&game.jobs>=jobsNeed&&rand(x+game.day*10,y+game.day)>.76){t.age++;if(t.age>=5){t.level++;t.age=0;notify('🏗 '+housingLevelName(t.level)+' вырос! Вместимость: '+capacity(t)+' жителей')}}
+}}
+if(business[t.type]||t.type==='shop'){let b=business[t.type];let offeredJobs=b?b[2]:8,jobCount=Math.min(offeredJobs,remainingWorkers);remainingWorkers-=jobCount;jobs+=jobCount;services+=b?b[3]:1;let rate=game.taxRates[t.type]??100;taxTotal+=payrollTax(jobCount,rate);taxableCount++;taxRateSum+=rate}
+if(t.type==='com'&&!recalcOnly&&on&&game.pop>=16){t.age++;if(t.age>=5){let options=game.pop<45?['grocery','coffee','bakery','pharmacy','petshop']:game.pop<100?['grocery','minimarket','coffee','cafe','pharmacy','barber','bakery','petshop']:['supermarket','cafe','restaurant','pharmacy','office','gym','cinema','bank','clothes'];let pickIndex=Math.floor(rand(x+game.day*7,y+game.day*3)*options.length);t.type=options[pickIndex];t.level=1;t.age=0;notify('🏪 Частный инвестор открыл '+business[t.type][0]+' на купленном участке');}}
+if(t.type==='ind'||t.type==='farm'){let offeredJobs=t.type==='farm'?15:t.level*28,jobCount=Math.min(offeredJobs,remainingWorkers);remainingWorkers-=jobCount;jobs+=jobCount;let rate=game.taxRates[t.type]??100;taxTotal+=payrollTax(jobCount,rate);taxableCount++;taxRateSum+=rate}
+if(t.type==='park'){parks++;upkeep+=1200}if(t.type==='school'||t.type==='clinic'||t.type==='university'||t.type==='citypharmacy'){services+=t.type==='university'?6:t.type==='citypharmacy'?2:3;upkeep+=t.type==='university'?90000:t.type==='citypharmacy'?12000:25000}}
+if(recalcOnly){game.jobs=jobs;game.tax=Math.round(taxTotal);game.upkeep=upkeep;save();stats();return}let demand=Math.min(cap,Math.round(jobs*2.7+services*12+parks*3));let target=Math.min(cap,demand);let change=Math.max(-4,Math.min(5,Math.round((target-game.pop)*.12)));game.pop=Math.max(0,game.pop+change);game.jobs=jobs;
+let avgTax=taxableCount?taxRateSum/taxableCount:100;
+game.happy=Math.max(15,Math.min(98,Math.round(48+services*2+parks*3+(jobs>=game.pop*.35?12:-12)+(cap>=game.pop?9:-18)-Math.max(0,game.pop-200)/70+(avgTax<85?3:avgTax>120?-5:0))));
+game.tax=Math.round(taxTotal);
+const loanInterest=(game.loans||[]).reduce((s,l)=>s+l.balance*l.rate/100/365,0);
+let loanPrincipalPayment=0;
+if(!recalcOnly){
+ for(const l of (game.loans||[])){
+  const elapsed=Math.max(0,Math.floor((game.day||1)-(l.day||1)));
+  const remaining=Math.max(1,(l.termDays||180)-elapsed+1);
+  const principal=Math.min(l.balance,l.balance/remaining);
+  l.balance=Math.max(0,l.balance-principal);loanPrincipalPayment+=principal;
+ }
+ game.loans=(game.loans||[]).filter(l=>l.balance>1);
+}
+if(!recalcOnly)advanceResidentialConstruction();game.upkeep=upkeep+loanInterest+loanPrincipalPayment;game.money+=game.tax-game.upkeep;if(game.money<0)game.happy=Math.max(10,game.happy-4);save();stats();if(typeof updateFinance==='function')updateFinance()}
+
+const SUPABASE_URL='https://agximdxiokrncogevbjn.supabase.co';
+const SUPABASE_PUBLISHABLE_KEY='sb_publishable_TpCcXy4j8aYDzx0bi1S9LA_V3PIcPEu';
+let supabaseClient=null,authUser=null,cloudSyncReady=false,cloudInitUserId=null,cloudSaveTimer=null,cloudSaveBusy=false,cloudSavePending=false,authRecoveryMode=false;
+const authOverlay=document.getElementById('authOverlay');
+const authFeedback=document.getElementById('authFeedback');
+const cloudStatus=document.getElementById('cloudStatus');
+function authMessage(message){authFeedback.textContent=message}
+function cloudMessage(message){cloudStatus.textContent=message}
+function openAuth(){authOverlay.classList.add('show')}
+function closeAuth(){if(!authRecoveryMode)authOverlay.classList.remove('show')}
+function setAuthUser(user){
+ authUser=user||null;
+ const signed=!!authUser;
+ document.getElementById('authSignedOut').style.display=signed?'none':'block';
+ document.getElementById('authSignedIn').style.display=signed?'block':'none';
+ document.getElementById('authUserEmail').textContent=authUser?.email||'';
+ const btn=document.getElementById('accountBtn');
+ btn.querySelector('.ctrlIcon').textContent=signed?'☁️':'👤';
+ btn.querySelector('.ctrlLabel').textContent=signed?'Аккаунт':'Войти';
+ btn.title=signed?'Аккаунт и облачное сохранение':'Вход и облачное сохранение';
+ if(!signed)cloudMessage('Гостевой режим: сохранение хранится только в этом браузере.');
+}
+function refreshAfterCloudLoad(){
+ people.length=0;
+ const safeStep=(name,fn)=>{try{fn()}catch(error){console.error('Murino restore step failed: '+name,error)}};
+ safeStep('statistics before migration',stats);
+ safeStep('private sector migration',migratePrivateSector);
+ safeStep('road graph',rebuildRoadGraph);
+ safeStep('pedestrian routes',refreshPedestrianRoutes);
+ safeStep('people',initPeople);
+ safeStep('proposals',renderProposals);
+ safeStep('statistics',stats);
+ safeStep('undo button',updateUndoButton);
+ safeStep('tax UI',refreshTaxUI);
+ safeStep('map expansion',refreshExpansion);
+ safeStep('finance',updateFinance);
+ safeStep('local save',save);
+}
+async function uploadCloudSave(userId){
+ if(!supabaseClient||!userId)return;
+ const snapshot=JSON.parse(JSON.stringify(game));
+ const {error}=await supabaseClient.from('player_saves').upsert({
+  user_id:userId,
+  save_data:snapshot,
+  updated_at:new Date().toISOString()
+ },{onConflict:'user_id'});
+ if(error)throw error;
+}
+function scheduleCloudSave(){
+ if(cloudSaveTimer)clearTimeout(cloudSaveTimer);
+ cloudMessage('Есть изменения. Сохраняю в облако…');
+ cloudSaveTimer=setTimeout(()=>{flushCloudSave()},1100);
+}
+async function flushCloudSave(){
+ if(!supabaseClient||!authUser||!cloudSyncReady)return;
+ if(cloudSaveBusy){cloudSavePending=true;return}
+ cloudSaveBusy=true;
+ const userId=authUser.id;
+ try{
+  await uploadCloudSave(userId);
+  if(authUser?.id===userId)cloudMessage('☁️ Город сохранён в облаке · '+new Date().toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}));
+ }catch(error){
+  console.error('Cloud save error',error);
+  if(authUser?.id===userId)cloudMessage('Ошибка облачного сохранения: '+(error.message||'неизвестная ошибка')+'. Локальная копия сохранена.');
+ }finally{
+  cloudSaveBusy=false;
+  if(cloudSavePending){cloudSavePending=false;setTimeout(flushCloudSave,250)}
+ }
+}
+async function handleAuthSession(session){
+ const user=session?.user||null;
+ if(!user){cloudSyncReady=false;cloudInitUserId=null;setAuthUser(null);return}
+ if(authUser?.id===user.id&&cloudSyncReady){setAuthUser(user);return}
+ if(cloudInitUserId===user.id)return;
+ cloudInitUserId=user.id;
+ cloudSyncReady=false;
+ setAuthUser(user);
+ cloudMessage('Подключаю облачный город…');
+ try{
+  const {data,error}=await supabaseClient.from('player_saves').select('save_data,updated_at').eq('user_id',user.id).maybeSingle();
+  if(authUser?.id!==user.id)return;
+  if(error)throw error;
+  const lastOwner=localStorage.getItem('murino_last_cloud_user');
+  if(data?.save_data){
+   const cloudGame=data.save_data;
+   if(!Array.isArray(cloudGame.tiles)||cloudGame.tiles.length===0||!Number.isInteger(Math.sqrt(cloudGame.tiles.length))||Math.sqrt(cloudGame.tiles.length)<1||!cloudGame.tiles.every(cell=>cell&&typeof cell==='object'&&!Array.isArray(cell)))throw new Error('Облачное сохранение имеет неверный формат');
+   // Existing cloud data is authoritative after every page reload.
+   game=cloudGame;N=Math.sqrt(game.tiles.length);game.mapSize=N;game.paused=false;localSaveWasInvalid=false;
+   const cloudSnapshot=JSON.stringify(game);
+   localStorage.setItem(KEY,cloudSnapshot);
+   localStorage.setItem(BACKUP_KEY,cloudSnapshot);
+   localStorage.setItem('murino_last_cloud_user',user.id);
+   refreshAfterCloudLoad();
+   cloudMessage('☁️ Облачный город загружен · '+(data.updated_at?new Date(data.updated_at).toLocaleString('ru-RU'):'сохранение найдено'));
+   authMessage('Готово! Ты вошёл, город загружен из облака.');
+  }else{
+   if(lastOwner&&lastOwner!==user.id){
+    game=newGame();game.proposals=[];game.parkways=0;game.nextProposalDay=4;N=24;localSaveWasInvalid=false;refreshAfterCloudLoad();
+    await uploadCloudSave(user.id);
+    authMessage('Для нового аккаунта создан отдельный город. Чужое локальное сохранение не переносилось.');
+   }else{
+    if(localSaveWasInvalid){game=newGame();N=24;game.mapSize=N;game.proposals=[];game.parkways=0;game.nextProposalDay=4;localSaveWasInvalid=false;refreshAfterCloudLoad()}
+    await uploadCloudSave(user.id);
+    authMessage('Аккаунт подключён. Текущий город сохранён в облаке.');
+   }
+   if(authUser?.id!==user.id)return;
+   localStorage.setItem('murino_last_cloud_user',user.id);
+   cloudMessage('☁️ Облачное сохранение включено.');
+  }
+  cloudSyncReady=true;
+ }catch(error){
+  console.error('Cloud load error',error);
+  cloudMessage('Не удалось подключить облачное сохранение: '+(error.message||'ошибка'));
+  authMessage('Вход выполнен, но облачная синхронизация пока не работает. Локальная игра не потеряна.');
+  cloudSyncReady=false;
+ }finally{if(cloudInitUserId===user.id)cloudInitUserId=null}
+}
+async function initMurinoAuth(){
+ const accountBtn=document.getElementById('accountBtn');
+ accountBtn.onclick=openAuth;
+ document.getElementById('authClose').onclick=closeAuth;
+ document.getElementById('authCloseSigned').onclick=()=>authOverlay.classList.remove('show');
+ authOverlay.addEventListener('click',e=>{if(e.target===authOverlay)closeAuth()});
+ document.getElementById('authLogin').onclick=async()=>{
+  const email=document.getElementById('authEmail').value.trim(),password=document.getElementById('authPassword').value;
+  if(!email||!password){authMessage('Введи почту и пароль.');return}
+  if(!supabaseClient){authMessage('Сервис авторизации ещё не подключился. Обнови страницу через минуту.');return}
+  const button=document.getElementById('authLogin');
+  button.disabled=true;authMessage('Выполняю вход…');
+  try{
+   const {data,error}=await supabaseClient.auth.signInWithPassword({email,password});
+   if(error){authMessage('Не удалось войти: '+error.message);return}
+   if(data?.session) {
+    authMessage('Вход выполнен. Подключаю город…');
+    setTimeout(()=>handleAuthSession(data.session),0);
+   }else authMessage('Сервер не вернул сессию. Проверь почту и пароль и попробуй ещё раз.');
+  }catch(error){console.error('Murino login error',error);authMessage('Ошибка соединения при входе: '+(error?.message||'проверь интернет и попробуй ещё раз'))}
+  finally{button.disabled=false}
+ };
+ document.getElementById('authRegister').onclick=async()=>{
+  const email=document.getElementById('authEmail').value.trim(),password=document.getElementById('authPassword').value;
+  if(!email||!password){authMessage('Введи почту и пароль.');return}
+  if(password.length<8){authMessage('Пароль должен содержать не менее 8 символов.');return}
+  if(!supabaseClient){authMessage('Сервис авторизации ещё не подключился.');return}
+  authMessage('Создаю аккаунт…');
+  try{
+   const {data,error}=await supabaseClient.auth.signUp({email,password,options:{emailRedirectTo:location.origin+location.pathname}});
+   if(error){authMessage('Не удалось создать аккаунт: '+error.message);return}
+   if(data.session){authMessage('Аккаунт создан. Подключаю облачный город…');setTimeout(()=>handleAuthSession(data.session),0)}
+   else{authMessage('Письмо для подтверждения отправлено на '+email+'. Перейди по ссылке из письма, затем вернись в игру и войди.')}
+  }catch(error){console.error('Murino signup error',error);authMessage('Не удалось связаться с сервером: '+(error?.message||'проверь интернет'))}
+ };
+ document.getElementById('authReset').onclick=async()=>{
+  const email=document.getElementById('authEmail').value.trim();
+  if(!email){authMessage('Сначала укажи адрес электронной почты.');return}
+  if(!supabaseClient){authMessage('Сервис авторизации ещё не подключился.');return}
+  authMessage('Отправляю ссылку для сброса пароля…');
+  try{
+   const {error}=await supabaseClient.auth.resetPasswordForEmail(email,{redirectTo:location.origin+location.pathname});
+   authMessage(error?'Не удалось отправить письмо: '+error.message:'Письмо для сброса пароля отправлено на '+email+'.');
+  }catch(error){console.error('Murino reset error',error);authMessage('Ошибка отправки письма: '+(error?.message||'проверь подключение'))}
+ };
+ document.getElementById('authUpdatePassword').onclick=async()=>{
+  const password=document.getElementById('authNewPassword').value;
+  if(password.length<8){authMessage('Новый пароль должен содержать не менее 8 символов.');return}
+  const {error}=await supabaseClient.auth.updateUser({password});
+  if(error){authMessage('Не удалось изменить пароль: '+error.message);return}
+  authRecoveryMode=false;
+  document.getElementById('authNewPasswordWrap').style.display='none';
+  document.getElementById('authMainActions').style.display='grid';
+  document.getElementById('authRecoveryActions').style.display='none';
+  authOverlay.classList.remove('show');
+  authMessage('Пароль изменён.');
+ };
+ document.getElementById('authCancelRecovery').onclick=()=>{authRecoveryMode=false;document.getElementById('authNewPasswordWrap').style.display='none';document.getElementById('authMainActions').style.display='grid';document.getElementById('authRecoveryActions').style.display='none';authOverlay.classList.remove('show')};
+ document.getElementById('authSyncNow').onclick=async()=>{cloudMessage('Сохраняю…');await flushCloudSave()};
+ document.getElementById('authLogout').onclick=async()=>{
+  if(cloudSaveTimer){clearTimeout(cloudSaveTimer);cloudSaveTimer=null}
+  if(authUser&&cloudSyncReady)await flushCloudSave();
+  const {error}=await supabaseClient.auth.signOut();
+  if(error){authMessage('Не удалось выйти: '+error.message);return}
+  authMessage('Ты вышел. Город остался сохранён локально и в аккаунте.');
+ };
+ if(!window.supabase?.createClient){cloudMessage('Не загрузилась библиотека Supabase. Проверь подключение к интернету.');authMessage('Вход временно недоступен.');return}
+ supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+ let authEventSequence=0;
+ supabaseClient.auth.onAuthStateChange((event,session)=>{
+  authEventSequence++;
+  if(event==='PASSWORD_RECOVERY'){
+   authRecoveryMode=true;
+   document.getElementById('authNewPasswordWrap').style.display='block';
+   document.getElementById('authMainActions').style.display='none';
+   document.getElementById('authRecoveryActions').style.display='grid';
+   authMessage('Введи новый пароль для аккаунта.');
+   openAuth();
+  }
+  // Always defer work that touches the database until outside the auth callback.
+  setTimeout(()=>{handleAuthSession(session)},0);
+ });
+
+ // Explicit bootstrap fallback: the listener may be delayed by a browser restore.
+ // If any auth event arrived while getSession was pending, that event wins.
+ const bootstrapSequence=authEventSequence;
+ try{
+  const {data,error}=await supabaseClient.auth.getSession();
+  if(bootstrapSequence===authEventSequence){
+   if(error){
+    console.warn('Murino initial session restore',error);
+    cloudSyncReady=false;setAuthUser(null);
+    authMessage('Не удалось восстановить вход автоматически. Войди через форму, сохранение города не затронуто.');
+    cloudMessage('Не удалось восстановить сессию. Можно войти повторно.');
+   }else{
+    await handleAuthSession(data?.session||null);
+   }
+  }
+ }catch(error){
+  console.error('Murino session bootstrap error',error);
+  if(bootstrapSequence===authEventSequence){
+   setAuthUser(null);cloudSyncReady=false;
+   authMessage('Не удалось восстановить сессию. Войди через форму, локальный город сохранён.');
+  }
+ }
+}
+
+function save(){
+ if(graphicsSafePreview)return;
+ if(!isValidGameSave(game)){console.warn('Сохранение пропущено: карта имеет неверный размер. Последняя рабочая копия защищена.');return}
+ if(localSaveWasInvalid&&!cloudSyncReady){console.warn('Сохранение отложено до восстановления последней рабочей карты.');return}
+ try{const snapshot=JSON.stringify(game);localStorage.setItem(KEY,snapshot);localStorage.setItem(BACKUP_KEY,snapshot)}
+ catch(e){if(game.undoStack?.length){game.undoStack.shift();try{const snapshot=JSON.stringify(game);localStorage.setItem(KEY,snapshot);localStorage.setItem(BACKUP_KEY,snapshot)}catch(e2){console.warn('Не удалось сохранить игру: недостаточно места в хранилище')}}else console.warn('Не удалось сохранить игру: недостаточно места в хранилище')}
+ if(authUser&&cloudSyncReady)scheduleCloudSave();
+}
+setInterval(()=>{
+ try{save()}catch(error){console.error('Murino minute autosave failed',error)}
+},60000);
+function pushUndo(label){game.undoStack=game.undoStack||[];game.undoStack.push({label,tiles:JSON.parse(JSON.stringify(game.tiles)),money:game.money,pop:game.pop,happy:game.happy,reputation:game.reputation,storyStage:game.storyStage,dealsClosed:game.dealsClosed,parkways:game.parkways,jobs:game.jobs,tax:game.tax,upkeep:game.upkeep,taxRates:{...(game.taxRates||{})},mapSize:N,privateCompanies:JSON.parse(JSON.stringify(game.privateCompanies||{developers:[],businesses:[]})),residentialComplexes:JSON.parse(JSON.stringify(game.residentialComplexes||[])),proposals:JSON.parse(JSON.stringify(game.proposals||[]))});if(game.undoStack.length>8)game.undoStack.shift();save();updateUndoButton()}
+function updateUndoButton(){let b=document.getElementById('undo');if(b){let n=game.undoStack?.length||0;b.disabled=!n;b.textContent=n?'↶ Отменить ('+n+')':'↶ Отменить';b.title=n?'Последнее действие: '+game.undoStack[n-1].label:'История действий пуста'}}
+function undoLast(){let h=game.undoStack||[];if(!h.length){notify('Нечего отменять');return}let s=h.pop();game.tiles=s.tiles;N=s.mapSize||Math.sqrt(s.tiles.length);game.mapSize=N;rebuildRoadGraph();refreshPedestrianRoutes();game.money=s.money;game.pop=s.pop;game.happy=s.happy;game.reputation=s.reputation??game.reputation;game.storyStage=s.storyStage??game.storyStage;game.dealsClosed=s.dealsClosed??game.dealsClosed;game.parkways=s.parkways??game.parkways;game.jobs=s.jobs;game.tax=s.tax;game.upkeep=s.upkeep;game.taxRates=s.taxRates||game.taxRates;game.privateCompanies=s.privateCompanies||game.privateCompanies;game.residentialComplexes=s.residentialComplexes||[];game.proposals=s.proposals||[];activeDealId=null;game.undoStack=h;save();stats();refreshTaxUI();refreshExpansion();updateFinance();renderProposals();updateUndoButton();notify('↶ Отменено: '+s.label)}
+document.getElementById('undo').onclick=undoLast;
+const expansionPrices={24:25000000,32:60000000,40:125000000,48:240000000,56:420000000};
+function refreshExpansion(){let cost=expansionPrices[N]??(Math.round(420000000*Math.pow(1.7,(N-56)/8)/1000)*1000);document.getElementById('mapSizeLabel').textContent=N+' × '+N;document.getElementById('expandCost').textContent=N>=64?'Достигнут максимальный размер карты':('Следующее расширение: '+cost.toLocaleString('ru-RU')+' ₽');let b=document.getElementById('expandMap');b.disabled=N>=64||game.money<cost;b.textContent=N>=64?'Максимальный размер':'🗺️ Купить новые земли · '+cost.toLocaleString('ru-RU')+' ₽'}
+function expandMap(){if(N>=64)return;let cost=expansionPrices[N]??Math.round(420000000*Math.pow(1.7,(N-56)/8)/1000)*1000;if(game.money<cost){notify('Не хватает денег на покупку новых земель');return}pushUndo('Покупка новых земель');let oldN=N,old=game.tiles,newN=N+8,newTiles=Array.from({length:newN*newN},(_,i)=>({ground:rand(i%newN,Math.floor(i/newN))>.84?'dark':'grass',type:'',level:0,age:0}));for(let y=0;y<oldN;y++)for(let x=0;x<oldN;x++)newTiles[y*newN+x]=old[y*oldN+x];N=newN;game.mapSize=N;game.tiles=newTiles;rebuildRoadGraph();refreshPedestrianRoutes();game.money-=cost;save();stats();refreshExpansion();notify('🗺️ Город расширен до '+N+' × '+N+' клеток! Новые земли ждут освоения.')}
+document.getElementById('expandMap').onclick=expandMap;
+
+function notify(s){document.getElementById('message').textContent=s}function tileCount(types){let n=0;for(const t of game.tiles)if(types.includes(t.type))n++;return n}
+const countTypes=types=>tileCount(types);
+const storyMissions=[
+ {title:'Оживить центр Мурино',desc:'Поставь сквер от середины главной улицы вправо.',goal:'Прогулочный сквер',progress:()=>game.parkways||0,target:1,done:()=> (game.parkways||0)>=1,action:'park'},
+ {title:'Дать людям крышу над головой',desc:'Построй два жилых дома.',goal:'Жилые дома',progress:()=>countTypes(['res']),target:2,done:()=>countTypes(['res'])>=2},
+ {title:'Создать рабочие места',desc:'Открой первые три частных предприятия.',goal:'Коммерческие объекты',progress:()=>countTypes(Object.keys(business)),target:3,done:()=>countTypes(Object.keys(business))>=3},
+ {title:'Поднять качество жизни',desc:'Добейся счастья жителей не ниже 75%.',goal:'Счастье жителей',progress:()=>game.happy,target:75,done:()=>game.happy>=75},
+ {title:'Стать городом возможностей',desc:'Вырасти до 50 жителей.',goal:'Жители',progress:()=>Math.floor(game.pop),target:50,done:()=>game.pop>=50},
+ {title:'Сбалансировать бюджет',desc:'Добейся положительного ежедневного баланса.',goal:'Баланс бюджета, ₽/день',progress:()=>Math.max(0,Math.round((game.tax||0)-(game.upkeep||0))),target:1,done:()=>game.tax>game.upkeep},
+ {title:'Связать районы улицами',desc:'Построй сеть дорог.',goal:'Дорожные клетки',progress:()=>countTypes(['road']),target:30,done:()=>countTypes(['road'])>=30},
+ {title:'Открыть торговую улицу',desc:'Размести пять коммерческих объектов.',goal:'Бизнесы',progress:()=>countTypes(Object.keys(business)),target:5,done:()=>countTypes(Object.keys(business))>=5},
+ {title:'Привлечь новые семьи',desc:'Увеличь население до 100 жителей.',goal:'Жители',progress:()=>Math.floor(game.pop),target:100,done:()=>game.pop>=100},
+ {title:'Построить школу',desc:'Построй муниципальную школу.',goal:'Школы',progress:()=>countTypes(['school']),target:1,done:()=>countTypes(['school'])>=1},
+ {title:'Позаботиться о здоровье',desc:'Построй муниципальную поликлинику.',goal:'Поликлиники',progress:()=>countTypes(['clinic']),target:1,done:()=>countTypes(['clinic'])>=1},
+ {title:'Открыть городскую аптеку',desc:'Построй муниципальную аптеку. Это объект городской системы здравоохранения.',goal:'Муниципальные аптеки',progress:()=>countTypes(['citypharmacy']),target:1,done:()=>countTypes(['citypharmacy'])>=1},
+ {title:'Поддержать малый бизнес',desc:'Добейся работы не менее 40 человек.',goal:'Занятые жители',progress:()=>game.jobs,target:40,done:()=>game.jobs>=40},
+ {title:'Сделать город зелёным',desc:'Создай три прогулочные зоны или парка.',goal:'Парки и скверы',progress:()=>countTypes(['park'])+(game.parkways||0),target:3,done:()=>countTypes(['park'])+(game.parkways||0)>=3},
+ {title:'Построить районную больницу',desc:'Построй полноценную муниципальную больницу.',goal:'Больницы',progress:()=>countTypes(['hospital']),target:1,done:()=>countTypes(['hospital'])>=1},
+ {title:'Первый крупный район',desc:'Добейся населения в 150 человек.',goal:'Жители',progress:()=>Math.floor(game.pop),target:150,done:()=>game.pop>=150},
+ {title:'Разнообразить торговлю',desc:'Открой не менее шести разных типов бизнеса.',goal:'Разные типы бизнеса',progress:()=>new Set(game.tiles.filter(t=>business[t.type]).map(t=>t.type)).size,target:6,done:()=>new Set(game.tiles.filter(t=>business[t.type]).map(t=>t.type)).size>=6},
+ {title:'Привлечь инвесторов',desc:'Заключи три сделки с частными владельцами.',goal:'Сделки',progress:()=>game.dealsClosed||0,target:3,done:()=> (game.dealsClosed||0)>=3},
+ {title:'Новый жилой квартал',desc:'Построй пять жилых комплексов.',goal:'Жилые дома',progress:()=>countTypes(['res']),target:5,done:()=>countTypes(['res'])>=5},
+ {title:'Город для прогулок',desc:'Подними счастье жителей до 85%.',goal:'Счастье жителей',progress:()=>game.happy,target:85,done:()=>game.happy>=85},
+ {title:'Экономический рост',desc:'Добейся ежедневного положительного баланса не менее 100 000 ₽.',goal:'Баланс бюджета, ₽/день',progress:()=>Math.max(0,Math.round((game.tax||0)-(game.upkeep||0))),target:100000,done:()=>game.tax-game.upkeep>=100000},
+ {title:'Деловой центр',desc:'Построй офисный центр.',goal:'Офисные центры',progress:()=>countTypes(['office']),target:1,done:()=>countTypes(['office'])>=1},
+ {title:'Образовательный город',desc:'Построй университет.',goal:'Университеты',progress:()=>countTypes(['university']),target:1,done:()=>countTypes(['university'])>=1},
+ {title:'Городской масштаб',desc:'Достигни населения 400 человек.',goal:'Жители',progress:()=>Math.floor(game.pop),target:400,done:()=>game.pop>=400},
+ {title:'Сильная репутация',desc:'Подними репутацию мэра до 80 пунктов.',goal:'Репутация',progress:()=>game.reputation||0,target:80,done:()=>game.reputation>=80},
+ {title:'Мурино не остановить',desc:'Достигни населения 600 человек.',goal:'Жители',progress:()=>Math.floor(game.pop),target:600,done:()=>game.pop>=600},
+ {title:'Городская сеть услуг',desc:'Размести десять коммерческих объектов.',goal:'Бизнесы',progress:()=>countTypes(Object.keys(business)),target:10,done:()=>countTypes(Object.keys(business))>=10},
+ {title:'Миллион возможностей',desc:'Добейся ежедневного дохода бюджета выше миллиона рублей.',goal:'Баланс бюджета, ₽/день',progress:()=>Math.max(0,Math.round((game.tax||0)-(game.upkeep||0))),target:1000000,done:()=>game.tax-game.upkeep>=1000000},
+ {title:'Мегаполис начинается',desc:'Вырасти до 900 жителей.',goal:'Жители',progress:()=>Math.floor(game.pop),target:900,done:()=>game.pop>=900},
+ {title:'Новый горизонт',desc:'Расширь городскую карту хотя бы один раз.',goal:'Размер карты',progress:()=>N,target:32,done:()=>N>=32},
+ {title:'Мэр, которым гордятся',desc:'Добейся счастья жителей 95% и репутации не ниже 90.',goal:'Счастье жителей',progress:()=>game.happy,target:95,done:()=>game.happy>=95&&game.reputation>=90}
+];
+
+function buildStarterPark(){
+ if((game.parkways||0)>0){notify('Сквер на главной улице уже создан');return}
+ const y=12,startX=12,endX=Math.min(N-1,20),cells=[];
+ for(let x=startX;x<=endX;x++){
+  const road=tile(x,y);
+  if(!road||!(road.type===''||road.type==='road')){notify('На маршруте сквера есть препятствие. Освободи центральную улицу.');return}
+  if(road.type!=='road')cells.push({x,y,type:'road'});
+  if((x-startX)%2===0){
+   for(const sy of [y-1,y+1]){
+    const side=tile(x,sy);
+    if(side&&!side.type)cells.push({x,y:sy,type:'tree'});
+   }
+  }
+ }
+ const treeCount=cells.filter(q=>q.type==='tree').length;
+ const cost=280000+treeCount*25000;
+ if(game.money<cost){notify('Не хватает денег на сквер: '+fmtRub(cost));return}
+ pushUndo('Сквер вдоль главной улицы');
+ game.money-=cost;
+ for(const q of cells){const t=tile(q.x,q.y);if(t&&!t.type){t.type=q.type;t.level=1;t.age=0}}
+ game.parkways=(game.parkways||0)+1;
+ rebuildRoadGraph();refreshPedestrianRoutes();save();stats();
+ notify('🌳 Сквер проложен от центра главной улицы вправо');
+}
+
+function updateStory(){
+ const panel=document.getElementById('storyPanel');if(!panel)return;
+ game.reputation=Math.max(0,Math.min(100,Math.round(game.reputation||0)));
+ if(game.storyStage>=storyMissions.length){panel.innerHTML='<b style="color:#ffda8a">🏆 Мурино стало настоящим городом!</b><br>Ты выполнил все поручения. Дальше развивай мегаполис на своё усмотрение.';return}
+ const m=storyMissions[game.storyStage],v=m.progress(),pct=Math.max(0,Math.min(100,Math.round(v/m.target*100)));
+ panel.innerHTML='<b style="color:#ffda8a">'+(game.storyStage+1)+'. '+m.title+'</b><div style="margin:6px 0">'+m.desc+'</div><div>'+m.goal+': <b>'+Math.floor(v).toLocaleString('ru-RU')+' / '+m.target.toLocaleString('ru-RU')+'</b></div><div style="height:8px;background:#40525d;margin:7px 0;border-radius:5px;overflow:hidden"><div style="height:100%;width:'+pct+'%;background:#e4b66b"></div></div><div>Награда: <b>+8 репутации</b></div>';
+ if(m.action==='park'){
+  panel.innerHTML+='<button id="buildStarterPark" style="width:100%;margin-top:9px;padding:9px;background:#668b59">🌳 Поставить сквер</button>';
+  document.getElementById('buildStarterPark').onclick=buildStarterPark;
+ }
+ if(m.done()){game.storyStage++;game.reputation=Math.min(100,game.reputation+8);panel.innerHTML='<b style="color:#9fe0a7">✓ Поручение выполнено!</b><br>'+m.title+'<br>Награда: +8 репутации';save();notify('🎉 Мэр, поручение выполнено: '+m.title+'!');}
+}
+function stats(){const fmt=n=>Math.round(n).toLocaleString('ru-RU');cash.textContent=fmt(game.money);pop.textContent=fmt(game.pop);happy.textContent=game.happy;day.textContent='День '+Math.floor(game.day||1);jobs.textContent=game.jobs;document.getElementById('reputation').textContent=game.reputation||0;updateStory();document.getElementById('summary').innerHTML=`Налоги: <b>+${fmt(game.tax)} ₽/день</b><br>Содержание: <b>−${fmt(game.upkeep)} ₽/день</b><br>Баланс: <b>${fmt(game.tax-game.upkeep)} ₽/день</b><br>Занятость: ${game.jobs} работников из ${Math.floor(game.pop)} жителей<br>Скорость: ${game.paused?'пауза':game.speed+'×'}`;document.getElementById('pause').textContent=game.paused?'▶ Продолжить':'⏸ Пауза';document.getElementById('speed').textContent='▶ '+game.speed+'×'}const taxSelect=document.getElementById('taxObject'),taxSlider=document.getElementById('taxRate');
+for(const [key,label] of Object.entries(taxObjects)){let opt=document.createElement('option');opt.value=key;opt.textContent=label;taxSelect.appendChild(opt)}
+function refreshTaxUI(){let key=taxSelect.value||'village',rate=game.taxRates[key]??100;taxSlider.value=rate;document.getElementById('taxRateLabel').textContent=rate+'%';let impact=rate<85?'Льготная ставка: ниже налоговая нагрузка, но меньше доход бюджета.':rate>120?'Высокая ставка: больше доход бюджета, но жители и бизнес могут быть недовольны.':'Базовая ставка: стандартная налоговая нагрузка.';document.getElementById('taxEffect').textContent=impact+' Изменение вступит в силу со следующего игрового дня.'}
+function setTaxRate(v){let key=taxSelect.value,next=Math.max(50,Math.min(150,Math.round(v/5)*5));if((game.taxRates[key]??100)!==next){pushUndo('Изменение налога: '+taxObjects[key]);game.taxRates[key]=next}refreshTaxUI();save();stats();notify('Налог для «'+taxObjects[key]+'» установлен: '+game.taxRates[key]+'%')}
+taxSelect.addEventListener('change',refreshTaxUI);taxSlider.addEventListener('change',()=>setTaxRate(Number(taxSlider.value)));document.getElementById('taxDown').onclick=()=>setTaxRate(Number(taxSlider.value)-5);document.getElementById('taxUp').onclick=()=>setTaxRate(Number(taxSlider.value)+5);refreshTaxUI();
+const tools=document.getElementById('tools');
+document.getElementById('guideToggle').onclick=()=>{const g=document.getElementById('guidePanel');g.style.display=g.style.display==='none'?'block':'none';document.getElementById('guideToggle').textContent=g.style.display==='none'?'Открыть руководство по игре':'Свернуть руководство'};
+document.getElementById('guideClose').onclick=()=>{document.getElementById('guidePanel').style.display='none';document.getElementById('guideToggle').textContent='Открыть руководство по игре'};
+
+
+// Private owners periodically propose expansions. Roads in accepted projects are built and paid for by the developer.
+function fmtRub(n){return Math.round(n).toLocaleString('ru-RU')+' ₽'}
+function findAccessRoad(center){
+ const dirs=[[1,0],[-1,0],[0,1],[0,-1]];
+ const queue=[],seen=new Set();
+ for(const [dx,dy] of dirs){
+  const x=center.x+dx,y=center.y+dy;
+  if(x<0||y<0||x>=N||y>=N)continue;
+  const t=tile(x,y);
+  if(t?.type==='road')return [];
+  if(t&&!t.type){queue.push({x,y,path:[{x,y}]});seen.add(x+','+y)}
+ }
+ while(queue.length){
+  const cur=queue.shift();
+  if(hasRoadFrontage(cur.x,cur.y))return cur.path;
+  for(const [dx,dy] of dirs){
+   const x=cur.x+dx,y=cur.y+dy,k=x+','+y;
+   if(x<0||y<0||x>=N||y>=N||seen.has(k))continue;
+   const t=tile(x,y);
+   if(t&&!t.type){seen.add(k);queue.push({x,y,path:[...cur.path,{x,y}]})}
+  }
+ }
+ return null;
+}
+function findPrivateSite(isBuilder,owner){
+ const candidates=[];
+ const branches=[];
+ if(!isBuilder){
+  for(let y=0;y<N;y++)for(let x=0;x<N;x++){
+   const t=tile(x,y);
+   if(t&&t.type===owner.type)branches.push({x,y});
+  }
+ }
+ for(let y=1;y<N-1;y++)for(let x=1;x<N-1;x++){
+  const center=tile(x,y);
+  if(!center||center.type)continue;
+  if(isBuilder){
+   // A housing project reserves the full 3x3 footprint: one home plus eight walkable cells.
+   let clear=true;
+   for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){
+    if(dx===0&&dy===0)continue;
+    const t=tile(x+dx,y+dy);
+    if(!t||!(t.type===''||t.type==='road'))clear=false;
+   }
+   if(!clear)continue;
+  }else{
+   // Franchise branches should spread across town, not stack beside the parent location.
+   const nearest=branches.length?Math.min(...branches.map(b=>Math.abs(x-b.x)+Math.abs(y-b.y))):99;
+   if(nearest<5)continue;
+  }
+  const roadPath=findAccessRoad({x,y});
+  if(roadPath===null)continue;
+  candidates.push({x,y,roadPath});
+ }
+ // If the city is already dense, relax the distance rule gradually rather than stopping all expansion.
+ if(!candidates.length&&!isBuilder){
+  for(let y=1;y<N-1;y++)for(let x=1;x<N-1;x++){
+   const center=tile(x,y);
+   if(!center||center.type)continue;
+   const roadPath=findAccessRoad({x,y});
+   if(roadPath===null)continue;
+   candidates.push({x,y,roadPath});
+  }
+ }
+ if(!candidates.length)return null;
+ return candidates[Math.floor(Math.random()*candidates.length)];
+}
+
+const developerCompanyNames=['Северный квартал','Балтийский девелопмент','Новый горизонт','Городская среда','ЛенДом','СеверСтрой','Гранит Девелопмент','Мегаполис','Пространство','Атмосфера','Невские проекты','Петербургская перспектива','Формат города','Дом на Неве','Квартал Групп'];
+const businessCompanyNames=['Рога и Копыта','Невская торговая группа','Северный вкус','Городские форматы','Маяк Ритейл','Лига сервиса','Формула города','Петербургский союз предпринимателей','Первые места','Большая витрина','Городская марка','Соседи и Ко'];
+const projectNames=['Северный парк','Муринские высоты','Сосновый берег','Новая перспектива','Дом у озера','Зелёный квартал','Белые ночи','Северная долина','Муринский сад','Парк-лайф','Городские истории','Лесной проспект','Чистое небо','Невский берег'];
+const businessBrands={
+ grocery:['Продукты у дома','Магниток','Своя лавка','Фермерский ряд'],minimarket:['МиниМаркет 24','У дома','Семейный магазин'],
+ supermarket:['Лента','СеверМаркет','Городской супермаркет'],hypermarket:['ГиперДом','Большая корзина'],
+ ozon:['Ozon'],wildberries:['Wildberries'],yandexmarket:['Яндекс Маркет'],post:['Почта России'],
+ coffee:['Старбакс','Бодрый день','Кофе и точка','Зёрна','Даблби'],bakery:['Булочная №1','Хлеб да Кофе','Пекарня «Булка»','Тёплый хлеб'],
+ cafe:['Кафе «Соседи»','Терраса','Кухня города'],restaurant:['Ресторан «Невский»','ГастроДом','Место встречи'],
+ fastfood:['Вкусно — и точка','Бургерная «Бум»','ФастЛайн'],pizzeria:['БоБо','ПиццаФабрика','Тесто и сыр'],bar:['Бар «Пятница»','Северный паб','После работы'],
+ pharmacy:['Аптека «Здоровье»','ФармПлюс','НеоФарм'],clinic_private:['Клиника «Медика»','Семейный доктор','МедПрофи'],
+ flowers:['Цветы рядом','Букетная','Флора'],clothes:['Городская одежда','Модный ряд','Формат'],electronics:['ТехноДом','Цифра','ЭлектроМаркет'],
+ household:['Домовёнок','Всё для дома','УютМаркет'],beauty:['БьютиЛаб','Лица','Студия красоты'],barber:['Барбер №1','Бородач','Северный барбер'],
+ petshop:['Хвост и лапы','Зоомир','МурМаркет'],bookshop:['Книжный двор','Читай-город','Буква'],
+ gym:['Форма','Пульс','ФитнесКлуб'],cinema:['Аврора','Синема Мурино','КиноПарк'],hotel:['Отель «Север»','Мурино Плаза','Гранд Отель'],
+ bank:['Банк «Северный»','Городской банк'],office:['Бизнес-центр «Панорама»','ОфисПарк'],gas:['АЗС «Север»','Топливо 24','НефтьМаркет'],
+ carwash:['Чистый кузов','АкваБлеск','АвтоБаня'],autoservice:['АвтоМастер','Гараж №1','СервисПлюс']
+};
+const CB_KEY_RATE=14; // ключевая ставка Банка России для расчёта кредитной ставки
+let activeDealId=null;
+function pickRandom(list){return list[Math.floor(Math.random()*list.length)]}
+function privateId(prefix){return prefix+'-'+Date.now().toString(36)+'-'+Math.floor(Math.random()*0xffffff).toString(36)}
+function ensurePrivateCompanyStore(){
+ if(!game.privateCompanies||typeof game.privateCompanies!=='object')game.privateCompanies={developers:[],businesses:[]};
+ if(!Array.isArray(game.privateCompanies.developers))game.privateCompanies.developers=[];
+ if(!Array.isArray(game.privateCompanies.businesses))game.privateCompanies.businesses=[];
+ if(!Array.isArray(game.residentialComplexes))game.residentialComplexes=[];
+}
+function createDeveloperCompany(){
+ ensurePrivateCompanyStore();
+ const used=new Set(game.privateCompanies.developers.map(c=>c.name));
+ const available=developerCompanyNames.filter(n=>!used.has('ООО «'+n+'»')&&!used.has('ГК «'+n+'»'));
+ const base=available.length?pickRandom(available):pickRandom(developerCompanyNames)+' '+(game.privateCompanies.developers.length+1);
+ const legal=Math.random()<.58?'ООО':'ГК';
+ const company={id:privateId('dev'),name:legal+' «'+base+'»',builtComplexes:0,housesBuilt:0,createdDay:game.day||1};
+ game.privateCompanies.developers.push(company);
+ return company;
+}
+function createBusinessCompany(){
+ ensurePrivateCompanyStore();
+ const used=new Set(game.privateCompanies.businesses.map(c=>c.name));
+ const available=businessCompanyNames.filter(n=>!used.has('ООО «'+n+'»'));
+ const base=available.length?pickRandom(available):pickRandom(businessCompanyNames)+' '+(game.privateCompanies.businesses.length+1);
+ const company={id:privateId('biz'),name:'ООО «'+base+'»',portfolio:[],createdDay:game.day||1};
+ game.privateCompanies.businesses.push(company);
+ return company;
+}
+function portfolioEntry(company,type){
+ company.portfolio=Array.isArray(company.portfolio)?company.portfolio:[];
+ let entry=company.portfolio.find(q=>q.type===type);
+ if(!entry){
+  const brands=businessBrands[type]||[(business[type]?.[0]||type).replace(/^[^ ]+ /,'')];
+  entry={type,brand:pickRandom(brands),branches:0};
+  company.portfolio.push(entry);
+ }
+ entry.branches=Math.max(0,Math.floor(entry.branches||0));
+ return entry;
+}
+function syncBusinessCompanyStats(company){
+ if(!company)return;
+ company.portfolio=Array.isArray(company.portfolio)?company.portfolio:[];
+ company.totalBranches=company.portfolio.reduce((sum,e)=>sum+Math.max(0,Math.floor(e.branches||0)),0);
+ company.businessDirections=company.portfolio.length;
+}
+function migratePrivateSector(){
+ ensurePrivateCompanyStore();
+ const unassigned=[];
+ for(let i=0;i<game.tiles.length;i++){
+  const t=game.tiles[i];
+  if(t&&business[t.type]&&!t.companyId)unassigned.push({index:i,tile:t});
+ }
+ while(unassigned.length){
+  const company=createBusinessCompany();
+  const group=unassigned.splice(0,Math.min(unassigned.length,2+Math.floor(Math.random()*3)));
+  for(const item of group){
+   const t=item.tile,entry=portfolioEntry(company,t.type);
+   entry.branches++;
+   t.companyId=company.id;t.companyName=company.name;t.brandName=entry.brand;
+   t.branchName=entry.brand+' · филиал '+entry.branches;
+   if(!Number.isFinite(t.modelVariant))t.modelVariant=Math.floor(Math.random()*6);
+  }
+  syncBusinessCompanyStats(company);
+ }
+ for(const company of game.privateCompanies.businesses){
+  if(!Array.isArray(company.portfolio))company.portfolio=[];
+  for(const t of game.tiles){
+   if(t&&business[t.type]&&t.companyId===company.id){
+    const entry=portfolioEntry(company,t.type);
+    if(!t.brandName)t.brandName=entry.brand;
+    if(!t.companyName)t.companyName=company.name;
+   }
+  }
+  syncBusinessCompanyStats(company);
+ }
+ for(const p of game.proposals){
+  if(p.isBuilder||p.buildType==='res'){
+   p.proposalType='residential';
+   p.houseCount=Math.max(4,Math.min(6,Math.floor(p.houseCount||4)));
+   p.projectName=p.projectName||'ЖК «'+pickRandom(projectNames)+'»';
+   let dev=game.privateCompanies.developers.find(c=>c.id===p.companyId);
+   if(!dev)dev=createDeveloperCompany();
+   p.companyId=dev.id;p.companyName=dev.name;
+   p.houseLevels=Array.isArray(p.houseLevels)?p.houseLevels:Array.from({length:p.houseCount},()=>2+Math.floor(Math.random()*3));
+   p.totalCapacity=p.totalCapacity||p.houseLevels.reduce((sum,level)=>sum+[0,16,55,135,280,520,900][level]||0,0);
+  }else{
+   p.proposalType='business';
+   let company=game.privateCompanies.businesses.find(c=>c.id===p.companyId);
+   if(!company){
+    const owner=p.owner&&tile(p.owner.x,p.owner.y);
+    if(owner?.companyId)company=game.privateCompanies.businesses.find(c=>c.id===owner.companyId);
+    if(!company){const anyOwner=game.tiles.find(t=>t&&business[t.type]&&t.companyId);if(anyOwner)company=game.privateCompanies.businesses.find(c=>c.id===anyOwner.companyId)}
+   }
+   if(!company)company=createBusinessCompany();
+   p.companyId=company.id;p.companyName=company.name;
+   const entry=portfolioEntry(company,p.buildType);
+   p.brandName=p.brandName||entry.brand;
+   syncBusinessCompanyStats(company);
+  }
+  if(!p.phase)p.phase='pending';
+ }
+}
+function residentialFootprint(anchor,houseCount=6){
+ const houseSpots=[[1,0],[3,0],[1,4],[3,4],[0,2],[4,2]];
+ const selected=houseSpots.slice(0,Math.max(4,Math.min(6,houseCount)));
+ const houseMap=new Map(selected.map((q,i)=>[q[0]+','+q[1],i]));
+ const cells=[];
+ for(let dy=0;dy<5;dy++)for(let dx=0;dx<5;dx++){
+  const x=anchor.x+dx-2,y=anchor.y+dy-2;
+  if(x<0||y<0||x>=N||y>=N)return null;
+  const key=dx+','+dy,index=houseMap.get(key),corner=(dx===0||dx===4)&&(dy===0||dy===4);
+  cells.push({x,y,kind:index!==undefined?'house':corner?'green':'road',houseIndex:index});
+ }
+ return cells;
+}
+function proposalCompany(p){
+ return p.proposalType==='residential'
+  ?game.privateCompanies.developers.find(c=>c.id===p.companyId)
+  :game.privateCompanies.businesses.find(c=>c.id===p.companyId);
+}
+function makePrivateProposal(){
+ ensurePrivateCompanyStore();
+ const residences=game.tiles.filter(t=>t&&['village','res'].includes(t.type)).length;
+ const businessTiles=game.tiles.filter(t=>t&&business[t.type]);
+ if(!residences&&!businessTiles.length)return null;
+ const makeResidential=!!residences&&(!businessTiles.length||Math.random()<.48);
+ if(makeResidential){
+  const developers=game.privateCompanies.developers;
+  const company=(!developers.length||Math.random()<.32)?createDeveloperCompany():pickRandom(developers);
+  const houseCount=4+Math.floor(Math.random()*3);
+  const houseLevels=Array.from({length:houseCount},()=>2+Math.floor(Math.random()*3));
+  const totalCapacity=houseLevels.reduce((sum,level)=>sum+([0,16,55,135,280,520,900][level]||0),0);
+  // Residential developer buys the full 5×5 plot, including internal roads and landscaping.
+  const recommended=Math.round((houseCount*800000+totalCapacity*1500+400000)/10000)*10000;
+  const offer=Math.round(recommended*(.86+Math.random()*.07));
+  return {id:privateId('offer'),proposalType:'residential',kind:'Жилой застройщик',companyId:company.id,companyName:company.name,projectName:'ЖК «'+pickRandom(projectNames)+'»',houseCount,houseLevels,totalCapacity,footprintSize:5,offer,recommended,maxPrice:Math.round(recommended*(1.5+Math.random()*.2)),createdDay:game.day||1,phase:'pending'};
+ }
+ const companies=game.privateCompanies.businesses.filter(c=>Array.isArray(c.portfolio)&&c.portfolio.some(e=>e.branches>0));
+ if(!companies.length)return null;
+ const company=pickRandom(companies),activeEntries=company.portfolio.filter(e=>e.branches>0);
+ let entry=pickRandom(activeEntries);
+ if(company.portfolio.length<4&&Math.random()<.22){
+  const existingTypes=new Set(company.portfolio.map(e=>e.type));
+  const alternatives=Object.keys(business).filter(k=>!existingTypes.has(k));
+  if(alternatives.length)entry=portfolioEntry(company,pickRandom(alternatives));
+ }
+ const recommended=landPrice(entry.type),offer=Math.round(recommended*(.86+Math.random()*.07));
+ return {id:privateId('offer'),proposalType:'business',kind:'Коммерческая сеть',companyId:company.id,companyName:company.name,buildType:entry.type,brandName:entry.brand,branchName:entry.brand+' · филиал '+(entry.branches+1),offer,recommended,maxPrice:Math.round(recommended*(1.5+Math.random()*.2)),createdDay:game.day||1,phase:'pending'};
+}
+function escapeProposalText(value){return String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]))}
+function fmtCompanyPortfolio(company){
+ if(!company?.portfolio?.length)return 'Портфель направлений пока формируется.';
+ return company.portfolio.map(e=>'<li>'+escapeProposalText(e.brand||business[e.type]?.[0]||e.type)+' — '+Math.max(0,Math.floor(e.branches||0))+' филиал(а)</li>').join('');
+}
+function renderProposals(){
+ const panel=document.getElementById('proposalPanel');if(!panel)return;
+ ensurePrivateCompanyStore();
+ if(!game.proposals.length){panel.innerHTML='<div style="color:#bdc9ca;padding:8px 2px">Новых предложений пока нет. Застройщики и компании будут присылать заявки по мере роста города.</div>';return}
+ panel.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><b style="color:#ffda8a">ВХОДЯЩИЕ ПРЕДЛОЖЕНИЯ</b><span style="background:#455a68;border-radius:12px;padding:2px 8px">'+game.proposals.length+'</span></div>'+
+ game.proposals.map(p=>{
+  const company=proposalCompany(p),name=escapeProposalText(p.companyName||company?.name||'Частная компания');
+  const price=Number(p.mayorPrice??p.recommended??p.offer)||p.offer||0;
+  const chosen=p.selectedSite?'<div style="margin-top:6px;color:#a6e2ae">Площадка выбрана: клетка '+(p.selectedSite.x+1)+', '+(p.selectedSite.y+1)+'</div>':'';
+  const active=activeDealId===p.id&&p.phase==='location';
+  let body='';
+  if(p.proposalType==='residential'){
+   const built=company?.builtComplexes||0;
+   const activeProjects=game.residentialComplexes.filter(q=>q.developerId===p.companyId&&q.status==='construction').length+game.proposals.filter(q=>q.companyId===p.companyId&&q.proposalType==='residential').length;
+   const levels=p.houseLevels||[],minLevel=levels.length?Math.min(...levels):2,maxLevel=levels.length?Math.max(...levels):4;
+   body='<div style="font-weight:700;color:#fff;margin:5px 0">'+escapeProposalText(p.projectName||'Новый жилой комплекс')+'</div>'+
+    '<div>Проект: <b>'+p.houseCount+' жилых корпусов</b> · этажность '+minLevel+'–'+maxLevel+' этажей</div>'+
+    '<div>Потенциальная вместимость: <b>'+Math.round(p.totalCapacity||0).toLocaleString('ru-RU')+' жителей</b></div>'+
+    '<div>Построено ЖК: <b>'+built+'</b> · домов: <b>'+(company?.housesBuilt||0)+'</b></div>'+
+    '<div>Проектов в работе и очереди: <b>'+activeProjects+'</b></div>'+
+    '<div style="margin-top:7px;color:#b9c7c4">Внутренние дороги, проезды и благоустройство застройщик создаст самостоятельно. Подключение к городской дорожной сети остаётся за мэром.</div>';
+  }else{
+   const portfolio=fmtCompanyPortfolio(company),directions=company?.portfolio?.length||0;
+   const total=company?.totalBranches??company?.portfolio?.reduce((n,e)=>n+(e.branches||0),0)??0;
+   body='<div style="margin:5px 0">Хочет купить участок под <b style="color:#fff">'+escapeProposalText(p.brandName||business[p.buildType]?.[0]||p.buildType)+'</b></div>'+
+    '<div>Направление: <b>'+escapeProposalText(business[p.buildType]?.[0]||p.buildType)+'</b></div>'+
+    '<div>Филиалов у организации: <b>'+total+'</b> · направлений: <b>'+directions+'</b></div>'+
+    '<div style="margin-top:7px;color:#ffda8a">В наличии у организации:</div><ul style="margin:4px 0 4px 18px;padding:0">'+portfolio+'</ul>'+
+    '<div style="color:#b9c7c4">Компания покупает землю под один новый филиал. Место размещения выбираешь ты.</div>';
+  }
+  const err=p.priceError?'<div style="color:#ff9e8d;margin-top:5px">'+escapeProposalText(p.priceError)+'</div>':'';
+  return '<div class="proposalCard" data-proposal-card="'+p.id+'" style="padding:10px;margin:8px 0;background:#233744;border:1px solid '+(active?'#e7ba6b':'#526775')+';border-radius:6px">'+
+   '<div style="display:flex;justify-content:space-between;gap:8px"><b style="color:'+(p.proposalType==='residential'?'#ffda8a':'#9ed7bd')+'">'+(p.proposalType==='residential'?'🏗 ЗАСТРОЙЩИК':'🏢 БИЗНЕС')+'</b><small style="color:#aebfc4">День '+Math.floor(p.createdDay||1)+'</small></div>'+
+   '<div style="font-weight:700;margin-top:4px">'+name+'</div>'+body+
+   '<div style="margin-top:8px;padding:7px;background:#172630;border-radius:4px">Предлагает за землю: <b style="color:#a6e2ae">'+fmtRub(p.offer)+'</b><br>Оценка города: <b>'+fmtRub(p.recommended)+'</b> · максимум компании: <b>'+fmtRub(p.maxPrice)+'</b></div>'+
+   '<label style="display:block;margin-top:8px;color:#ffda8a">Цена сделки, ₽</label><input data-proposal-price="'+p.id+'" type="number" min="'+p.offer+'" max="'+p.maxPrice+'" step="10000" value="'+price+'" style="box-sizing:border-box;width:100%;padding:7px;background:#14232d;color:#fff;border:1px solid #718894;border-radius:3px">'+
+   err+chosen+(active?'<div style="margin-top:7px;color:#ffda8a">Режим выбора площадки включён. Щёлкни по свободной территории на карте.</div>':'')+
+   '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px"><button data-start-placement="'+p.id+'">'+(active?'Выбор площадки…':'Выбрать место')+'</button><button data-finalize-proposal="'+p.id+'" '+(!p.selectedSite?'disabled':'')+'>Подтвердить сделку</button><button data-reject-proposal="'+p.id+'" style="grid-column:1/-1;background:#583b3b">Отклонить предложение</button></div></div>';
+ }).join('');
+ panel.querySelectorAll('[data-start-placement]').forEach(button=>button.onclick=()=>{
+  const p=game.proposals.find(q=>q.id===button.dataset.startPlacement);if(!p)return;
+  const input=panel.querySelector('[data-proposal-price="'+p.id+'"]'),price=Math.round(Number(input?.value)||0);
+  if(price<p.offer){p.priceError='Компания не согласится на сумму ниже её предложения.';renderProposals();return}
+  if(price>p.maxPrice){p.priceError='Сумма выше предельного бюджета компании.';renderProposals();return}
+  p.mayorPrice=price;p.priceError='';p.phase='location';activeDealId=p.id;
+  notify(p.proposalType==='residential'?'Выбери центр площадки 5 × 5 для жилого комплекса.':'Выбери свободную клетку для нового филиала.');
+  renderProposals();render();
+ });
+ panel.querySelectorAll('[data-finalize-proposal]').forEach(button=>button.onclick=()=>{
+  const p=game.proposals.find(q=>q.id===button.dataset.finalizeProposal);if(p&&p.selectedSite)finalizeDeal(p.id);
+ });
+ panel.querySelectorAll('[data-reject-proposal]').forEach(button=>button.onclick=()=>rejectProposal(button.dataset.rejectProposal));
+}
+function beginDeal(p){
+ if(!p)return;
+ const panel=document.getElementById('proposalPanel'),input=panel?.querySelector('[data-proposal-price="'+p.id+'"]');
+ p.mayorPrice=Math.round(Number(input?.value)||p.recommended||p.offer);
+ p.phase='location';activeDealId=p.id;renderProposals();render();
+}
+function rejectProposal(id){
+ game.proposals=game.proposals.filter(q=>q.id!==id);
+ if(activeDealId===id)activeDealId=null;
+ save();renderProposals();render();
+}
+function rejectActiveDeal(){if(activeDealId)rejectProposal(activeDealId)}
+function chooseDealSite(x,y){
+ const p=game.proposals.find(q=>q.id===activeDealId);if(!p||p.phase!=='location')return false;
+ if(p.proposalType==='residential'){
+  const cells=residentialFootprint({x,y},p.houseCount);
+  if(!cells){notify('ЖК не помещается в границы карты. Выбери площадку ближе к центру города.');return true}
+  for(const cell of cells){
+   const t=tile(cell.x,cell.y);
+   if(!t||!(cell.kind==='house'?(t.type===''||t.type==='tree'):(t.type===''||t.type==='tree'||(t.type==='road'&&!t.privateComplexRoad)))){notify('Площадка ЖК занята. Нужна свободная территория 5 × 5.');return true}
+  }
+  p.selectedSite={x,y};
+ }else{
+  const t=tile(x,y);
+  if(!t||!(t.type===''||t.type==='tree')){notify('Для филиала нужна свободная клетка.');return true}
+  p.selectedSite={x,y};
+ }
+ p.priceError='';renderProposals();render();return true;
+}
+function advanceResidentialConstruction(){
+ for(const project of game.residentialComplexes||[]){
+  if(project.status!=='construction')continue;
+  project.daysLeft=Math.max(0,(project.daysLeft||1)-1);
+  project.progress=1-project.daysLeft/Math.max(1,project.buildDays||1);
+  if(project.daysLeft<=0){
+   for(const cell of project.houseCells||[]){
+    const t=tile(cell.x,cell.y);
+    if(t?.complexId===project.id)t.underConstruction=false;
+   }
+   project.status='built';project.completedDay=game.day||1;
+   const company=game.privateCompanies.developers.find(c=>c.id===project.developerId);
+   if(company){company.builtComplexes=(company.builtComplexes||0)+1;company.housesBuilt=(company.housesBuilt||0)+(project.houseCount||0)}
+   notify('🏙 '+project.name+' завершён. Застройщик сдал '+project.houseCount+' корпусов.');
+  }
+ }
+}
+function finalizeDeal(id=activeDealId){
+ const p=game.proposals.find(q=>q.id===id);if(!p||!p.selectedSite)return;
+ const price=Math.round(p.mayorPrice||p.recommended||p.offer);
+ if(price<p.offer||price>p.maxPrice){p.priceError='Проверь цену сделки: она должна быть между предложением и максимальным бюджетом компании.';renderProposals();return}
+ let cells=null,target=null,company=null,entry=null;
+ if(p.proposalType==='residential'){
+  cells=residentialFootprint(p.selectedSite,p.houseCount);
+  if(!cells){notify('Не удалось разместить ЖК: площадка вышла за границы карты.');return}
+  for(const cell of cells){
+   const t=tile(cell.x,cell.y);
+   if(!t||!(cell.kind==='house'?(t.type===''||t.type==='tree'):(t.type===''||t.type==='tree'||(t.type==='road'&&!t.privateComplexRoad)))){notify('Площадка ЖК уже занята. Выбери другое место.');return}
+  }
+  company=game.privateCompanies.developers.find(c=>c.id===p.companyId);
+  if(!company){notify('Не найден застройщик. Обнови список предложений.');return}
+ }else{
+  target=tile(p.selectedSite.x,p.selectedSite.y);
+  if(!target||!(target.type===''||target.type==='tree')){notify('Участок под филиал занят. Выбери другое место.');return}
+  company=game.privateCompanies.businesses.find(c=>c.id===p.companyId);
+  if(!company){notify('Не найдена карточка организации. Обнови список предложений.');return}
+  entry=portfolioEntry(company,p.buildType);
+ }
+ pushUndo('Сделка с частной компанией');
+ game.money+=price;
+ if(p.proposalType==='residential'){
+  const complexId=privateId('complex');
+  const levels=[...(p.houseLevels||[])];
+  const houseCells=cells.filter(cell=>cell.kind==='house').map(cell=>({x:cell.x,y:cell.y}));
+  const complex={id:complexId,name:p.projectName||'ЖК «Новый квартал»',developerId:p.companyId,developerName:p.companyName,anchor:{...p.selectedSite},houseCount:p.houseCount,houseLevels:levels,houseCells,roadCells:cells.filter(cell=>cell.kind==='road').map(cell=>({x:cell.x,y:cell.y})),builtDay:game.day||1,buildDays:10+Math.floor(p.houseCount*1.5)+Math.floor(Math.random()*5),daysLeft:10+Math.floor(p.houseCount*1.5)+Math.floor(Math.random()*5),status:'construction',capacity:p.totalCapacity||0};
+  complex.daysLeft=complex.buildDays;
+  game.residentialComplexes.push(complex);
+  for(const cell of cells){
+   const t=tile(cell.x,cell.y);
+   if(cell.kind==='house'){
+    const level=levels[cell.houseIndex]||3;
+    Object.assign(t,{type:'res',level,age:0,complexId,complexName:complex.name,developerId:p.companyId,developerName:p.companyName,modelVariant:Math.floor(Math.random()*6),houseIndex:cell.houseIndex,underConstruction:true});
+   }else if(cell.kind==='road'){
+    if(t.type!=='road'){t.type='road';t.privateComplexRoad=true;t.complexId=complexId;t.complexName=complex.name}
+    else if(t.privateComplexRoad){t.complexId=complexId;t.complexName=complex.name}
+    t.level=1;
+   }else if(t.type===''){
+    t.type='tree';t.complexId=complexId;
+   }
+  }
+ }else{
+  const brand=p.brandName||entry.brand;
+  entry.branches++;
+  Object.assign(target,{type:p.buildType,level:1,age:0,companyId:company.id,companyName:company.name,brandName:brand,branchName:brand+' · филиал '+entry.branches,modelVariant:Math.floor(Math.random()*6)});
+  syncBusinessCompanyStats(company);
+ }
+ game.proposals=game.proposals.filter(q=>q.id!==p.id);
+ if(activeDealId===p.id)activeDealId=null;
+ game.dealsClosed=(game.dealsClosed||0)+1;
+ document.getElementById('dealMapBar').style.display='none';
+ rebuildRoadGraph();refreshPedestrianRoutes();save();daily(true);stats();renderProposals();
+ notify(p.proposalType==='residential'?'🏗 Стройка '+(p.projectName||'нового ЖК')+' началась. Застройщик создаёт внутренние дороги и корпуса; срок — '+(game.residentialComplexes.at(-1)?.buildDays||15)+' игровых дней.':'🤝 Филиал '+(p.brandName||business[p.buildType]?.[0]||'компании')+' открыт. Земля продана за '+fmtRub(price)+'.');
+}
+function updateFinance(){
+ const debt=(game.loans||[]).reduce((sum,loan)=>sum+loan.balance,0);
+ const ratePct=CB_KEY_RATE+5;
+ document.getElementById('financeInfo').innerHTML='Ключевая ставка ЦБ: <b>'+CB_KEY_RATE+'%</b><br>Ставка городского кредита: <b>'+ratePct+'% годовых</b><br>Долг города: <b>'+fmtRub(debt)+'</b><br>Проценты в день: <b>'+fmtRub((game.loans||[]).reduce((sum,loan)=>sum+loan.balance*loan.rate/100/365,0))+'</b><br>Погашение основного долга: по графику за 180 игровых дней';
+}
+document.getElementById('grantRequest').onclick=()=>{
+ const year=Math.floor((game.day||1)/360);
+ if(game.grantYearIndex!==year){game.grantYearIndex=year;game.grantYearCount=0}
+ const used=game.grantYearCount||0;
+ if(used>=3){notify('Город уже получил три субсидии в этом году');return}
+ const grant=250000+Math.min(750000,Math.floor(game.pop)*5000);
+ game.money+=grant;game.grantYearCount=used+1;save();stats();updateFinance();notify('🏛 Государственная субсидия одобрена: '+fmtRub(grant));
+};
+document.getElementById('loanRequest').onclick=()=>{
+ const amount=Math.max(10000,Math.min(50000000,Math.round(Number(document.getElementById('loanAmount').value)||0)));
+ game.loans=game.loans||[];
+ const rate=CB_KEY_RATE+5;
+ game.loans.push({principal:amount,balance:amount,rate,termDays:180,day:game.day||1});
+ game.money+=amount;save();stats();updateFinance();notify('🏦 Кредит выдан: '+fmtRub(amount)+' под '+rate+'% годовых. Срок 180 игровых дней.');
+};
+function maybeCreateProposal(){
+ if(game.day<(game.nextProposalDay||4))return;
+ game.nextProposalDay=game.day+3+Math.floor(Math.random()*4);
+ const chance=Math.min(.62,.18+Math.max(0,game.pop||0)/800);
+ if(Math.random()>chance)return;
+ const p=makePrivateProposal();
+ if(p){game.proposals.push(p);save();renderProposals()}
+}
+const effectNames={money:'Деньги',pop:'Жители',jobs:'Рабочие места',rep:'Репутация',life:'Качество жизни',happy:'Счастье',upkeep:'Содержание'};
+// Private developers buy municipal land; the city receives a one-time land-sale payment.
+function isMunicipalObject(key){return ['road','park','school','university','clinic','citypharmacy'].includes(key)}
+function isPrivateDevelopment(key){return !isMunicipalObject(key)&&(key==='res'||key==='com'||key==='ind'||!!business[key])}
+function landPrice(key){
+ // Base prices for standard municipal plots.
+ if(key==='res')return 450000;
+ if(key==='com')return 750000;
+ if(key==='ind')return 600000;
+ const buildCost=(defs[key]||['',0])[1]||0;
+ // Commercial investors pay 35% of the planned building cost, with a ₽350k floor.
+ return Math.max(350000,Math.round(buildCost*.35/10000)*10000);
+}
+function effectData(key){
+ const cost=(defs[key]||['',0])[1]||0;
+ let e={money:0,pop:0,jobs:0,rep:0,life:0,happy:0,upkeep:0,tax:0,extra:''};
+ if(key==='inspect'){e.extra='Осмотр территории. Ничего не строится и бюджет не меняется.';return e}
+ if(key==='clearTree'){e.money=-25;e.rep=-1;e.life=-1;e.extra='Освобождает клетку. Вырубка немного ухудшает экологию.';return e}
+ if(key==='bulldoze'){e.money=-80;e.rep=-1;e.life=-1;e.extra='Снос освобождает участок. Если снести жильё, часть жителей потеряет дом.';return e}
+ if(key==='road'){e.money=-cost;e.jobs=1;e.life=1;e.rep=1;e.upkeep=150;e.extra='Муниципальная инфраструктура: город строит и обслуживает дорогу за счёт бюджета. Дорога улучшает доступность соседних участков и помогает заселению/работе бизнеса.';return e}
+ if(key==='res'){e.money=landPrice(key);e.pop=16;e.jobs=0;e.happy=2;e.life=2;e.upkeep=0;e.tax=2880;e.extra='Частная недвижимость: собственник строит и обслуживает жильё, город получает налог с жителей. Частный застройщик может постепенно превратить небольшой дом в высотный жилой комплекс до 6 уровня и вместимостью до 900 жителей. Жители появятся при наличии дорог, рабочих мест и услуг.';return e}
+ if(key==='com'){e.money=landPrice(key);e.jobs=18;e.happy=1;e.life=2;e.upkeep=0;e.tax=3240;e.extra='Частный бизнес: владелец строит и обслуживает объект, город получает налоги. Коммерческая зона со временем развивается при наличии покупателей и дороги. Конкретный бизнес выбирается в коммерческих категориях ниже.';return e}
+ if(key==='ind'){e.money=landPrice(key);e.jobs=28;e.rep=-2;e.life=-2;e.upkeep=0;e.tax=5040;e.extra='Частное предприятие: владелец строит и обслуживает производство, город получает налоги. Промзона создаёт рабочие места и доход, но ухудшает экологию и комфорт.';return e}
+ if(key==='park'){e.money=-cost;e.rep=2;e.life=4;e.happy=3;e.upkeep=1200;e.extra='Прогулочная аллея: дорожка с деревьями по обеим сторонам через одну клетку. Промежутки остаются свободными под бизнес. Город оплачивает уборку, озеленение и обслуживание. Зелёная зона повышает привлекательность района и счастье жителей.';return e}
+ if(key==='school'){e.money=-cost;e.rep=3;e.life=5;e.happy=2;e.upkeep=25000;e.extra='Муниципальная школа: строится и обслуживается за счёт городского бюджета. Улучшает доступность образования и качество жизни. Требует расходов на содержание.';return e}
+ if(key==='university'){e.money=-cost;e.rep=5;e.life=8;e.happy=4;e.upkeep=90;e.extra='Муниципальный университет: город оплачивает преподавателей, коммунальные услуги и содержание кампуса.';return e}
+ if(key==='clinic'){e.money=-cost;e.rep=3;e.life=5;e.happy=2;e.upkeep=25000;e.extra='Муниципальная клиника: строится и обслуживается за счёт городского бюджета. Повышает доступность медицинской помощи и качество жизни.';return e}
+ if(key==='citypharmacy'){e.money=-cost;e.rep=3;e.life=4;e.happy=2;e.upkeep=12000;e.extra='Муниципальная аптека: строится и обслуживается за счёт городского бюджета. Относится к городской системе здравоохранения и засчитывается в задание мэра «Открыть городскую аптеку».';return e}
+ if(business[key]){
+   const b=business[key], jobs=b[2], service=b[3];
+   const tax=Math.round(jobs*180);
+   e.money=landPrice(key);e.jobs=jobs;e.rep=1;e.life=service>=3?3:2;e.happy=service>=3?2:1;e.upkeep=0;e.tax=tax;
+   e.extra='Частный объект: собственник оплачивает строительство, зарплаты, коммунальные услуги, ремонт и содержание. Город не содержит этот бизнес, а получает налоговые поступления. Фактический налог зависит от числа рабочих мест и установленной ставки.';
+   return e;
+ }
+ e.money=-cost;e.extra='Строительство объекта.';return e;
+}
+function showEffects(key){
+ const e=effectData(key), title=(defs[key]||['Неизвестный объект'])[0];
+ const sign=n=>n>0?'+':'';
+ const line=(label,n,unit='')=>`<div>${label}: <b style="color:${n>0?'#8fe0a4':n<0?'#ff9b83':'#d5ded8'}">${sign(n)}${n.toLocaleString('ru-RU')}${unit}</b></div>`;
+ document.getElementById('effectTitle').textContent=title;
+ document.getElementById('effectCost').innerHTML=isPrivateDevelopment(key)
+  ? `Плата за землю в бюджет: <b style="color:#8fe0a4">${landPrice(key).toLocaleString('ru-RU')} ₽</b><br><span style="color:#b9c7c4">Строительство оплачивает частный инвестор</span>`
+  : `Стоимость строительства: <b style="color:#ffd27c">${(defs[key]?.[1]||0).toLocaleString('ru-RU')} ₽</b>`;
+ document.getElementById('effectDetails').innerHTML=
+  line(isPrivateDevelopment(key)?'Поступление от продажи земли':'Изменение бюджета',e.money,' ₽')+
+  line('Потенциал жителей',e.pop,' чел.')+
+  line('Рабочие места',e.jobs,'')+
+  line('Репутация',e.rep,' п.')+
+  line('Качество жизни',e.life,' п.')+
+  line('Счастье',e.happy,' п.')+
+  line('Налоговый доход в день',e.tax,' ₽')+line('Расходы города в день',e.upkeep,' ₽')+
+  `<div style="margin-top:7px;color:#b9c7c4">${e.extra}</div>`;
+  if(key==='park'){
+    document.getElementById('effectDetails').innerHTML += '<div style="margin-top:9px"><button id="rotateAlley" style="width:100%;padding:8px">↻ Повернуть аллею: '+(alleyRotation===0?'горизонтально':'вертикально')+'</button><small style="display:block;margin-top:5px">Нажми кнопку, чтобы переключить направление. Работает мышью и касанием на телефоне.</small></div>';
+    document.getElementById('rotateAlley').onclick=()=>{alleyRotation=1-alleyRotation;showEffects('park');notify('Аллея повернута: '+(alleyRotation===0?'горизонтально':'вертикально'))};
+  }
+
+}
+
+function addTool(key){let [name,cost]=defs[key];let b=document.createElement('button');let price=isPrivateDevelopment(key)?landPrice(key):cost;b.textContent=name+(price?' · '+price.toLocaleString('ru-RU')+'₽':'');b.dataset.key=key;b.onclick=()=>{mode=key;moveSource=null;if(key==='park')alleyRotation=0;document.querySelectorAll('.tools button').forEach(v=>v.classList.toggle('active',v.dataset.key===mode));notify(isPrivateDevelopment(key)?'Выбрано: '+name+' · продажа участка '+price.toLocaleString('ru-RU')+' ₽ в бюджет':'Выбрано: '+name+' · строительство '+cost.toLocaleString('ru-RU')+' ₽');showEffects(key)};tools.appendChild(b)}
+for(const key of ['inspect','road','res','com','ind','park','school','university','clinic','citypharmacy','clearTree','bulldoze','move'])addTool(key);
+for(const [heading,keys] of Object.entries(businessGroups)){let h=document.createElement('h4');h.textContent='▸ '+heading;h.style.cssText='grid-column:1/-1;margin:12px 0 2px;color:#ffda8a;font-size:12px;letter-spacing:.2px';tools.appendChild(h);for(const key of keys)addTool(key)}
+document.querySelector('[data-key="inspect"]').classList.add('active');showEffects('inspect');document.getElementById('inspectQuick').onclick=()=>{mode='inspect';moveSource=null;document.querySelectorAll('.tools button').forEach(v=>v.classList.toggle('active',v.dataset.key===mode));showEffects('inspect');notify('🔎 Режим осмотра включён')};document.getElementById('pause').onclick=()=>{game.paused=!game.paused;notify(game.paused?'⏸ Игра остановлена':'▶ Игра продолжается');stats()};document.getElementById('speed').onclick=()=>{game.speed=game.speed===1?3:game.speed===3?8:1;stats()};document.getElementById('save').onclick=()=>{save();notify('💾 Город сохранён в браузере')};
+document.getElementById('exportSave').onclick=()=>{save();const blob=new Blob([JSON.stringify({format:'murino-save',version:5,game},null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='murino-city-save.json';a.click();URL.revokeObjectURL(a.href);notify('⬇️ Сохранение города выгружено в файл')};
+document.getElementById('importSave').onclick=()=>document.getElementById('importFile').click();
+document.getElementById('importFile').onchange=async e=>{const file=e.target.files?.[0];if(!file)return;try{const raw=JSON.parse(await file.text());const candidate=raw.game||raw;if(!candidate||!Array.isArray(candidate.tiles)||!Number.isInteger(Math.sqrt(candidate.tiles.length)))throw new Error('Неверный формат сохранения');if(!confirm('Заменить текущий город импортированным сохранением?'))return;game=candidate;localSaveWasInvalid=false;N=Math.sqrt(game.tiles.length);game.mapSize=N;game.paused=false;migratePrivateSector();rebuildRoadGraph();refreshPedestrianRoutes();game.reputation=Number.isFinite(game.reputation)?game.reputation:25;game.storyStage=Math.max(0,game.storyStage||0);game.proposals=Array.isArray(game.proposals)?game.proposals:[];game.loans=Array.isArray(game.loans)?game.loans:[];game.grantYear=game.grantYear||0;game.parkways=Number.isFinite(game.parkways)?game.parkways:0;game.dealsClosed=Number.isFinite(game.dealsClosed)?game.dealsClosed:0;game.nextProposalDay=Number.isFinite(game.nextProposalDay)?game.nextProposalDay:game.day+3;save();renderProposals();stats();refreshExpansion();notify('✅ Город успешно импортирован')}catch(err){notify('❌ Не удалось импортировать: '+err.message)}finally{e.target.value=''}};document.getElementById('reset').onclick=()=>{if(confirm('Начать новую историю Мурино? Старое сохранение исчезнет.')){localSaveWasInvalid=false;game=newGame();game.proposals=[];game.parkways=0;game.nextProposalDay=4;N=24;save();renderProposals();stats();refreshExpansion();notify('Новая деревня готова')}};document.getElementById('start').onclick=()=>{document.getElementById('intro').classList.add('hidden');save()};if(localStorage.getItem(KEY))document.getElementById('intro').classList.add('hidden');
+function size(){let r=c.getBoundingClientRect();c.width=Math.round(r.width*devicePixelRatio);c.height=Math.round(r.height*devicePixelRatio);ctx.imageSmoothingEnabled=true}window.addEventListener('resize',size);size();function iso(x,y){return {x:(x-y)*TW/2,y:(x+y)*TH/2}}function poly(pts,color,stroke){ctx.beginPath();pts.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.closePath();ctx.fillStyle=color;ctx.fill();if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=1;ctx.stroke()}}function rect(x,y,w,h,color){ctx.fillStyle=color;ctx.fillRect(Math.round(x),Math.round(y),Math.round(w),Math.round(h))}function diamond(x,y,color){poly([[x,y],[x+32,y+16],[x,y+32],[x-32,y+16]],color,'#568353')}
+function building(x,y,w,h,z,wall,roof,style=0){
+ const top=y-z,s=style%6;ctx.save();
+ ctx.globalAlpha=.24;ctx.fillStyle='#101820';ctx.beginPath();ctx.ellipse(x+3,y+22,w*1.12,10,0,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;
+ const left=ctx.createLinearGradient(x-w,top+14,x,y+32);left.addColorStop(0,'#f2ead7');left.addColorStop(.42,wall);left.addColorStop(1,'#6f7776');
+ const right=ctx.createLinearGradient(x,top+22,x+w,y+20);right.addColorStop(0,'#aeb7ad');right.addColorStop(.55,wall);right.addColorStop(1,'#4d5960');
+ poly([[x-w,top+16],[x,top+32],[x,y+32],[x-w,y+16]],left,'#48545b');poly([[x,top+32],[x+w,top+16],[x+w,y+16],[x,y+32]],right,'#3e4b55');
+ const roofGrad=ctx.createLinearGradient(x-w,top,x+w,top+32);roofGrad.addColorStop(0,'#f0d4a5');roofGrad.addColorStop(.38,roof);roofGrad.addColorStop(1,'#384956');
+ poly([[x,top],[x+w,top+16],[x,top+32],[x-w,top+16]],roofGrad,'#35424c');
+ const floors=Math.max(1,Math.min(12,Math.floor(z/12)));
+ for(let k=0;k<floors;k++){const yy=top+24+k*12,leftCount=Math.max(1,Math.floor(w/9)),rightCount=Math.max(1,Math.floor(w/9));
+  for(let j=0;j<leftCount;j++){const wx=x-w+5+j*9;if(wx>=x-4)continue;rect(wx,yy,5,7,'#344957');rect(wx+1,yy+1,3,4,(k+j+s)%4===0?'#ffe6a0':'#acd0d4');rect(wx,yy+6,5,1,'#d2c7af')}
+  for(let j=0;j<rightCount;j++){const wx=x+4+j*9;if(wx>=x+w-2)continue;rect(wx,yy+1,5,7,'#273e4c');rect(wx+1,yy+2,3,4,(k+j+s)%5===0?'#ffdfa0':'#8fb8c8');rect(wx,yy+8,5,1,'#c7c9bb')}
+  if(s===1||s===3||s===5){poly([[x-w+2,yy+9],[x-2,yy+19],[x-2,yy+21],[x-w+2,yy+11]],'#d6c7a8','#6c6d67');poly([[x+3,yy+19],[x+w-2,yy+9],[x+w-2,yy+11],[x+3,yy+21]],'#aeb5ad','#59666a')}
+ }
+ if(z>30){rect(x-5,top-4,10,5,'#687a83');rect(x-3,top-8,6,4,'#9aa6a4');rect(x+w*.35,top+3,5,8,'#536a73')}
+ if(s===1||s===4){rect(x-w+3,top+18,4,Math.max(8,z-20),'#c8c0a9');rect(x+w-7,top+17,4,Math.max(8,z-19),'#697a7b')}
+ ctx.restore();
+}
+function drawCanopy(x,y,w,color1,color2='#f0e6cb'){
+ rect(x-w,y+8,w*2,5,color1);
+ for(let i=0;i<Math.max(2,Math.floor(w/5));i++)rect(x-w+i*5,y+8,2,5,i%2?color2:color1);
+ rect(x-w,y+13,w*2,2,'#4c4140');
+}
+function drawShopSign(x,y,label,color='#f6e6b8',ink='#293b43'){
+ rect(x-18,y+7,36,9,color,'');
+ ctx.fillStyle=ink;ctx.font='bold 5px monospace';ctx.textAlign='center';ctx.textBaseline='middle';
+ ctx.fillText(String(label||'МАГАЗИН').toUpperCase().slice(0,12),x,y+11,34);
+}
+const knownBuildingTypes=new Set(['tree','road','village','farm','shop','res','com','ind','park','school','university','clinic','hospital','citypharmacy',...Object.keys(business)]);
+function drawObject(t,x,y,ix,iy){
+ const r=rand(ix*7+3,iy*11+9),style=Number.isFinite(t.modelVariant)?Math.abs(Math.floor(t.modelVariant))%6:Math.floor(r*6);
+ if(t.type==='tree'){
+  ctx.save();ctx.globalAlpha=.24;ctx.fillStyle='#14251c';ctx.beginPath();ctx.ellipse(x+3,y+18,12,5,0,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;
+  rect(x-2,y+6,5,17,'#765034');rect(x-1,y+9,2,12,'#a17a51');
+  const leaf=(cx,cy,rx,ry,a,b)=>{const g=ctx.createRadialGradient(cx-rx*.35,cy-ry*.45,1,cx,cy,rx*1.2);g.addColorStop(0,a);g.addColorStop(1,b);ctx.fillStyle=g;ctx.beginPath();ctx.ellipse(cx,cy,rx,ry,0,0,Math.PI*2);ctx.fill()};
+  leaf(x-5,y+1,10,9,'#9bcf75','#28623d');leaf(x+5,y-1,10,9,'#78b962','#24573a');leaf(x,y-8,11,10,'#a5d77d','#367448');leaf(x-2,y-13,7,7,'#b7df8a','#4d8b4c');
+  ctx.strokeStyle='#b6db83';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x-7,y-5);ctx.lineTo(x-3,y-10);ctx.moveTo(x+4,y-8);ctx.lineTo(x+7,y-3);ctx.stroke();ctx.restore();
+ }
+ if(t.type==='road'){
+  poly([[x,y],[x+32,y+16],[x,y+32],[x-32,y+16]],'#b7b29d','#777b70');
+  poly([[x,y+2],[x+29,y+16],[x,y+30],[x-29,y+16]],t.privateComplexRoad?'#747c7d':'#525d65','#35434d');
+  poly([[x-23,y+16],[x,y+5],[x+23,y+16],[x,y+27]],'#5d6870');
+  ctx.save();ctx.strokeStyle='#e9d8a0';ctx.lineWidth=1.5;ctx.setLineDash([5,5]);
+  if(tile(ix+1,iy)?.type==='road'||tile(ix-1,iy)?.type==='road'){ctx.beginPath();ctx.moveTo(x-19,y+16);ctx.lineTo(x+19,y+16);ctx.stroke()}
+  if(tile(ix,iy+1)?.type==='road'||tile(ix,iy-1)?.type==='road'){ctx.beginPath();ctx.moveTo(x-1,y+7);ctx.lineTo(x+1,y+25);ctx.stroke()}
+  ctx.restore();if(t.privateComplexRoad){rect(x-10,y+15,5,2,'#d9d1b8');rect(x+5,y+15,5,2,'#d9d1b8')}
+ }
+ if(t.type==='village'){
+  const roofs=['#86533e','#9a6546','#697e93','#a35c4d','#7c6849','#526d78'];
+  building(x,y,14+(style%2),12,14,'#b8a076',roofs[style],style);
+  poly([[x-15,y+5],[x,y-5],[x+15,y+5],[x,y+14]],roofs[(style+1)%6],'#4a3832');
+  rect(x-3,y+23,5,7,'#49392c');rect(x+5,y+17,3,4,'#dbe4ad');
+  if(style%2===0)rect(x+9,y-3,3,8,'#9a806a');
+ }
+ if(t.type==='farm'){
+  building(x,y,18,10,11,'#b99c68',style%2?'#7c4939':'#874d3b',style);
+  rect(x-20,y+25,10,3,'#d7b55a');rect(x+10,y+22,7,5,'#a36c3f');
+  if(style%2===0)rect(x+12,y+8,4,13,'#80624a');
+ }
+ if(t.type==='shop'){
+  building(x,y,19,14,15,'#e5c38a',style%2?'#a64d42':'#ae5c46',style);
+  drawCanopy(x,y,15,'#e7b04c');drawShopSign(x,y,'СЕЛЬПО');
+ }
+ if(t.type==='res'){
+  const widths=[17,19,22,20,24,18],heights=[22,45,68,92,118,148],walls=['#c3bba4','#c4b5a1','#d1c8b2','#b7c4bc','#c4bacb','#b6b4a9'],roofs=['#d58c66','#a8b1ad','#778d9c','#a85e51','#657d91','#8d775f'];
+  const w=widths[style],z=heights[Math.min(t.level,6)]||45,roof=t.level===1?roofs[(style+2)%6]:roofs[(style+t.level)%6];
+  building(x,y,w,16,z,walls[style],roof,style);
+  if(t.level>=3){
+   for(let k=0;k<Math.min(5,t.level);k++){const yy=y-z+30+k*14;rect(x-w+2,yy,8,3,'#53666a');rect(x-w+3,yy+3,7,2,'#d5c5a8');rect(x+4,yy+4,9,3,'#53666a');}
+  }
+  if(style%3===0){rect(x-3,y-z+7,7,5,'#566c71');rect(x+7,y-z+9,5,4,'#87999a')}
+  if(t.underConstruction){
+   const top=y-z;
+   ctx.strokeStyle='#d6a05c';ctx.lineWidth=1.5;
+   for(let xx=-w;xx<=w;xx+=10){ctx.beginPath();ctx.moveTo(x+xx,y+18);ctx.lineTo(x+xx,top+15);ctx.stroke()}
+   for(let yy=top+26;yy<y+18;yy+=17){ctx.beginPath();ctx.moveTo(x-w,yy);ctx.lineTo(x+w,yy);ctx.stroke()}
+   rect(x+w+1,top-7,3,Math.max(20,z*.45),'#d5a14d');rect(x+w-12,top-8,16,3,'#d5a14d');
+  }
+  if(t.complexName&&t.houseIndex===0){rect(x-12,y+24,24,7,'#d8c28a');ctx.fillStyle='#3d4b4c';ctx.font='bold 4px monospace';ctx.textAlign='center';ctx.fillText('ЖК',x,y+28,20)}
+ }
+ if(t.type==='com'){
+  building(x,y,20,15,20,'#c6bb9f',style%2?'#8e5d4d':'#5a7682',style);
+  drawCanopy(x,y,17,'#e2b45d');drawShopSign(x,y,'ПЛОЩАДКА');
+ }
+ if(business[t.type]){
+  const palettes={
+   grocery:['#78a96d','#5f8b5e'],minimarket:['#d4a052','#9d6b49'],supermarket:['#5b9c72','#456d83'],hypermarket:['#5f91b4','#45687d'],
+   ozon:['#477db5','#315b91'],wildberries:['#9870b4','#6c4b94'],yandexmarket:['#d6b64d','#927c37'],post:['#e0b93b','#a47b2a'],
+   coffee:['#9d7558','#624a3f'],bakery:['#d5a65e','#a85d48'],cafe:['#b87558','#754a44'],restaurant:['#9f6656','#544954'],
+   fastfood:['#d85c42','#9a433a'],pizzeria:['#c96d42','#8d4937'],bar:['#6e8e78','#405b56'],
+   pharmacy:['#77aeb0','#4f7d88'],clinic_private:['#d1ddd6','#88a5a0'],flowers:['#d17aa5','#986181'],clothes:['#9c7ca7','#655578'],
+   electronics:['#6e8fc2','#455d8c'],household:['#b6a16a','#786445'],beauty:['#d08da2','#8f5c73'],barber:['#b68d6e','#785a4c'],
+   petshop:['#8aaf77','#5d825c'],bookshop:['#9c805f','#6c594a'],gym:['#6d9c75','#456f59'],cinema:['#8c6fb0','#564c7c'],
+   hotel:['#a6a1a0','#687887'],bank:['#b69b5c','#79663f'],office:['#668ca8','#3c6077'],gas:['#d0a54b','#986f31'],
+   carwash:['#6ca6b6','#416c7e'],autoservice:['#89969b','#586b73']
+  };
+  const palette=palettes[t.type]||['#86b7bc','#536c80'],col=palette[0],roof=palette[1];
+  let w=18,h=14,z=24;
+  if(['supermarket','hypermarket','cinema','office','hotel','gym','bank','clinic_private'].includes(t.type)){w=24;h=17;z=style%2?30:37}
+  if(['coffee','bakery','cafe','restaurant','fastfood','pizzeria','bar','flowers','barber','petshop','bookshop'].includes(t.type)){w=18;h=13;z=style%2?18:23}
+  if(t.type==='office'||t.type==='hotel')z=style%3===0?58:style%3===1?42:72;
+  if(t.type==='cinema'||t.type==='hypermarket')z=18;
+  building(x,y,w,h,z,col,roof,style);
+  if(['coffee','bakery','cafe','restaurant','fastfood','pizzeria','bar'].includes(t.type)){
+   const canopy=t.type==='pizzeria'?'#d94f43':t.type==='bakery'?'#d8a45b':t.type==='coffee'?'#8d5b42':'#b45d4d';
+   drawCanopy(x,y,w-2,canopy);
+   if(t.type==='coffee'){rect(x+12,y-1,7,8,'#f1d8a1');rect(x+13,y,5,5,'#78523d')}
+   if(t.type==='bakery'){rect(x+w-4,y-10,5,12,'#a85b45');rect(x+w-3,y-13,4,4,'#d6b7a0')}
+  }else{
+   rect(x-w+3,y+8,w*2-6,5,t.type==='post'?'#e0b93b':'#d5e1d9');
+  }
+  let signNames={grocery:'ПРОДУКТЫ',minimarket:'МИНИ',supermarket:'СУПЕР',hypermarket:'ГИПЕР',ozon:'OZON',wildberries:'WB',yandexmarket:'Я.МАРКЕТ',post:'ПОЧТА',coffee:'КОФЕ',bakery:'ПЕКАРНЯ',cafe:'КАФЕ',restaurant:'РЕСТОРАН',fastfood:'ФАСТФУД',pizzeria:'ПИЦЦА',bar:'БАР',pharmacy:'АПТЕКА',clinic_private:'КЛИНИКА',flowers:'ЦВЕТЫ',clothes:'ОДЕЖДА',electronics:'ТЕХНИКА',household:'ДОМ',beauty:'САЛОН',barber:'БАРБЕР',petshop:'ЗОО',bookshop:'КНИГИ',gym:'ФИТНЕС',cinema:'КИНО',hotel:'ОТЕЛЬ',bank:'БАНК',office:'ОФИСЫ',gas:'АЗС',carwash:'МОЙКА',autoservice:'АВТО'};
+  const label=t.brandName||signNames[t.type]||'МАГАЗИН';
+  drawShopSign(x,y,label,t.type==='post'?'#f2c83d':'#f4e6b7',t.type==='post'?'#a52a25':'#26353b');
+  rect(x-13,y+25,26,6,'#f2d27b');rect(x-3,y+26,6,4,'#334b55');
+  if(t.type==='cinema'){rect(x-17,y-8,34,7,'#202d43');rect(x-13,y-7,26,4,'#b54d6a');}
+  if(t.type==='pharmacy'||t.type==='clinic_private'){rect(x-3,y-7,6,14,'#f4f5e8');rect(x-8,y-2,16,5,'#d34b4b')}
+  if(t.type==='supermarket'||t.type==='hypermarket'){rect(x-w+4,y+28,w*2-8,4,'#647b83');for(let i=-2;i<=2;i++)rect(x+i*7,y+30,3,4,'#e7e5d3')}
+ }
+ if(t.type==='ind'){
+  building(x,y,22,15,25,'#a6a6a0','#777e84',style);rect(x+11,y-19,8,30,'#b8775e');rect(x+13,y-25,5,7,'#d8d5bd');
+  if(style%2===0){rect(x-24,y-2,7,20,'#7d8585');rect(x-22,y-8,3,7,'#aaaba4')}
+ }
+ if(t.type==='park'){
+  poly([[x,y+5],[x+25,y+17],[x,y+29],[x-25,y+17]],'#b99a67','#806b4c');rect(x-2,y+10,4,13,'#d8c18c');rect(x-16,y+16,5,3,'#e5d5a8');rect(x+11,y+16,5,3,'#e5d5a8');rect(x-3,y+7,2,3,'#f2df9a');
+ }
+ if(t.type==='school'){
+  building(x,y,24,14,20,'#c9a78c','#ae604d',style);rect(x-10,y+26,18,4,'#e8d68b');rect(x-2,y+4,4,11,'#f4e7ce');
+ }
+ if(t.type==='university'){
+  building(x,y,30,18,38,'#d8d0b4','#647e9b',style);poly([[x-17,y-2],[x,y-13],[x+17,y-2],[x,y+8]],'#b7a06c','#5b4c35');rect(x-19,y+18,38,8,'#f0e5c5');ctx.fillStyle='#253747';ctx.font='bold 7px monospace';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('УНИВЕРСИТЕТ',x,y+22,38);rect(x-3,y+27,6,8,'#514537');
+ }
+ if(t.type==='hospital'){
+  building(x,y,30,18,34,'#e4e8e5','#bd5555',style);rect(x-3,y+4,6,17,'#c94343');rect(x-9,y+10,18,5,'#c94343');
+ }
+ if(t.type==='citypharmacy'){
+  building(x,y,22,14,20,'#d5e7d8','#6a9c79',style);rect(x-3,y+5,6,13,'#fff');rect(x-7,y+9,14,5,'#c94343');
+ }
+ if(t.type==='clinic'){
+  building(x,y,23,15,23,'#d9e1df','#6c929b',style);rect(x-2,y+6,5,13,'#d35151');rect(x-6,y+10,13,5,'#d35151');
+ }
+ if(t.type&&!knownBuildingTypes.has(t.type)){
+  building(x,y,19,14,24,'#c4b99c','#8b6958',style);drawShopSign(x,y,String(t.type).toUpperCase().slice(0,12));
+ }
+}
+function drawCar(x,y,dir,color){
+ ctx.save();ctx.translate(x,y);ctx.rotate(dir);ctx.globalAlpha=.28;ctx.fillStyle='#0d1720';ctx.beginPath();ctx.ellipse(2,8,13,6,0,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;
+ poly([[-12,1],[-4,-5],[8,-2],[13,4],[3,9],[-10,6]],'#273643','#15212c');poly([[-10,0],[-3,-5],[8,-2],[11,2],[1,6],[-8,4]],color,'#34424a');poly([[-3,-4],[5,-2],[7,2],[0,4],[-5,1]],'#9fc4d3','#405d70');rect(-10,2,3,3,'#252d35');rect(8,1,3,3,'#252d35');rect(10,1,2,2,'#ffe7a1');ctx.restore();
+}
+function drawPerson(x,y,color){
+ ctx.save();ctx.globalAlpha=.22;ctx.fillStyle='#101820';ctx.beginPath();ctx.ellipse(x+1,y+12,4,2,0,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;
+ ctx.strokeStyle='#273341';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x-1,y+6);ctx.lineTo(x-2,y+11);ctx.moveTo(x+1,y+6);ctx.lineTo(x+3,y+11);ctx.stroke();
+ poly([[x-3,y+1],[x+3,y+1],[x+3,y+7],[x-3,y+7]],color,'#394653');ctx.fillStyle='#e9c6a1';ctx.beginPath();ctx.arc(x,y-2,2.7,0,Math.PI*2);ctx.fill();ctx.restore();
+}
+function render(){
+ ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,c.width,c.height);
+ const sky=ctx.createLinearGradient(0,0,0,c.height);sky.addColorStop(0,'#a7c7bd');sky.addColorStop(.55,'#8eb09d');sky.addColorStop(1,'#627f70');ctx.fillStyle=sky;ctx.fillRect(0,0,c.width,c.height);
+ let unit=devicePixelRatio*zoom;ctx.setTransform(unit,0,0,unit,c.width/2+shiftX*devicePixelRatio,c.height/2-(N*16)*unit+shiftY*devicePixelRatio);
+ for(let y=0;y<N;y++)for(let x=0;x<N;x++){let p=iso(x,y),t=tile(x,y),shade=rand(x+4,y+9),grass=t.ground==='dark'?'#688f5e':shade>.6?'#8fb47b':shade>.3?'#84aa70':'#7da56c';diamond(p.x,p.y,grass);
+  if(shade>.72){ctx.globalAlpha=.25;rect(p.x-13,p.y+14,3,2,'#d2d99b');rect(p.x+10,p.y+17,2,2,'#e0d59a');ctx.globalAlpha=1}
+  if(!t.type&&shade>.9){ctx.globalAlpha=.35;poly([[p.x+3,p.y+17],[p.x+8,p.y+15],[p.x+12,p.y+17],[p.x+7,p.y+19]],'#d1dfb1');ctx.globalAlpha=1}
+ }
+ for(let sum=0;sum<=2*(N-1);sum++)for(let y=Math.max(0,sum-(N-1));y<=Math.min(N-1,sum);y++){let x=sum-y,p=iso(x,y),t=tile(x,y);
+  if(t.type&&t.type!=='road'&&t.type!=='tree'){poly([[p.x,p.y+1],[p.x+32,p.y+16],[p.x,p.y+32],[p.x-32,p.y+16]],'#c9c0a5','#807b67');poly([[p.x,p.y+3],[p.x+28,p.y+16],[p.x,p.y+29],[p.x-28,p.y+16]],'#d8d0b8','#a49b81')}
+  ctx.save();ctx.translate(p.x,p.y);ctx.scale(.88,.88);drawObject(t,0,0,x,y);ctx.restore();
+  if(t.type==='road'&&rand(x+81,y+41)>.94){const horizontal=tile(x+1,y)?.type==='road'||tile(x-1,y)?.type==='road';const colors=['#dce6e9','#d3b75e','#bbd2db','#9caaad'];drawCar(p.x,p.y+11,horizontal?-.42:.42,colors[Math.floor(rand(x+4,y+1)*colors.length)])}
+  if(t.type==='res'&&t.complexName&&t.houseIndex===0){const label=String(t.complexName).slice(0,26),ty=p.y-Math.max(46,(t.level||1)*14)-18;ctx.save();ctx.font='bold 8px system-ui';const w=Math.min(132,ctx.measureText(label).width+16);ctx.fillStyle='#111827e8';ctx.strokeStyle='#c2b4ef';ctx.lineWidth=1;ctx.beginPath();ctx.roundRect(p.x-w/2,ty-10,w,18,6);ctx.fill();ctx.stroke();ctx.fillStyle='#f3efff';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(label,p.x,ty-1,w-10);ctx.restore()}
+ }
+ for(let p of people){if(p.state==='inside')continue;let a=iso(p.x,p.y);drawPerson(a.x,a.y,p.color)}
+ if(activeDealId){const deal=game.proposals.find(q=>q.id===activeDealId);if(deal){const site=deal.selectedSite||hover;if(site){const cells=deal.proposalType==='residential'?residentialFootprint(site,deal.houseCount):[{x:site.x,y:site.y,kind:'business'}];if(cells){ctx.save();for(const cell of cells){const m=iso(cell.x,cell.y);ctx.globalAlpha=.38;poly([[m.x,m.y],[m.x+32,m.y+16],[m.x,m.y+32],[m.x-32,m.y+16]],cell.kind==='house'?'#ffd16b':cell.kind==='road'?'#6ba9d1':cell.kind==='green'?'#72bf76':'#f5c66d','#ffe6a3')}ctx.restore()}}}}
+ if(hover){let p=iso(hover.x,hover.y);ctx.save();ctx.shadowColor='#fff';ctx.shadowBlur=9;poly([[p.x,p.y],[p.x+32,p.y+16],[p.x,p.y+32],[p.x-32,p.y+16]],'#ffffff2b','#fff0b5');ctx.restore()}
+}
+function pick(mx,my){let u=(mx-c.width/2-shiftX*devicePixelRatio)/(devicePixelRatio*zoom),v=(my-c.height/2+(N*16)*devicePixelRatio*zoom-shiftY*devicePixelRatio)/(devicePixelRatio*zoom);let a=v/TH+u/TW,b=v/TH-u/TW;let x=Math.floor(a),y=Math.floor(b);return x>=0&&y>=0&&x<N&&y<N?{x,y}:null}function act(x,y){let t=tile(x,y);if(!t)return;if(mode==='move'){if(!moveSource){if(!t.type||t.type==='tree'){notify('Выбери построенный объект для переноса');return}moveSource={x,y,type:t.type,level:t.level,age:t.age};notify('Объект выбран. Теперь укажи свободную клетку назначения');return}if(x===moveSource.x&&y===moveSource.y){moveSource=null;notify('Перенос отменён');return}if(t.type){notify('Клетка занята. Выбери свободное место');return}if(!hasRoadFrontage(x,y)){notify('🚧 Для переноса сначала подведи дорогу к новому участку');return}if(game.money<150000){notify('Не хватает 150 000 ₽ на перенос');return}pushUndo('Перенос объекта');let src=tile(moveSource.x,moveSource.y);game.tiles[y*N+x]={...t,type:moveSource.type,level:moveSource.level,age:moveSource.age};src.type='';src.level=0;src.age=0;game.money-=150000;moveSource=null;rebuildRoadGraph();refreshPedestrianRoutes();save();stats();notify('↔️ Объект перенесён за 150 000 ₽');return}if(mode==='inspect'){let labels={village:'Деревенский дом',res:'Жилой квартал',com:'Коммерческая зона',ind:'Промышленность',road:'Дорога',tree:'Лес',shop:'Сельпо',farm:'Ферма',park:'Парк',school:'Школа',university:'Университет',clinic:'Поликлиника',hospital:'Больница',citypharmacy:'Городская аптека'};let b=business[t.type];let title=b?defs[t.type][0]:(labels[t.type]||defs[t.type]?.[0]||'Свободная земля');notify(title+' · клетка '+(x+1)+','+(y+1));document.getElementById('tileinfo').textContent='Уровень: '+t.level+' · Рядом дорога: '+(connected(x,y)?'да':'нет')+(t.type==='com'?' · Развитие: '+t.age+'/5 дней':['village','res'].includes(t.type)?' · Живёт: '+residentsAt(x,y)+' / '+capacity(t)+' чел. · '+housingLevelName(t.level):'');if(t.type&&t.type!=='tree'&&t.type!=='road'){showEffects(t.type);document.getElementById('effectTitle').textContent=title;document.getElementById('effectCost').innerHTML='Текущий объект · '+(t.type==='com'?'частный участок':business[t.type]?'частный бизнес':'муниципальный объект');let extra=document.querySelector('#effectDetails');if(['village','res'].includes(t.type)){let maxPeople=capacity(t),living= residentsAt(x,y);extra.innerHTML='<div>Живёт сейчас: <b>'+living+' человек</b></div><div>Вместимость по уровню: <b>'+maxPeople+' человек</b></div><div>Свободных мест: <b>'+Math.max(0,maxPeople-living)+' человек</b></div><div>Заселение зависит от общей численности населения, подключения к дороге и доступности жилья</div>';}else if(t.type==='com'){extra.innerHTML='<div>Статус: <b>участок ожидает инвестора</b></div><div>Прогресс развития: <b>'+t.age+'/5 дней</b></div><div>Условие: подключённая дорога и население от 16 жителей</div><div>После появления спроса предприниматель сам откроет здесь бизнес, заплатит городу за землю и начнёт платить налоги</div>';}else if(business[t.type]){extra.innerHTML='<div>Владелец: <b>частный предприниматель</b></div><div>Рабочие места: <b>'+b[2]+' максимум</b></div><div>Сотрудников сейчас: <b>'+workersAt(x,y)+' человек</b></div><div>Свободных вакансий: <b>'+Math.max(0,b[2]-workersAt(x,y))+'</b></div><div>Налоговый доход по текущей ставке: <b>'+Math.round(workersAt(x,y)*DAILY_WAGE*PAYROLL_TAX_RATE*(game.taxRates?.[t.type]??100)/100).toLocaleString('ru-RU')+' ₽/день</b></div><div>Фонд оплаты труда: <b>'+(workersAt(x,y)*DAILY_WAGE).toLocaleString('ru-RU')+' ₽/день</b></div><div>Ставка налога с зарплат: <b>13%</b> (корректируется городским налогом)</div><div>Содержание: <b>за счёт владельца</b></div><div>Собственник может развивать бизнес при росте спроса</div>';}else if(t.type==='ind'||t.type==='farm'){let offered=t.type==='farm'?15:t.level*28,staff=workersAt(x,y);extra.innerHTML='<div>Рабочие места: <b>'+offered+' максимум</b></div><div>Сотрудников сейчас: <b>'+staff+' человек</b></div><div>Свободных вакансий: <b>'+Math.max(0,offered-staff)+'</b></div><div>Частный владелец оплачивает содержание предприятия</div>';}else if(['school','university','clinic','hospital','citypharmacy','park','road'].includes(t.type)){extra.innerHTML+='<div>Владелец: <b>муниципалитет</b></div><div>Строительство и содержание оплачивает городской бюджет</div>';}}return}if(mode==='park'){
+ const cells=[];
+ const dx=alleyRotation===0?1:0,dy=alleyRotation===0?0:1;
+ for(let i=0;i<5;i++){
+  const px=x+dx*i,py=y+dy*i;
+  if(px<0||py<0||px>=N||py>=N){notify('Для аллеи не хватает места в выбранном направлении');return}
+  if(tile(px,py)?.type&&!(px===x&&py===y&&tile(px,py).type==='road')){notify('Для аллеи нужны пять свободных клеток по прямой');return}
+  cells.push({x:px,y:py,type:'road'});
+  if(i%2===0){
+   const sides=alleyRotation===0?[{x:px,y:py-1},{x:px,y:py+1}]:[{x:px-1,y:py},{x:px+1,y:py}];
+   for(const q of sides)if(q.x>=0&&q.y>=0&&q.x<N&&q.y<N&&!tile(q.x,q.y)?.type)cells.push({...q,type:'tree'});
+  }
+ }
+ if(cells.filter(q=>q.type==='road').length<3){notify('Не хватает места для прогулочной аллеи');return}
+ const cost=280000+cells.filter(q=>q.type==='tree').length*25000;
+ if(game.money<cost){notify('Не хватает денег на аллею: '+fmtRub(cost));return}
+ pushUndo('Строительство прогулочной аллеи');
+ game.money-=cost;
+ for(const q of cells){const t=tile(q.x,q.y);if(t&&!t.type){t.type=q.type;t.level=1;t.age=0;if(q.type==='road'&&q.x===x&&q.y===y)t.promenade=true}}
+ game.parkways=(game.parkways||0)+1;
+ rebuildRoadGraph();refreshPedestrianRoutes();save();stats();notify('🌳 Аллея построена '+(alleyRotation===0?'горизонтально':'вертикально')+': дорожка, деревья через клетку и свободные места под бизнес');return
+}if(mode==='clearTree'){if(t.type!=='tree'){notify('На этой клетке нет дерева');return}if(game.money<25){notify('Не хватает денег на вырубку');return}pushUndo('Вырубка дерева');game.money-=25000;t.type='';t.level=0;t.age=0;notify('🪓 Дерево вырублено. Участок свободен');save();stats();return}if(mode==='bulldoze'){if(!t.type){notify('Тут нечего сносить');return}if(game.money<80000){notify('Не хватает денег');return}if(['village','res'].includes(t.type)){let lost=Math.min(game.pop,Math.floor(capacity(t)*.65));game.pop-=lost;notify('🏚 Снесено жильё. '+lost+' жителей ищут новый дом.')}else notify('Участок расчищен');pushUndo('Снос объекта');game.money-=80000;t.type='';t.level=0;rebuildRoadGraph();refreshPedestrianRoutes();save();stats();return}if(mode!=='road'&&mode!=='park'&&!hasRoadFrontage(x,y)){notify('🚧 Нельзя строить: сначала подведи дорогу к участку (дорога должна примыкать к клетке)');return}let cost=defs[mode][1],privateBuild=isPrivateDevelopment(mode),landFee=privateBuild?landPrice(mode):0,treeCost=t.type==='tree'?25000:0;
+if(!privateBuild&&game.money<cost+treeCost){notify('💸 Не хватает денег на строительство');return}
+if(t.type==='tree'){if(!privateBuild&&game.money<cost+25000){notify('Не хватает денег на строительство и вырубку дерева');return}}else if(t.type){notify('Участок занят. Сначала снеси объект.');return}
+pushUndo((privateBuild?'Продажа участка под застройку: ':'Строительство: ')+defs[mode][0]);
+if(treeCost)game.money-=treeCost;
+if(privateBuild){game.money+=landFee;notify('🏗 Частный инвестор приобрёл участок за '+landFee.toLocaleString('ru-RU')+' ₽ и построил: '+defs[mode][0])}
+else{game.money-=cost;notify('🏗 Построено за счёт города: '+defs[mode][0])}
+t.type=mode;t.level=1;t.age=0;game.paused=false;refreshPedestrianRoutes();save();stats()}
+c.addEventListener('contextmenu',e=>e.preventDefault());
+const touchPointers=new Map();let touchGesture=null;
+function touchPoint(e){return{x:e.clientX,y:e.clientY}}
+function startPinchGesture(){
+ const pts=Array.from(touchPointers.values()).slice(0,2);
+ if(pts.length<2)return;
+ const dx=pts[1].x-pts[0].x,dy=pts[1].y-pts[0].y;
+ const distance=Math.max(1,Math.hypot(dx,dy));
+ const midX=(pts[0].x+pts[1].x)/2,midY=(pts[0].y+pts[1].y)/2;
+ const rect=c.getBoundingClientRect(),unit=devicePixelRatio*zoom;
+ const localX=(midX-rect.left)*devicePixelRatio,localY=(midY-rect.top)*devicePixelRatio;
+ const tx=c.width/2+shiftX*devicePixelRatio;
+ const ty=c.height/2-(N*16)*unit+shiftY*devicePixelRatio;
+ touchGesture={mode:'pinch',startDistance:distance,startZoom:zoom,anchorWorldX:(localX-tx)/unit,anchorWorldY:(localY-ty)/unit,moved:true};
+ c.dataset.moved='1';
+}
+function finishTouchPointer(e,cancelled=false){
+ if(!touchPointers.has(e.pointerId))return;
+ const wasLast=touchPointers.size===1;
+ const canTap=wasLast&&!cancelled&&touchGesture?.mode==='pan'&&!touchGesture.moved;
+ if(canTap){
+  const rect=c.getBoundingClientRect(),pos=pick((e.clientX-rect.left)*devicePixelRatio,(e.clientY-rect.top)*devicePixelRatio);
+  if(pos){if(!chooseDealSite(pos.x,pos.y))act(pos.x,pos.y)}
+ }
+ touchPointers.delete(e.pointerId);
+ if(touchPointers.size===0){touchGesture=null;return}
+ if(touchPointers.size===1){
+  const p=Array.from(touchPointers.values())[0];
+  touchGesture={mode:'pan',lastX:p.x,lastY:p.y,moved:true};
+  c.dataset.moved='1';
+ }else startPinchGesture();
+}
+c.addEventListener('pointerdown',e=>{
+ c.setPointerCapture(e.pointerId);
+ if(e.pointerType==='touch'){
+  e.preventDefault();touchPointers.set(e.pointerId,touchPoint(e));
+  if(touchPointers.size===1){touchGesture={mode:'pan',lastX:e.clientX,lastY:e.clientY,moved:false};c.dataset.moved='0'}
+  else if(touchPointers.size===2)startPinchGesture();
+  else if(touchGesture)touchGesture.moved=true;
+  return;
+ }
+ mousePressed=e.button===0||e.button===2||e.shiftKey;
+ mouseClick=e.button===0&&!e.shiftKey;
+ drag=false;mouseStartX=lastX=e.clientX;mouseStartY=lastY=e.clientY;c.dataset.moved='0';
+});
+c.addEventListener('pointermove',e=>{
+ if(e.pointerType==='touch'&&touchPointers.has(e.pointerId)){
+  touchPointers.set(e.pointerId,touchPoint(e));
+  const pts=Array.from(touchPointers.values()),rect=c.getBoundingClientRect();
+  hover=pick((e.clientX-rect.left)*devicePixelRatio,(e.clientY-rect.top)*devicePixelRatio);
+  if(pts.length>=2&&touchGesture?.mode==='pinch'){
+   const dx=pts[1].x-pts[0].x,dy=pts[1].y-pts[0].y;
+   const distance=Math.max(1,Math.hypot(dx,dy));
+   const midX=(pts[0].x+pts[1].x)/2,midY=(pts[0].y+pts[1].y)/2;
+   zoom=Math.max(.55,Math.min(2.2,touchGesture.startZoom*distance/touchGesture.startDistance));
+   const unit=devicePixelRatio*zoom;
+   const localX=(midX-rect.left)*devicePixelRatio,localY=(midY-rect.top)*devicePixelRatio;
+   const tx=localX-touchGesture.anchorWorldX*unit;
+   const ty=localY-touchGesture.anchorWorldY*unit;
+   shiftX=(tx-c.width/2)/devicePixelRatio;
+   shiftY=(ty-c.height/2+(N*16)*unit)/devicePixelRatio;
+   touchGesture.moved=true;c.dataset.moved='1';
+  }else if(pts.length===1&&touchGesture?.mode==='pan'){
+   const p=pts[0],dx=p.x-touchGesture.lastX,dy=p.y-touchGesture.lastY;
+   if(Math.abs(dx)+Math.abs(dy)>2)touchGesture.moved=true;
+   if(touchGesture.moved){shiftX+=dx;shiftY+=dy;c.dataset.moved='1'}
+   touchGesture.lastX=p.x;touchGesture.lastY=p.y;
+  }
+  return;
+ }
+ if(e.buttons&&mousePressed){
+  if(!drag&&Math.abs(e.clientX-mouseStartX)+Math.abs(e.clientY-mouseStartY)>4)drag=true;
+  if(drag){shiftX+=e.clientX-lastX;shiftY+=e.clientY-lastY;c.dataset.moved='1'}
+ }
+ lastX=e.clientX;lastY=e.clientY;let r=c.getBoundingClientRect();
+ hover=pick((e.clientX-r.left)*devicePixelRatio,(e.clientY-r.top)*devicePixelRatio);
+});
+c.addEventListener('pointerup',e=>{
+ if(e.pointerType==='touch'){finishTouchPointer(e,false);return}
+ const r=c.getBoundingClientRect(),pos=pick((e.clientX-r.left)*devicePixelRatio,(e.clientY-r.top)*devicePixelRatio);
+ if(mouseClick&&!drag&&c.dataset.moved!=='1'&&pos){if(!chooseDealSite(pos.x,pos.y))act(pos.x,pos.y)}
+ mousePressed=false;mouseClick=false;drag=false;
+});
+c.addEventListener('pointercancel',e=>{
+ if(e.pointerType==='touch')finishTouchPointer(e,true);
+ else{mousePressed=false;mouseClick=false;drag=false}
+});
+c.addEventListener('lostpointercapture',e=>{if(e.pointerType==='touch'&&touchPointers.has(e.pointerId))finishTouchPointer(e,true)});
+c.addEventListener('wheel',e=>{e.preventDefault();zoom=Math.max(.55,Math.min(2.2,zoom*(e.deltaY>0?.9:1.1)))},{passive:false});let roadGraph={cells:[],neighbors:new Map()};
+function rebuildRoadGraph(){
+ const cells=[],neighbors=new Map(),key=(x,y)=>x+','+y;
+ for(let y=0;y<N;y++)for(let x=0;x<N;x++)if(tile(x,y)?.type==='road')cells.push({x,y});
+ for(const r of cells){
+  const ns=[[1,0],[-1,0],[0,1],[0,-1]].map(([dx,dy])=>({x:r.x+dx,y:r.y+dy})).filter(q=>tile(q.x,q.y)?.type==='road');
+  neighbors.set(key(r.x,r.y),ns);
+ }
+ roadGraph={cells,neighbors};
+ updateResidentialComplexRoadAccess();
+}
+function updateResidentialComplexRoadAccess(){
+ for(const project of game.residentialComplexes||[]){
+  let linked=false;
+  for(const cell of project.roadCells||[]){
+   const road=tile(cell.x,cell.y);if(!road||road.type!=='road')continue;
+   if(!road.privateComplexRoad){linked=true;break}
+   for(const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1]]){
+    const neighbor=tile(cell.x+dx,cell.y+dy);
+    if(neighbor?.type==='road'&&!neighbor.privateComplexRoad){linked=true;break}
+   }
+   if(linked)break;
+  }
+  project.cityConnected=linked;
+  for(const cell of project.roadCells||[]){const road=tile(cell.x,cell.y);if(road?.complexId===project.id)road.complexRoadOpen=linked}
+  for(const cell of project.houseCells||[]){const home=tile(cell.x,cell.y);if(home?.complexId===project.id)home.complexRoadOpen=linked}
+ }
+}
+function roadCells(){return roadGraph.cells}
+function roadNeighbors(x,y){return roadGraph.neighbors.get(x+','+y)||[]}
+function roadPath(from,to){
+ const key=q=>q.x+','+q.y,queue=[from],prev=new Map([[key(from),null]]);
+ while(queue.length){const q=queue.shift();if(q.x===to.x&&q.y===to.y)break;for(const n of roadNeighbors(q.x,q.y)){const k=key(n);if(!prev.has(k)){prev.set(k,key(q));queue.push(n)}}}
+ const target=key(to);if(!prev.has(target))return[];const path=[];let k=target;while(k){const [x,y]=k.split(',').map(Number);path.unshift({x,y});k=prev.get(k)}return path
+}
+function destinations(){
+ const out=[];for(let y=0;y<N;y++)for(let x=0;x<N;x++){const t=tile(x,y);if(!t.type||['tree','road','park'].includes(t.type))continue;
+  const fronts=[[x+1,y],[x-1,y],[x,y+1],[x,y-1]].map(([x,y])=>({x,y})).filter(q=>roadGraph.neighbors.has(q.x+','+q.y));
+  if(fronts.length)out.push({x,y,type:t.type,front:fronts[0]});
+ }return out
+}
+function sendPerson(p){
+ const roads=roadGraph.cells;if(!roads.length){p.path=[];p.state='waiting';return}
+ let current={x:Math.round(p.x),y:Math.round(p.y)};
+ if(!roadGraph.neighbors.has(current.x+','+current.y)){current=roads[(p.id||0)%roads.length];p.x=current.x;p.y=current.y}
+ const places=destinations().filter(d=>!(p.lastDestination&&d.x===p.lastDestination.x&&d.y===p.lastDestination.y));
+ const candidates=places.map(d=>({...d,path:roadPath(current,d.front)})).filter(d=>d.path.length>=1);
+ if(candidates.length){const d=candidates[(p.id+ (p.tripCount||0))%candidates.length];p.path=d.path.slice(1);p.destination={x:d.x,y:d.y,front:d.front};p.state='walking';p.stuck=0;return}
+ const roadsReachable=roads.map(r=>({...r,path:roadPath(current,r)})).filter(r=>r.path.length>1);
+ if(roadsReachable.length){const r=roadsReachable[(p.id+(p.tripCount||0))%roadsReachable.length];p.path=r.path.slice(1);p.destination=null;p.state='walking'}else{p.path=[];p.destination=null;p.state='waiting'}
+}
+function refreshPedestrianRoutes(){
+ rebuildRoadGraph();
+ for(const p of people){
+  if(p.state==='inside'||p.state==='entering'||p.state==='exiting')continue;
+  p.path=[];p.state='waiting';p.destination=null;sendPerson(p);
+ }
+}
+function initPeople(){
+ const roads=roadGraph.cells;const count=Math.min(40,Math.max(1,Math.floor(game.pop)));
+ while(people.length<count){const i=people.length,r=roads[i%Math.max(1,roads.length)]||{x:3,y:12};people.push({id:i,x:r.x,y:r.y,color:['#e8c18a','#f5d66b','#a5cbe0','#f1a0a1'][i%4],path:[],state:'waiting',previous:null,destination:null,lastDestination:null,tripCount:0,stuck:0})}
+ for(const p of people)if(!p.path.length&&p.state!=='inside')sendPerson(p);
+}
+
+document.querySelectorAll('.navrail button').forEach(button=>button.addEventListener('click',()=>{
+ const side=document.querySelector('.side'),target=document.getElementById(button.dataset.target);
+ const mobile=window.matchMedia('(max-width:820px)').matches;
+ const wasActive=button.classList.contains('active');
+ document.querySelectorAll('.navrail button').forEach(b=>b.classList.toggle('active',b===button));
+ if(mobile&&wasActive&&side.classList.contains('open')){side.classList.remove('open');return}
+ if(mobile)side.classList.add('open');
+ if(target)target.scrollIntoView({behavior:'smooth',block:'start'});
+}));
+document.getElementById('sideClose')?.addEventListener('click',()=>document.querySelector('.side')?.classList.remove('open'));
+if(graphicsSafePreview){const account=document.getElementById('accountBtn');if(account){account.disabled=true;account.title='Облачная авторизация отключена в тестовом предпросмотре';const label=account.querySelector('.ctrlLabel');if(label)label.textContent='Тест';}notify('Тестовый графический режим: облачные сохранения отключены');}
+else initMurinoAuth().catch(error=>console.error('Murino auth startup failed',error));
+try{migratePrivateSector();save();rebuildRoadGraph();initPeople();renderProposals()}
+catch(startupError){console.error('Murino startup preparation failed',startupError);try{rebuildRoadGraph()}catch(graphError){console.error('Murino road graph startup failed',graphError)}}
+function beginEntering(p){
+ if(!p.destination){p.state='waiting';sendPerson(p);return}
+ p.entryFrom={x:p.x,y:p.y};p.entryTo={x:p.destination.x,y:p.destination.y};p.entryTimer=10;p.state='entering';
+}
+setInterval(()=>{
+ if(game.paused)return;
+ for(const p of people){
+  if(p.state==='entering'){
+   p.entryTimer--;
+   const progress=1-Math.max(0,p.entryTimer)/10;
+   p.x=p.entryFrom.x+(p.entryTo.x-p.entryFrom.x)*progress;
+   p.y=p.entryFrom.y+(p.entryTo.y-p.entryFrom.y)*progress;
+   if(p.entryTimer<=0){p.x=p.entryTo.x;p.y=p.entryTo.y;p.state='inside';p.dwell=25+((p.id*7)%35);p.entryFrom=null;p.entryTo=null}
+   continue;
+  }
+  if(p.state==='inside'){p.dwell=(p.dwell||0)-1;if(p.dwell<=0){
+   p.lastDestination=p.destination?{x:p.destination.x,y:p.destination.y}:null;
+   const exit=p.destination?.front;
+   if(exit){p.exitFrom={x:p.x,y:p.y};p.exitTo={x:exit.x,y:exit.y};p.exitTimer=10;p.state='exiting'}
+   else{p.destination=null;p.tripCount=(p.tripCount||0)+1;p.state='waiting';sendPerson(p)}
+  }continue}
+  if(p.state==='exiting'){
+   p.exitTimer--;
+   const progress=1-Math.max(0,p.exitTimer)/10;
+   p.x=p.exitFrom.x+(p.exitTo.x-p.exitFrom.x)*progress;
+   p.y=p.exitFrom.y+(p.exitTo.y-p.exitFrom.y)*progress;
+   if(p.exitTimer<=0){p.x=p.exitTo.x;p.y=p.exitTo.y;p.exitFrom=null;p.exitTo=null;p.destination=null;p.tripCount=(p.tripCount||0)+1;p.state='waiting';sendPerson(p)}
+   continue;
+  }
+  if(!p.path||!p.path.length){if(p.destination){beginEntering(p)}else sendPerson(p);continue}
+  const next=p.path[0];if(!roadGraph.neighbors.has(next.x+','+next.y)){p.path=[];p.destination=null;sendPerson(p);continue}
+  const dx=next.x-p.x,dy=next.y-p.y,d=Math.hypot(dx,dy);
+  if(d<.055){p.x=next.x;p.y=next.y;p.path.shift();p.stuck=0;if(!p.path.length&&p.destination){beginEntering(p)}}
+  else{p.x+=dx/d*.035;p.y+=dy/d*.035;p.stuck=(p.stuck||0)+1;if(p.stuck>100){p.x=next.x;p.y=next.y;p.path.shift();p.stuck=0}}
+ }
+},100);
+function frame(now){
+ try{
+  let dt=Math.max(0,now-prev);prev=now;
+  if(!game.paused){clock+=dt*game.speed;while(clock>=60000){clock-=60000;try{daily()}catch(error){console.error('Murino daily update failed',error)}if(people.length<Math.min(40,Math.floor(game.pop)))try{initPeople()}catch(error){console.error('Murino people update failed',error)}}}
+  try{render()}catch(error){console.error('Murino render failed',error)}
+ }catch(error){console.error('Murino frame failed',error)}
+ requestAnimationFrame(frame)
+}
+try{daily(true)}catch(error){console.error('Murino initial calculation failed',error)}
+try{stats();updateUndoButton();refreshExpansion();updateFinance()}catch(error){console.error('Murino initial UI update failed',error)}
+requestAnimationFrame(frame)})();
+</script></body></html>
