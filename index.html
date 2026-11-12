@@ -74,7 +74,8 @@ canvas{display:block;width:100%;height:100%;image-rendering:auto;cursor:crosshai
  .side{display:none;position:absolute;z-index:15;left:8px;top:8px;bottom:74px;width:min(88vw,390px);max-height:none;padding:12px;border:1px solid #53617a;border-radius:16px;box-shadow:0 15px 55px #000b;background:#141e2ff2;backdrop-filter:blur(18px)}
  .side.open{display:block}
  .sideClose{display:block;position:sticky;top:0;z-index:2;float:right;width:34px;height:34px;padding:0;margin:0 0 4px 8px;border-radius:10px;background:#40345d}
- .hud{left:8px;bottom:74px;max-width:calc(100% - 16px);padding:9px 11px}
+ .hud{left:8px;right:8px;bottom:calc(74px + env(safe-area-inset-bottom));width:auto;max-width:none;padding:9px 11px}
+ .faqQuick{right:10px;bottom:calc(158px + env(safe-area-inset-bottom));min-width:82px;justify-content:center;padding:10px 13px}
  .topnote{top:8px;right:8px;font-size:9px;padding:6px 8px;max-width:75%;text-align:right}
 }
 @media(max-width:480px){
